@@ -238,17 +238,14 @@ function calcSurfScore(waveH, period, windSpeed) {
 }
 
 function getLabel(score) {
-  if (score >= 85) return { label: 'EXCELLENT', desc: 'Vagues glassy, foncez !', color: '#00ff88' };
-  if (score >= 70) return { label: 'TRÈS BON',  desc: 'Bonnes conditions surf',   color: '#66ff99' };
-  if (score >= 55) return { label: 'BON',        desc: 'Conditions correctes',     color: '#ffd166' };
-  if (score >= 40) return { label: 'MOYEN',      desc: 'Conditions passables',     color: '#ff8c42' };
-  return              { label: 'FAIBLE',      desc: 'Peu recommandé',           color: '#ef476f' };
+  if (score >= 65) return { label: 'EXCELLENT', desc: 'Vagues glassy, foncez !', color: '#00ff88' };
+  if (score >= 35) return { label: 'MOYEN',      desc: 'Conditions passables',     color: '#ff8c42' };
+  return              { label: 'MAUVAIS',     desc: 'Peu recommandé',           color: '#ef476f' };
 }
 
 function getDotClass(score) {
-  if (score >= 70) return 'dot-green';
-  if (score >= 50) return 'dot-yellow';
-  if (score >= 30) return 'dot-orange';
+  if (score >= 65) return 'dot-green';
+  if (score >= 35) return 'dot-orange';
   return 'dot-red';
 }
 
@@ -302,14 +299,19 @@ function render() {
   const d = new Date(now); d.setDate(d.getDate() + selectedDay);
   const dateStr = `${FULL_DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selectedHour).padStart(2,'0')}:00`;
 
-  const startH = selectedDay === 0 ? Math.min(Math.max(now.getHours() - 1, 6), 13) : 8;
-  const hours = Array.from({length: 6}, (_, i) => {
-    const h = startH + i * 2;
-    const idx = getHI(selectedDay, h);
+  const startH = selectedDay === 0 ? now.getHours() : 8;
+  // Generate 5 slots of 2h, rolling into next day if needed
+  const hours = Array.from({length: 5}, (_, i) => {
+    const absH = startH + i * 2;
+    const dayOffset = Math.floor(absH / 24);
+    const h = absH % 24;
+    const day = selectedDay + dayOffset;
+    const idx = getHI(day, h);
     const wh = marineData.hourly.wave_height[idx] ?? 0;
     const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
     const wp = marineData.hourly.wave_period[idx] ?? 8;
-    return { h, wh, sc: calcSurfScore(wh, wp, ws) };
+    const isNextDay = dayOffset > 0;
+    return { h, wh, sc: calcSurfScore(wh, wp, ws), isNextDay };
   });
 
   // r=118 → C = 2π×118 ≈ 742
@@ -385,7 +387,7 @@ function render() {
     <div class="hourly">
       ${hours.map((h, i) => `
         <div class="hour-pill ${i === 0 ? 'active' : ''}" onclick="selectHour(this, ${h.h})">
-          <span class="hour-time">${h.h}h</span>
+          <span class="hour-time">${h.h}h${h.isNextDay ? '<span style="font-size:9px;opacity:0.5;margin-left:1px">+1</span>' : ''}</span>
           <div class="hour-dot ${getDotClass(h.sc)}"></div>
           <span>${h.wh.toFixed(1)}m</span>
         </div>
