@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehdia Surf Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #00ff88;
+    --neon-dim: #00cc6a;
+    --neon-glow: rgba(0,255,136,0.3);
+    --bg: #0a0e1a;
+    --bg2: #0f1526;
+    --card: #131b2e;
+    --card2: #1a2440;
+    --text: #e8f0fe;
+    --muted: #5a6a8a;
+    --orange: #ff8c42;
+    --yellow: #ffd166;
+    --red: #ef476f;
+    --blue: #4cc9f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(0,255,136,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 80%, rgba(76,201,240,0.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 0 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- HEADER ---- */
+  .header {
+    text-align: center;
+    padding: 36px 20px 20px;
+  }
+
+  .surf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--neon-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .surf-badge svg { width: 14px; height: 14px; }
+
+  .location {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(22px, 6vw, 28px);
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: 1px;
+    text-shadow: 0 0 30px rgba(0,255,136,0.2);
+  }
+
+  .date-time {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* ---- DAY SELECTOR ---- */
+  .day-selector {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 28px;
+  }
+  .day-selector::-webkit-scrollbar { display: none; }
+
+  .day-btn {
+    flex: 1;
+    min-width: 56px;
+    text-align: center;
+    padding: 10px 4px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: var(--card);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .day-btn .day-name {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .day-btn .day-num {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .day-btn.active {
+    background: var(--card2);
+    border-color: var(--neon);
+    box-shadow: 0 0 12px rgba(0,255,136,0.2), inset 0 0 12px rgba(0,255,136,0.05);
+  }
+
+  .day-btn.active .day-num { color: var(--neon); }
+  .day-btn:hover:not(.active) { border-color: rgba(255,255,255,0.15); }
+
+  /* ---- SCORE RING ---- */
+  .score-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px 30px;
+    position: relative;
+  }
+
+  .ring-wrapper {
+    position: relative;
+    width: 220px;
+    height: 220px;
+  }
+
+  .ring-svg {
+    width: 220px;
+    height: 220px;
+    transform: rotate(-90deg);
+    filter: drop-shadow(0 0 12px rgba(0,255,136,0.6)) drop-shadow(0 0 30px rgba(0,255,136,0.3));
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: rgba(255,255,255,0.05);
+    stroke-width: 8;
+  }
+
+  .ring-fill {
+    fill: none;
+    stroke: var(--neon);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 628;
+    stroke-dashoffset: 628;
+    transition: stroke-dashoffset 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .ring-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .score-label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(20px, 5vw, 26px);
+    font-weight: 900;
+    color: var(--neon);
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(0,255,136,0.8);
+    line-height: 1;
+  }
+
+  .score-desc {
+    font-size: 10px;
+    color: var(--muted);
+    margin: 4px 0 8px;
+    letter-spacing: 1px;
+  }
+
+  .score-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .score-num span {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  /* ---- STAT CARDS ---- */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 0 16px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 16px 10px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .stat-card:hover { border-color: rgba(0,255,136,0.2); }
+
+  .stat-icon { font-size: 22px; margin-bottom: 8px; }
+
+  .stat-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .stat-value .unit {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ---- INFO ROW ---- */
+  .info-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+
+  .info-item {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+  }
+
+  .info-title {
+    font-size: 8px;
+    color: var(--muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .info-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /* ---- HOURLY ---- */
+  .hourly-section {
+    padding: 0 16px;
+  }
+
+  .section-title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .hourly-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .hourly-scroll::-webkit-scrollbar { display: none; }
+
+  .hour-card {
+    flex: 0 0 72px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 12px 6px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hour-card.active {
+    background: var(--card2);
+    border-color: var(--neon);
+    box-shadow: 0 0 10px rgba(0,255,136,0.15);
+  }
+
+  .hour-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .hour-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+  }
+
+  .dot-green { background: var(--neon); box-shadow: 0 0 6px var(--neon); }
+  .dot-yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+  .dot-orange { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+  .dot-red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+  .hour-wave {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .hour-wave .unit { font-size: 9px; color: var(--muted); font-family: 'Space Mono', monospace; }
+
+  .hour-score {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ---- LOADING ---- */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 16px;
+  }
+
+  .loader {
+    width: 60px;
+    height: 60px;
+    border: 3px solid rgba(0,255,136,0.1);
+    border-top-color: var(--neon);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    filter: drop-shadow(0 0 8px var(--neon));
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ---- LIVE DOT ---- */
+  .live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 9px;
+    color: var(--neon);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--neon);
+    border-radius: 50%;
+    animation: blink 1.5s ease-in-out infinite;
+    box-shadow: 0 0 6px var(--neon);
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* ---- CHART ---- */
+  .wave-chart {
+    padding: 16px;
+    margin: 0 16px 20px;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+  }
+
+  .chart-title {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  canvas#waveChart {
+    width: 100% !important;
+    height: 100px !important;
+  }
+
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.06);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--card);
+    color: var(--muted);
+  }
+
+  .tab.active {
+    background: rgba(0,255,136,0.1);
+    border-color: var(--neon);
+    color: var(--neon);
+  }
+
+  /* ---- ERROR ---- */
+  .error-msg {
+    text-align: center;
+    padding: 20px;
+    color: var(--orange);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 380px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-value { font-size: 17px; }
+  }
+
+  @media (min-width: 500px) {
+    .container { max-width: 480px; }
+  }
+
+  /* Fade in */
+  .fade-in {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; }
+  }
+
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="loading" id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">Chargement des vagues...</div>
+  </div>
+</div>
+
+<script>
+// ======== CONFIG ========
+const LAT = 34.263;
+const LON = -6.653;
+const DAYS = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+const MONTHS = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+
+let marineData = null;
+let weatherData = null;
+let selectedDay = 0;
+let selectedHour = new Date().getHours();
+
+// ======== SCORE CALC ========
+function calcSurfScore(waveH, period, windSpeed) {
+  // Base score on wave height (optimal 1.2–2.5m)
+  let s = 0;
+  if (waveH < 0.3) s = 10;
+  else if (waveH < 0.6) s = 30 + (waveH/0.6)*20;
+  else if (waveH <= 1.5) s = 55 + ((waveH-0.6)/0.9)*30;
+  else if (waveH <= 2.5) s = 85 + ((waveH-1.5)/1.0)*10;
+  else if (waveH <= 3.5) s = 95 - ((waveH-2.5)/1.0)*20;
+  else s = Math.max(20, 75 - (waveH-3.5)*15);
+
+  // Period bonus (longer = better)
+  if (period >= 14) s = Math.min(100, s + 8);
+  else if (period >= 10) s = Math.min(100, s + 4);
+  else if (period < 6) s -= 10;
+
+  // Wind penalty (strong wind = bad)
+  if (windSpeed > 30) s -= 20;
+  else if (windSpeed > 20) s -= 12;
+  else if (windSpeed > 15) s -= 6;
+  else if (windSpeed < 8) s = Math.min(100, s + 5); // light = offshore glassy bonus
+
+  return Math.max(0, Math.min(100, Math.round(s)));
+}
+
+function getLabel(score) {
+  if (score >= 85) return { label: 'EXCELLENT', desc: 'Vagues glassy, foncez !', color: '#00ff88' };
+  if (score >= 70) return { label: 'TRÈS BON', desc: 'Bonnes conditions surf', color: '#66ff99' };
+  if (score >= 55) return { label: 'BON', desc: 'Conditions correctes', color: '#ffd166' };
+  if (score >= 40) return { label: 'MOYEN', desc: 'Conditions passables', color: '#ff8c42' };
+  return { label: 'FAIBLE', desc: 'Peu recommandé', color: '#ef476f' };
+}
+
+function getDotClass(score) {
+  if (score >= 70) return 'dot-green';
+  if (score >= 50) return 'dot-yellow';
+  if (score >= 30) return 'dot-orange';
+  return 'dot-red';
+}
+
+function windDirLabel(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(deg/22.5) % 16];
+}
+
+function getWeatherEmoji(code) {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '🌤️';
+  if (code <= 3) return '☁️';
+  if (code <= 48) return '🌫️';
+  if (code <= 57) return '🌧️';
+  if (code <= 67) return '🌨️';
+  if (code <= 77) return '❄️';
+  if (code <= 82) return '🌧️';
+  if (code <= 86) return '🌨️';
+  if (code <= 99) return '⛈️';
+  return '🌊';
+}
+
+// ======== FETCH DATA ========
+async function fetchData() {
+  const today = new Date();
+  const endDate = new Date(today);
+  endDate.setDate(today.getDate() + 4);
+
+  const fmt = d => d.toISOString().split('T')[0];
+
+  const [marineRes, weatherRes] = await Promise.all([
+    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,wave_direction,wind_wave_height&start_date=${fmt(today)}&end_date=${fmt(endDate)}&timezone=Africa/Casablanca`),
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,weather_code&start_date=${fmt(today)}&end_date=${fmt(endDate)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
+  ]);
+
+  marineData = await marineRes.json();
+  weatherData = await weatherRes.json();
+}
+
+// ======== BUILD DAYS ========
+function getDaysInfo() {
+  const today = new Date();
+  return Array.from({length: 5}, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    return { name: DAYS[d.getDay()], num: d.getDate(), date: d };
+  });
+}
+
+function getHourIndex(dayIdx, hour) {
+  return dayIdx * 24 + hour;
+}
+
+// ======== RENDER ========
+function render() {
+  const days = getDaysInfo();
+  const now = new Date();
+  const curHour = now.getHours();
+  const hi = getHourIndex(selectedDay, selectedHour);
+
+  const waveH = marineData.hourly.wave_height[hi] ?? 0;
+  const period = marineData.hourly.wave_period[hi] ?? 8;
+  const waveDir = marineData.hourly.wave_direction[hi] ?? 0;
+  const windSpd = weatherData.hourly.wind_speed_10m[hi] ?? 0;
+  const windDir = weatherData.hourly.wind_direction_10m?.[hi] ?? weatherData.current.wind_direction_10m ?? 0;
+  const temp = weatherData.hourly.temperature_2m[hi] ?? weatherData.current.temperature_2m ?? 0;
+  const wcode = weatherData.hourly.weather_code[hi] ?? weatherData.current.weather_code ?? 0;
+
+  const score = calcSurfScore(waveH, period, windSpd);
+  const { label, desc, color } = getLabel(score);
+  const circum = 2 * Math.PI * 95;
+  const dash = circum - (score / 100) * circum;
+
+  // Day label
+  const dayLabel = selectedDay === 0 
+    ? `Aujourd'hui ${days[0].num} ${MONTHS[now.getMonth()]} · ${selectedHour}h`
+    : `${days[selectedDay].name} ${days[selectedDay].num} ${MONTHS[days[selectedDay].date.getMonth()]}`;
+
+  // Hourly data for display
+  const hours = Array.from({length: 6}, (_, i) => {
+    const h = (selectedDay === 0 ? Math.max(curHour, 6) : 8) + i * 2;
+    const idx = getHourIndex(selectedDay, Math.min(h, 23));
+    const wh = marineData.hourly.wave_height[idx] ?? 0;
+    const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
+    const wp = marineData.hourly.wave_period[idx] ?? 8;
+    const sc = calcSurfScore(wh, wp, ws);
+    return { h, wh, sc };
+  });
+
+  const app = document.getElementById('app');
+  app.innerHTML = `
+  <div class="container">
+    <div class="header fade-in">
+      <div class="live-indicator">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+      <div class="surf-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 18c5-3 7-8 9-10 2 4 4 8 9 10"/>
+        </svg>
+        SURF REPORT
+      </div>
+      <div class="location">Mehdia Plage</div>
+      <div class="date-time">${dayLabel}</div>
+    </div>
+
+    <div class="day-selector fade-in stagger-1">
+      ${days.map((d, i) => `
+        <div class="day-btn ${i === selectedDay ? 'active' : ''}" onclick="selectDay(${i})">
+          <div class="day-name">${d.name}</div>
+          <div class="day-num">${d.num}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="score-section fade-in stagger-2">
+      <div class="ring-wrapper">
+        <svg class="ring-svg" viewBox="0 0 220 220">
+          <circle class="ring-bg" cx="110" cy="110" r="95"/>
+          <circle class="ring-fill" id="ringFill" cx="110" cy="110" r="95"
+            stroke="${color}"
+            style="stroke-dashoffset: ${dash}; filter: drop-shadow(0 0 10px ${color})"
+          />
+        </svg>
+        <div class="ring-content">
+          <div class="score-label" style="color:${color}">${label}</div>
+          <div class="score-desc">${desc}</div>
+          <div class="score-num">${score}<span>/100</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-grid fade-in stagger-3">
+      <div class="stat-card">
+        <div class="stat-icon">🌊</div>
+        <div class="stat-value">${waveH.toFixed(1)}<span class="unit">m</span></div>
+        <div class="stat-label">HOULE ${Math.round(period)}S</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">💨</div>
+        <div class="stat-value">${Math.round(windSpd)}<span class="unit">km/h</span></div>
+        <div class="stat-label">${windDirLabel(windDir)}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">${getWeatherEmoji(wcode)}</div>
+        <div class="stat-value">${Math.round(temp)}<span class="unit">°C</span></div>
+        <div class="stat-label">TEMP AIR</div>
+      </div>
+    </div>
+
+    <div class="info-row fade-in stagger-4">
+      <div class="info-item">
+        <div class="info-title">Période</div>
+        <div class="info-val">${Math.round(period)}s</div>
+      </div>
+      <div class="info-item">
+        <div class="info-title">Direction</div>
+        <div class="info-val">${windDirLabel(waveDir)}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-title">Marée</div>
+        <div class="info-val">🔼 Mont</div>
+      </div>
+      <div class="info-item">
+        <div class="info-title">UV</div>
+        <div class="info-val" style="color:${windSpd<15?'#ffd166':'#ff8c42'}">${wcode < 3 ? (selectedDay === 0 ? 6 : 5) : 3}</div>
+      </div>
+    </div>
+
+    <div class="wave-chart fade-in stagger-4">
+      <div class="chart-title">📈 HAUTEUR DES VAGUES — 24H</div>
+      <canvas id="waveChart"></canvas>
+    </div>
+
+    <div class="hourly-section fade-in stagger-5">
+      <div class="section-title">⏱ Prévisions heure par heure</div>
+      <div class="hourly-scroll">
+        ${hours.map((h, i) => `
+          <div class="hour-card ${i === 0 ? 'active' : ''}" onclick="selectHourCard(this, ${h.h})">
+            <div class="hour-label">${h.h}h</div>
+            <div class="hour-dot ${getDotClass(h.sc)}"></div>
+            <div class="hour-wave">${h.wh.toFixed(1)}<span class="unit">m</span></div>
+            <div class="hour-score">${h.sc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  </div>`;
+
+  // Animate ring
+  setTimeout(() => {
+    const ring = document.getElementById('ringFill');
+    if (ring) {
+      ring.style.strokeDashoffset = dash;
+    }
+    // Draw mini chart
+    drawChart();
+  }, 50);
+}
+
+function drawChart() {
+  const canvas = document.getElementById('waveChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth;
+  canvas.width = W * 2;
+  canvas.height = 200;
+  canvas.style.height = '100px';
+
+  const hours24 = Array.from({length: 24}, (_, i) => {
+    const idx = getHourIndex(selectedDay, i);
+    return marineData.hourly.wave_height[idx] ?? 0;
+  });
+
+  const max = Math.max(...hours24, 1);
+  const pad = 20;
+  const w = canvas.width - pad * 2;
+  const h = canvas.height - pad * 2;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 3; i++) {
+    const y = pad + (h / 3) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(canvas.width - pad, y);
+    ctx.stroke();
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, pad, 0, pad + h);
+  grad.addColorStop(0, 'rgba(0,255,136,0.3)');
+  grad.addColorStop(1, 'rgba(0,255,136,0)');
+
+  // Draw area
+  ctx.beginPath();
+  hours24.forEach((v, i) => {
+    const x = pad + (i / 23) * w;
+    const y = pad + h - (v / max) * h;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(pad + w, pad + h);
+  ctx.lineTo(pad, pad + h);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Draw line
+  ctx.beginPath();
+  hours24.forEach((v, i) => {
+    const x = pad + (i / 23) * w;
+    const y = pad + h - (v / max) * h;
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.strokeStyle = '#00ff88';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 8;
+  ctx.stroke();
+
+  // Current hour dot
+  const curH = selectedDay === 0 ? new Date().getHours() : 12;
+  const cx = pad + (curH / 23) * w;
+  const cy = pad + h - (hours24[curH] / max) * h;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#00ff88';
+  ctx.shadowColor = '#00ff88';
+  ctx.shadowBlur = 12;
+  ctx.fill();
+}
+
+function selectDay(i) {
+  selectedDay = i;
+  selectedHour = i === 0 ? new Date().getHours() : 10;
+  render();
+}
+
+function selectHourCard(el, h) {
+  document.querySelectorAll('.hour-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedHour = h;
+  render();
+  el.classList.add('active');
+}
+
+// ======== INIT ========
+async function init() {
+  try {
+    await fetchData();
+    document.getElementById('loading').style.display = 'none';
+    render();
+  } catch (e) {
+    document.getElementById('app').innerHTML = `
+      <div class="loading">
+        <div style="color:#ef476f;font-size:30px">⚠️</div>
+        <div class="error-msg">Erreur de connexion API<br><small>${e.message}</small></div>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
