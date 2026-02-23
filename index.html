@@ -302,10 +302,10 @@ function render() {
   const d = new Date(now); d.setDate(d.getDate() + selectedDay);
   const dateStr = `${FULL_DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selectedHour).padStart(2,'0')}:00`;
 
-  const startH = selectedDay === 0 ? Math.max(now.getHours() - 1, 6) : 8;
+  const startH = selectedDay === 0 ? Math.min(Math.max(now.getHours() - 1, 6), 13) : 8;
   const hours = Array.from({length: 6}, (_, i) => {
     const h = startH + i * 2;
-    const idx = getHI(selectedDay, Math.min(h, 23));
+    const idx = getHI(selectedDay, h);
     const wh = marineData.hourly.wave_height[idx] ?? 0;
     const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
     const wp = marineData.hourly.wave_period[idx] ?? 8;
