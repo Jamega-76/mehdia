@@ -268,10 +268,8 @@ function getTideInfo(targetDate) {
   if (!next) return null;
 
   // Determine if tide is rising or falling
-  let isMontante = true;
-  if (prev && next) {
-    isMontante = next.type === 'high';
-  }
+  // Si le prochain extreme est 'high' → marée montante, sinon descendante
+  const isMontante = next.type === 'high';
 
   const diffMs = next.time - now;
   const diffH = Math.floor(diffMs / 3600000);
