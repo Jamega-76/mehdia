@@ -5,6 +5,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mehdia Surf Report</title>
+
+<!-- Favicon desktop / navigateur -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+<link rel="shortcut icon" href="icon.png">
+
+<!-- Icône iPhone / iPad (Apple Touch Icon) -->
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+
+<!-- Comportement "Ajouter à l'écran d'accueil" iOS -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mehdia Surf">
+
+<!-- Manifest pour Android (PWA) -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0e1a">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -643,18 +660,14 @@ function render() {
     : `${days[selectedDay].name} ${days[selectedDay].num} ${MONTHS[days[selectedDay].date.getMonth()]}`;
 
   // Hourly data for display
-  const startH = selectedDay === 0 ? Math.max(curHour, 6) : 8;
   const hours = Array.from({length: 6}, (_, i) => {
-    const rawH = startH + i * 2;
-    const dayOffset = Math.floor(rawH / 24);
-    const h = rawH % 24;
-    const idx = getHourIndex(selectedDay + dayOffset, h);
+    const h = (selectedDay === 0 ? Math.max(curHour, 6) : 8) + i * 2;
+    const idx = getHourIndex(selectedDay, Math.min(h, 23));
     const wh = marineData.hourly.wave_height[idx] ?? 0;
     const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
     const wp = marineData.hourly.wave_period[idx] ?? 8;
     const sc = calcSurfScore(wh, wp, ws);
-    const label = dayOffset > 0 ? `+${dayOffset}j ${h}h` : `${h}h`;
-    return { h, label, wh, sc };
+    return { h, wh, sc };
   });
 
   const app = document.getElementById('app');
@@ -748,7 +761,7 @@ function render() {
       <div class="hourly-scroll">
         ${hours.map((h, i) => `
           <div class="hour-card ${i === 0 ? 'active' : ''}" onclick="selectHourCard(this, ${h.h})">
-            <div class="hour-label">${h.label}</div>
+            <div class="hour-label">${h.h}h</div>
             <div class="hour-dot ${getDotClass(h.sc)}"></div>
             <div class="hour-wave">${h.wh.toFixed(1)}<span class="unit">m</span></div>
             <div class="hour-score">${h.sc}</div>
