@@ -38,6 +38,32 @@
   .sun-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
   .sun-item svg { width: 13px; height: 13px; opacity: 0.6; }
 
+  /* SHARE BUTTON */
+  .share-btn {
+    position: fixed; top: 16px; right: 16px; z-index: 100;
+    width: 38px; height: 38px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s;
+    color: rgba(255,255,255,0.7);
+  }
+  .share-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  .share-btn svg { width: 16px; height: 16px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: rgba(255,255,255,0.12); backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px; padding: 10px 20px;
+    font-size: 13px; font-weight: 500; color: #fff;
+    white-space: nowrap; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 200;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
   /* DAY SELECTOR */
   .day-selector {
     display: flex; gap: 6px; width: 100%;
@@ -559,6 +585,31 @@ function selectHour(el, h) {
   el.classList.add('active');
   selectedHour = h;
   render();
+}
+
+async function shareApp() {
+  const url = window.location.href;
+  const text = '🌊 Mehdia Surf Report — Consulte les conditions en temps réel !';
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: 'Mehdia Surf Report', text, url });
+    } catch(e) { /* annulé par l'utilisateur */ }
+  } else {
+    // Fallback : copier le lien
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    const toast = document.getElementById('toast');
+    if (toast) {
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+  }
 }
 
 async function init() {
