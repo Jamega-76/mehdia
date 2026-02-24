@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -193,7 +192,14 @@ let marineData = null;
 let weatherData = null;
 let tideData = null;
 let selectedDay = 0;
-let selectedHour = new Date().getHours();
+// Heure locale à Mehdia (Africa/Casablanca) pour coller aux données API
+function getMehdiaHour() {
+  return parseInt(new Intl.DateTimeFormat('fr-FR', {
+    timeZone: 'Africa/Casablanca',
+    hour: 'numeric', hour12: false
+  }).format(new Date()));
+}
+let selectedHour = getMehdiaHour();
 
 // ======== SURF SCORE ========
 function calcSurfScore(waveH, period, windSpeed) {
@@ -343,7 +349,7 @@ function render() {
   const tide = getTideInfo(tideRef);
 
   // Hourly pills
-  const startH = selectedDay === 0 ? now.getHours() : 8;
+  const startH = selectedDay === 0 ? getMehdiaHour() : 8;
   const hours = Array.from({length: 5}, (_, i) => {
     const absH = startH + i * 2;
     const dayOffset = Math.floor(absH / 24);
