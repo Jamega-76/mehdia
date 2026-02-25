@@ -1,188 +1,115 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mehdia Surf Report</title>
-<link rel="icon" type="image/png" sizes="192x192" href="icon.png">
-<link rel="shortcut icon" href="icon.png">
+<title>Mehdia Surf</title>
+<link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mehdia Surf">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+<meta name="theme-color" content="#000">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root { --neon: #00ff88; --bg: #000; --muted: rgba(255,255,255,0.45); --divider: rgba(255,255,255,0.1); }
-  html, body { height: 100%; background: var(--bg); color: #fff; font-family: 'Inter', -apple-system, sans-serif; overflow-x: hidden; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#000;--muted:rgba(255,255,255,0.4);--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.09)}
+html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-system,sans-serif;overflow-x:hidden}
 
-  /* LOADING */
-  #loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 20px; }
-  .loader { width: 50px; height: 50px; border: 2px solid rgba(0,255,136,0.15); border-top-color: var(--neon); border-radius: 50%; animation: spin 1s linear infinite; filter: drop-shadow(0 0 8px var(--neon)); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; animation: pulse 1.5s ease-in-out infinite; }
-  @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+/* LOADING */
+#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:18px}
+.loader{width:44px;height:44px;border:2px solid rgba(0,255,136,0.15);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
 
-  /* SCREEN */
-  .screen { min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 52px 24px 36px; max-width: 420px; margin: 0 auto; gap: 20px; }
+/* LAYOUT */
+.screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:52px 20px 40px;max-width:420px;margin:0 auto;gap:18px}
 
-  /* HEADER */
-  .header { text-align: center; animation: fadeUp 0.5s ease forwards; opacity: 0; width: 100%; }
-  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 4px; }
-  .header .datetime { font-size: 14px; color: var(--muted); }
-  .sun-row { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 8px; }
-  .sun-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
-  .sun-item svg { width: 13px; height: 13px; opacity: 0.6; }
+/* SHARE */
+.share-btn{position:fixed;top:14px;right:14px;z-index:100;width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:.2s}
+.share-btn:hover{color:#fff}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:rgba(30,30,30,0.95);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;color:#fff;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:200}
+.toast.show{transform:translateX(-50%) translateY(0)}
 
-  /* SHARE BUTTON */
-  .share-btn {
-    position: fixed; top: 16px; right: 16px; z-index: 100;
-    width: 38px; height: 38px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.2s;
-    color: rgba(255,255,255,0.7);
-  }
-  .share-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
-  .share-btn svg { width: 16px; height: 16px; }
+/* HEADER */
+.header{text-align:center;animation:fadeUp .5s ease forwards;opacity:0;width:100%}
+.header h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.dt{font-size:13px;color:var(--muted)}
+.sun-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:7px}
+.sun-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
 
-  /* TOAST */
-  .toast {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: rgba(255,255,255,0.12); backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 100px; padding: 10px 20px;
-    font-size: 13px; font-weight: 500; color: #fff;
-    white-space: nowrap; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 200;
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
+/* DAYS */
+.days{display:flex;gap:5px;width:100%;animation:fadeUp .5s .05s ease forwards;opacity:0}
+.day-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px 7px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;transition:.2s}
+.day-btn.active{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.06)}
+.day-name{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.day-btn.active .day-name{color:#00ff88}
+.day-num{font-size:15px;font-weight:700}
+.day-dot{width:6px;height:6px;border-radius:50%}
 
-  /* DAY SELECTOR */
-  .day-selector {
-    display: flex; gap: 6px; width: 100%;
-    animation: fadeUp 0.5s 0.05s ease forwards; opacity: 0;
-  }
-  .day-btn {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px;
-    padding: 10px 4px 8px;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 14px;
-    background: rgba(255,255,255,0.03);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .day-btn:hover { border-color: rgba(255,255,255,0.18); }
-  .day-btn.active { border-color: rgba(0,255,136,0.4); background: rgba(0,255,136,0.06); }
-  .day-name { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
-  .day-btn.active .day-name { color: var(--neon); }
-  .day-num { font-size: 16px; font-weight: 700; color: #fff; }
-  .day-dot { width: 6px; height: 6px; border-radius: 50%; }
+/* RING */
+.ring-section{animation:fadeUp .5s .1s ease forwards;opacity:0}
+.ring-wrapper{position:relative;width:220px;height:220px}
+.ring-svg{width:220px;height:220px;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:5}
+.ring-arc{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:597;transition:stroke-dashoffset 1.8s cubic-bezier(.34,1.1,.64,1)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
+.ring-label{font-size:22px;font-weight:900;letter-spacing:3px;text-transform:uppercase;line-height:1;margin-bottom:8px}
+.ring-sub{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
 
-  /* WEEK OVERVIEW */
-  .week-overview {
-    display: flex; gap: 6px; width: 100%;
-    animation: fadeUp 0.5s 0.08s ease forwards; opacity: 0;
-  }
-  .week-day {
-    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 5px;
-    padding: 8px 4px;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    background: rgba(255,255,255,0.02);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .week-day:hover { border-color: rgba(255,255,255,0.15); }
-  .week-day.active { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); }
-  .week-day-name { font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
-  .week-day-num { font-size: 13px; font-weight: 700; color: #fff; }
-  .week-dot { width: 8px; height: 8px; border-radius: 50%; }
+/* STATS */
+.stats{display:flex;align-items:stretch;width:100%;animation:fadeUp .5s .2s ease forwards;opacity:0}
+.stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0}
+.sdiv{width:1px;background:var(--border);margin:6px 0}
+.stat-icon{width:26px;height:26px;color:rgba(255,255,255,.5)}
+.stat-val{font-size:21px;font-weight:800;line-height:1;letter-spacing:-1px}
+.unit{font-size:11px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:0}
+.stat-sub{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;text-align:center}
+.wind-arrow{width:24px;height:24px;color:rgba(255,255,255,.5)}
 
-  /* RING */
-  .ring-section { animation: fadeUp 0.5s 0.1s ease forwards; opacity: 0; }
-  .ring-wrapper { position: relative; width: 230px; height: 230px; }
-  .ring-svg { width: 230px; height: 230px; transform: rotate(-90deg); }
-  .ring-track { fill: none; stroke: rgba(255,255,255,0.07); stroke-width: 5; }
-  .ring-arc { fill: none; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 628; stroke-dashoffset: 628; transition: stroke-dashoffset 1.8s cubic-bezier(0.34, 1.1, 0.64, 1); }
-  .ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px; }
-  .ring-label { font-size: 25px; font-weight: 900; letter-spacing: 3px; text-transform: uppercase; line-height: 1; margin-bottom: 8px; }
-  .ring-sub { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.7); }
+/* EXTRA */
+.extra{display:flex;gap:8px;width:100%;animation:fadeUp .5s .25s ease forwards;opacity:0}
+.extra-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:9px}
+.extra-card svg{width:20px;height:20px;color:rgba(255,255,255,.45);flex-shrink:0}
+.extra-label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.extra-val{font-size:17px;font-weight:800}
 
-  /* BEST SLOT */
-  .best-slot { width: 100%; background: rgba(0,255,136,0.07); border: 1px solid rgba(0,255,136,0.2); border-radius: 14px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; animation: fadeUp 0.5s 0.2s ease forwards; opacity: 0; }
-  .best-slot-left { display: flex; align-items: center; gap: 10px; }
-  .best-slot-icon { font-size: 20px; }
-  .best-slot-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--neon); margin-bottom: 2px; }
-  .best-slot-val { font-size: 15px; font-weight: 700; color: #fff; }
-  .best-slot-score { font-size: 22px; font-weight: 900; color: var(--neon); }
+/* TIDE */
+.tide{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s .3s ease forwards;opacity:0}
+.tide-left{display:flex;align-items:center;gap:11px}
+.tide-emoji{font-size:20px}
+.tide-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.tide-status{font-size:16px;font-weight:800}
+.tide-right{text-align:right}
+.tide-next-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
+.tide-next-time{font-size:18px;font-weight:800}
+.tide-next-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
-  /* VEILLE */
-  .veille {
-    width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 16px; padding: 30px 20px; text-align: center;
-    animation: fadeUp 0.5s 0.2s ease forwards; opacity: 0;
-  }
-  .veille-emoji { font-size: 52px; animation: float 3s ease-in-out infinite; }
-  @keyframes float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-8px); } }
-  .veille-title { font-size: 20px; font-weight: 800; color: #fff; }
-  .veille-sub { font-size: 14px; color: var(--muted); line-height: 1.5; }
-  .veille-best { margin-top: 4px; font-size: 13px; color: rgba(255,255,255,0.6); }
+/* HOURLY */
+.hourly-wrap{width:100%;animation:fadeUp .5s .35s ease forwards;opacity:0}
+.hourly-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;text-align:center}
+.hourly{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;width:100%}
+.hourly::-webkit-scrollbar{display:none}
+.hour-pill{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:.2s;flex-shrink:0;background:var(--card);min-width:64px}
+.hour-pill:hover{border-color:rgba(255,255,255,.2)}
+.hour-pill.active{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.05)}
+.hour-time{font-size:11px;color:var(--muted);font-weight:600}
+.hour-dot{width:7px;height:7px;border-radius:50%}
+.hour-size{font-size:15px;font-weight:800}
+.hour-status{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
 
-  /* STATS */
-  .stats-row { display: flex; align-items: stretch; width: 100%; animation: fadeUp 0.5s 0.25s ease forwards; opacity: 0; }
-  .stat { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 4px 0; }
-  .stat-divider { width: 1px; background: var(--divider); margin: 6px 0; }
-  .stat-icon { width: 28px; height: 28px; color: rgba(255,255,255,0.55); }
-  .stat-value { font-size: 22px; font-weight: 800; color: #fff; line-height: 1; letter-spacing: -1px; }
-  .stat-value .unit { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.55); letter-spacing: 0; }
-  .stat-sub { font-size: 10px; font-weight: 500; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; text-align: center; }
-  .wind-arrow { width: 26px; height: 26px; transition: transform 0.8s cubic-bezier(0.34, 1.2, 0.64, 1); color: rgba(255,255,255,0.55); }
-
-  /* EXTRA ROW */
-  .extra-row { display: flex; gap: 10px; width: 100%; animation: fadeUp 0.5s 0.3s ease forwards; opacity: 0; }
-  .extra-card { flex: 1; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
-  .extra-card svg { width: 22px; height: 22px; color: rgba(255,255,255,0.5); flex-shrink: 0; }
-  .extra-label { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
-  .extra-val { font-size: 18px; font-weight: 800; color: #fff; }
-  .extra-val .unit { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.5); }
-
-  /* TIDE */
-  .tide-card { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; animation: fadeUp 0.5s 0.35s ease forwards; opacity: 0; }
-  .tide-left { display: flex; align-items: center; gap: 12px; }
-  .tide-icon { font-size: 22px; }
-  .tide-label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
-  .tide-status { font-size: 17px; font-weight: 800; color: #fff; }
-  .tide-right { text-align: right; }
-  .tide-next-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
-  .tide-next-time { font-size: 19px; font-weight: 800; color: #fff; }
-  .tide-next-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* HOURLY */
-  .hourly { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; width: 100%; animation: fadeUp 0.5s 0.4s ease forwards; opacity: 0; padding-bottom: 2px; }
-  .hourly::-webkit-scrollbar { display: none; }
-  .hour-pill { display: flex; align-items: center; gap: 6px; padding: 8px 13px; border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; white-space: nowrap; font-size: 13px; color: rgba(255,255,255,0.55); font-weight: 500; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
-  .hour-pill:hover { border-color: rgba(255,255,255,0.22); color: #fff; }
-  .hour-pill.active { border-color: rgba(0,255,136,0.35); background: rgba(0,255,136,0.05); color: #fff; }
-  .hour-time { color: var(--muted); font-size: 12px; }
-  .hour-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .dot-green  { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
-  .dot-orange { background: #ff8c42; box-shadow: 0 0 6px #ff8c42; }
-  .dot-red    { background: #ef476f; box-shadow: 0 0 6px #ef476f; }
-
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
+
 <button class="share-btn" onclick="shareApp()" title="Partager">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
     <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
   </svg>
 </button>
 <div class="toast" id="toast">🔗 Lien copié !</div>
@@ -195,287 +122,234 @@
 </div>
 
 <script>
-const LAT = 34.263;
-const LON = -6.653;
-const STORMGLASS_KEY = 'ba979f76-1107-11f1-b7ff-0242ac120004-ba979fd0-1107-11f1-b7ff-0242ac120004';
-const SHORT_DAYS = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-const FULL_DAYS  = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-const MONTHS     = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+const LAT=34.263, LON=-6.653;
+const SGKEY='ba979f76-1107-11f1-b7ff-0242ac120004-ba979fd0-1107-11f1-b7ff-0242ac120004';
+const DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const FDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+let M=null, W=null, T=null, selDay=0;
 
-let marineData = null;
-let weatherData = null;
-let tideData = null;
-let selectedDay = 0;
-
-function getMehdiaHour() {
-  return parseInt(new Intl.DateTimeFormat('fr-FR', {
-    timeZone: 'Africa/Casablanca', hour: 'numeric', hour12: false
-  }).format(new Date()));
+function getMehdiaHour(){
+  return parseInt(new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date()));
 }
-let selectedHour = getMehdiaHour();
+let selHour=getMehdiaHour();
 
-// ======== SCORE ========
-function calcSurfScore(waveH, period, windSpeed) {
-  let s = 0;
-  if (waveH < 0.3) s = 10;
-  else if (waveH < 0.6) s = 30 + (waveH/0.6)*20;
-  else if (waveH <= 1.5) s = 55 + ((waveH-0.6)/0.9)*30;
-  else if (waveH <= 2.5) s = 85 + ((waveH-1.5)/1.0)*10;
-  else if (waveH <= 3.5) s = 95 - ((waveH-2.5)/1.0)*20;
-  else s = Math.max(20, 75 - (waveH-3.5)*15);
-  if (period >= 14) s = Math.min(100, s + 8);
-  else if (period >= 10) s = Math.min(100, s + 4);
-  else if (period < 6) s -= 10;
-  if (windSpeed > 30) s -= 20;
-  else if (windSpeed > 20) s -= 12;
-  else if (windSpeed > 15) s -= 6;
-  else if (windSpeed < 8) s = Math.min(100, s + 5);
-  return Math.max(0, Math.min(100, Math.round(s)));
+// Taille face de vague surfable ≈ 65% de la houle
+function faceH(houle){ return +(houle*0.65).toFixed(1); }
+
+// Score 0-100
+function calcScore(wh, period, wind){
+  const h=faceH(wh);
+  let s=0;
+  if(h<0.3) s=5;
+  else if(h<0.5) s=30;
+  else if(h<=0.8) s=48+((h-0.5)/0.3)*12;
+  else if(h<=1.4) s=60+((h-0.8)/0.6)*25;
+  else if(h<=2.0) s=85+((h-1.4)/0.6)*10;
+  else if(h<=2.8) s=95-((h-2.0)/0.8)*25;
+  else s=Math.max(10, 70-(h-2.8)*15);
+  if(period>=14) s=Math.min(100,s+10);
+  else if(period>=10) s=Math.min(100,s+5);
+  else if(period<6) s-=15;
+  if(wind>30) s-=28; else if(wind>20) s-=16; else if(wind>15) s-=8; else if(wind<8) s=Math.min(100,s+5);
+  return Math.max(0,Math.min(100,Math.round(s)));
 }
 
-function getLabel(score) {
-  if (score >= 65) return { label: 'EXCELLENT', desc: 'Vagues glassy, foncez !', color: '#00ff88' };
-  if (score >= 35) return { label: 'MOYEN',     desc: 'Conditions passables',    color: '#ff8c42' };
-  return              { label: 'MAUVAIS',    desc: 'Peu recommandé',          color: '#ef476f' };
+// Statuts du meilleur au pire
+function getStatus(s, hour){
+  // Statuts nocturnes (indépendants du score)
+  if(hour!==undefined){
+    if(hour>=23 || hour<5)  return {label:'DODO TIME',  color:'#9b8eff', night:true};
+    if(hour>=20 || hour<7)  return {label:'GO NETFLIX', color:'#b388ff', night:true};
+  }
+  if(s>=85) return {label:'EXCELLENT', color:'#00ff88'};
+  if(s>=68) return {label:'TOP',       color:'#00e5ff'};
+  if(s>=50) return {label:'SYMPA',     color:'#7bed9f'};
+  if(s>=33) return {label:'SURFABLE',  color:'#ffd166'};
+  if(s>=16) return {label:'DUR',       color:'#ff8c42'};
+  return              {label:'PS5 DAY', color:'#ef476f'};
 }
 
-function getDotColor(score) {
-  if (score >= 65) return '#00ff88';
-  if (score >= 35) return '#ff8c42';
-  return '#ef476f';
+function windLabel(deg){
+  const d=((deg-315+540)%360)-180;
+  if(Math.abs(d)<45) return 'ONSHORE';
+  if(Math.abs(d)>135) return 'OFFSHORE';
+  const dirs=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(deg/22.5)%16];
 }
 
-function getDotClass(score) {
-  if (score >= 65) return 'dot-green';
-  if (score >= 35) return 'dot-orange';
-  return 'dot-red';
-}
-
-function windQuality(deg) {
-  const beach = 315;
-  const diff = ((deg - beach + 540) % 360) - 180;
-  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
-  if (Math.abs(diff) < 45) return 'ONSHORE';
-  if (Math.abs(diff) > 135) return 'OFFSHORE';
-  return dirs[Math.round(deg/22.5) % 16];
-}
-
-function getWeatherLabel(code) {
-  if (code === 0) return 'Ensoleillé';
-  if (code <= 2)  return 'Peu nuageux';
-  if (code <= 3)  return 'Couvert';
-  if (code <= 48) return 'Brouillard';
-  if (code <= 57) return 'Bruine';
-  if (code <= 67) return 'Pluie';
+function wxLabel(c){
+  if(c===0) return 'Ensoleillé';
+  if(c<=2)  return 'Peu nuageux';
+  if(c<=3)  return 'Couvert';
+  if(c<=48) return 'Brouillard';
+  if(c<=67) return 'Pluie';
   return 'Orageux';
 }
 
-function getHI(day, hour) { return day * 24 + hour; }
+function hi(day,h){ return day*24+h; }
 
-// ======== BEST SLOT (jour entier) ========
-function getBestSlot(dayIdx) {
-  let best = null;
-  for (let h = 6; h <= 20; h++) {
-    const idx = getHI(dayIdx, h);
-    const wh = marineData.hourly.wave_height[idx] ?? 0;
-    const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
-    const wp = marineData.hourly.wave_period[idx] ?? 8;
-    const sc = calcSurfScore(wh, wp, ws);
-    if (!best || sc > best.sc) best = { h, sc, wh };
+function dayBestScore(d){
+  let best=0;
+  for(let h=6;h<=20;h++){
+    const i=hi(d,h);
+    const s=calcScore(M.hourly.wave_height[i]??0, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0);
+    if(s>best) best=s;
   }
   return best;
 }
 
-// ======== SCORE JOURNÉE (max sur 6-20h) ========
-function getDayScore(dayIdx) {
-  return getBestSlot(dayIdx)?.sc ?? 0;
+function sunTimes(d){
+  try{
+    const r=W.daily?.sunrise?.[d], s=W.daily?.sunset?.[d];
+    if(!r||!s) return null;
+    const f=t=>{const x=new Date(t);return`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`};
+    return {rise:f(r), set:f(s)};
+  }catch{ return null; }
 }
 
-// ======== SOLEIL ========
-function getSunTimes(dayIdx) {
-  try {
-    const sunrise = weatherData.daily?.sunrise?.[dayIdx];
-    const sunset  = weatherData.daily?.sunset?.[dayIdx];
-    if (!sunrise || !sunset) return null;
-    const fmt = t => {
-      const d = new Date(t);
-      return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-    };
-    return { rise: fmt(sunrise), set: fmt(sunset) };
-  } catch { return null; }
+function tideInfo(dayIdx, hour){
+  if(!T?.data?.length) return null;
+  const now=new Date(), ref=new Date(now);
+  ref.setDate(now.getDate()+dayIdx); ref.setHours(hour,0,0,0);
+  const ex=T.data.map(e=>({time:new Date(e.time),type:e.type,height:e.height})).sort((a,b)=>a.time-b.time);
+  const next=ex.find(e=>e.time>ref);
+  if(!next) return null;
+  const dms=next.time-ref, dh=Math.floor(dms/3600000), dm=Math.floor((dms%3600000)/60000);
+  const ts=`${String(next.time.getHours()).padStart(2,'0')}:${String(next.time.getMinutes()).padStart(2,'0')}`;
+  return {
+    montante: next.type==='high',
+    nextType: next.type,
+    nextTime: ts,
+    nextIn: dh>0 ? `dans ${dh}h${dm||''}` : `dans ${dm}min`,
+    nextH: next.height ? next.height.toFixed(1) : null
+  };
 }
 
-// ======== MARÉE via Stormglass ========
-function getTideInfo(dayIdx, hour) {
-  if (!tideData?.data?.length) return null;
-  const now = new Date();
-  const ref = new Date(now);
-  ref.setDate(now.getDate() + dayIdx);
-  ref.setHours(hour, 0, 0, 0);
-  const extremes = tideData.data.map(e => ({ time: new Date(e.time), type: e.type, height: e.height })).sort((a,b)=>a.time-b.time);
-  const next = extremes.find(e => e.time > ref);
-  if (!next) return null;
-  const isMontante = next.type === 'high';
-  const diffMs = next.time - ref;
-  const diffH = Math.floor(diffMs / 3600000);
-  const diffM = Math.floor((diffMs % 3600000) / 60000);
-  const timeStr = `${String(next.time.getHours()).padStart(2,'0')}:${String(next.time.getMinutes()).padStart(2,'0')}`;
-  const inStr = diffH > 0 ? `dans ${diffH}h${diffM > 0 ? diffM : ''}` : `dans ${diffM}min`;
-  return { isMontante, nextType: next.type, nextTime: timeStr, nextIn: inStr, nextHeight: next.height ? next.height.toFixed(1) : null };
-}
-
-// ======== FETCH ========
-async function fetchData() {
-  const today = new Date();
-  const end = new Date(today); end.setDate(today.getDate() + 4);
-  const fmt = d => d.toISOString().split('T')[0];
-
-  const [mRes, wRes] = await Promise.all([
-    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,wave_direction,sea_surface_temperature&start_date=${fmt(today)}&end_date=${fmt(end)}&timezone=Africa/Casablanca`),
+async function fetchData(){
+  const today=new Date(), end=new Date(today);
+  end.setDate(today.getDate()+4);
+  const fmt=d=>d.toISOString().split('T')[0];
+  const [mr,wr]=await Promise.all([
+    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,sea_surface_temperature&start_date=${fmt(today)}&end_date=${fmt(end)}&timezone=Africa/Casablanca`),
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&daily=sunrise,sunset&start_date=${fmt(today)}&end_date=${fmt(end)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
   ]);
-  marineData = await mRes.json();
-  weatherData = await wRes.json();
-
-  // Marées via Stormglass (non-bloquant — la page charge même si ça échoue)
-  try {
-    const tRes = await fetch(
-      `https://api.stormglass.io/v2/tide/extremes/point?lat=${LAT}&lng=${LON}&start=${Math.floor(today/1000)}&end=${Math.floor(end/1000)}`,
-      { headers: { 'Authorization': STORMGLASS_KEY } }
-    );
-    const tj = await tRes.json();
-    tideData = tj.data ? tj : null;
-  } catch { tideData = null; }
+  M=await mr.json(); W=await wr.json();
+  try{
+    const tr=await fetch(`https://api.stormglass.io/v2/tide/extremes/point?lat=${LAT}&lng=${LON}&start=${Math.floor(today/1000)}&end=${Math.floor(end/1000)}`,{headers:{'Authorization':SGKEY}});
+    const tj=await tr.json(); T=tj.data?tj:null;
+  }catch{ T=null; }
 }
 
-// ======== RENDER ========
-function render() {
-  const now = new Date();
-  const hi = getHI(selectedDay, selectedHour);
+function render(){
+  const now=new Date();
+  const idx=hi(selDay,selHour);
+  const waveH=M.hourly.wave_height[idx]??0;
+  const period=M.hourly.wave_period[idx]??8;
+  const windSpd=W.hourly.wind_speed_10m[idx]??0;
+  const windDeg=W.hourly.wind_direction_10m?.[idx]??W.current.wind_direction_10m??0;
+  const temp=W.hourly.temperature_2m[idx]??W.current.temperature_2m??0;
+  const wcode=W.hourly.weather_code[idx]??W.current.weather_code??0;
+  const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
+  const fh=faceH(waveH);
 
-  const waveH  = marineData.hourly.wave_height[hi] ?? 0;
-  const period = marineData.hourly.wave_period[hi] ?? 8;
-  const windSpd= weatherData.hourly.wind_speed_10m[hi] ?? 0;
-  const windDir= weatherData.hourly.wind_direction_10m?.[hi] ?? weatherData.current.wind_direction_10m ?? 0;
-  const temp   = weatherData.hourly.temperature_2m[hi] ?? weatherData.current.temperature_2m ?? 0;
-  const wcode  = weatherData.hourly.weather_code[hi] ?? weatherData.current.weather_code ?? 0;
-  const seaTemp= marineData.hourly.sea_surface_temperature?.[hi] ?? null;
+  const sc=calcScore(waveH,period,windSpd);
+  const {label,color,night}=getStatus(sc,selHour);
 
-  const score = calcSurfScore(waveH, period, windSpd);
-  const { label, desc, color } = getLabel(score);
+  const d=new Date(now); d.setDate(d.getDate()+selDay);
+  const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
+  const sun=sunTimes(selDay);
+  const tide=tideInfo(selDay,selHour);
 
-  // Dates des 5 jours
-  const days = Array.from({length: 5}, (_, i) => {
-    const d = new Date(now); d.setDate(d.getDate() + i);
-    return { name: SHORT_DAYS[d.getDay()], num: d.getDate(), score: getDayScore(i) };
+  // 5 jours
+  const days=Array.from({length:5},(_,i)=>{
+    const x=new Date(now); x.setDate(x.getDate()+i);
+    return {name:DAYS[x.getDay()], num:x.getDate(), sc:dayBestScore(i), color:getStatus(dayBestScore(i),12).color};
   });
 
-  const d = new Date(now); d.setDate(d.getDate() + selectedDay);
-  const dateStr = `${FULL_DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selectedHour).padStart(2,'0')}:00`;
-  const sun = getSunTimes(selectedDay);
-  const best = getBestSlot(selectedDay);
-
-  const tide = getTideInfo(selectedDay, selectedHour);
-
-  // Pills horaires
-  const startH = selectedDay === 0 ? getMehdiaHour() : 8;
-  const hours = Array.from({length: 5}, (_, i) => {
-    const absH = startH + i * 2;
-    const dayOffset = Math.floor(absH / 24);
-    const h = absH % 24;
-    const idx = getHI(selectedDay + dayOffset, h);
-    const wh = marineData.hourly.wave_height[idx] ?? 0;
-    const ws = weatherData.hourly.wind_speed_10m[idx] ?? 0;
-    const wp = marineData.hourly.wave_period[idx] ?? 8;
-    return { h, wh, sc: calcSurfScore(wh, wp, ws), isNextDay: dayOffset > 0 };
+  // Pills horaires : 5 heures consécutives
+  const startH=selDay===0 ? getMehdiaHour() : 8;
+  const pills=Array.from({length:5},(_,i)=>{
+    const absH=startH+i;
+    const dOff=Math.floor(absH/24);
+    const h=absH%24;
+    const ix=hi(selDay+dOff,h);
+    const wh=M.hourly.wave_height[ix]??0;
+    const ws=W.hourly.wind_speed_10m[ix]??0;
+    const wp=M.hourly.wave_period[ix]??8;
+    const ps=calcScore(wh,wp,ws);
+    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h), nextDay:dOff>0};
   });
 
-  const circum = 2 * Math.PI * 100;
-  const dash = circum - (score / 100) * circum;
+  const C=2*Math.PI*95;
+  const dash=C-(sc/100)*C;
 
-  // ---- ÉCRAN DE VEILLE ----
-  const VEILLE_MESSAGES = [
-    { emoji: '😴', title: 'La mer se repose', sub: 'Toi aussi. Reviens demain surfer !' },
-    { emoji: '🌙', title: 'Pas de session aujourd\'hui', sub: 'Le spot te rappellera quand ce sera le moment.' },
-    { emoji: '☕', title: 'Conditions calmes', sub: 'Parfait pour un café en regardant l\'horizon.' },
-  ];
-  const veilleMsg = VEILLE_MESSAGES[selectedDay % VEILLE_MESSAGES.length];
-  const bestNextDay = days.findIndex((d, i) => i > 0 && d.score >= 65);
+  const subText=night ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : '🎬 Pas de session ce soir…')
+    : fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`;
 
-  const isVeille = best && best.sc < 35;
-
-  // ---- HTML ----
-  const daySelectorHTML = `
-  <div class="day-selector">
-    ${days.map((d, i) => `
-      <div class="day-btn ${i === selectedDay ? 'active' : ''}" onclick="selectDay(${i})">
-        <div class="day-name">${d.name}</div>
-        <div class="day-num">${d.num}</div>
-        <div class="day-dot" style="background:${getDotColor(d.score)};box-shadow:0 0 5px ${getDotColor(d.score)}"></div>
+  let tideHTML='';
+  if(tide){
+    tideHTML=`<div class="tide">
+      <div class="tide-left">
+        <div class="tide-emoji">${tide.montante?'🌊':'🏖️'}</div>
+        <div><div class="tide-label">Marée</div><div class="tide-status">${tide.montante?'Montante':'Descendante'}</div></div>
       </div>
-    `).join('')}
-  </div>`;
-
-  const ringHTML = `
-  <div class="ring-section">
-    <div class="ring-wrapper">
-      <svg class="ring-svg" viewBox="0 0 230 230">
-        <circle class="ring-track" cx="115" cy="115" r="100"/>
-        <circle class="ring-arc" id="ringArc" cx="115" cy="115" r="100"
-          stroke="${color}"
-          style="stroke-dashoffset:${circum}; filter: drop-shadow(0 0 16px ${color}) drop-shadow(0 0 40px ${color}88)"/>
-      </svg>
-      <div class="ring-center">
-        <div class="ring-label" style="color:${color}; text-shadow: 0 0 50px ${color}">${label}</div>
-        <div class="ring-sub">${desc}</div>
+      <div class="tide-right">
+        <div class="tide-next-label">${tide.nextType==='high'?'Pleine mer':'Basse mer'} à</div>
+        <div class="tide-next-time">${tide.nextTime}</div>
+        <div class="tide-next-sub">${tide.nextIn}${tide.nextH?' · '+tide.nextH+'m':''}</div>
       </div>
-    </div>
-  </div>`;
-
-  let middleHTML = '';
-  if (isVeille) {
-    middleHTML = `
-    <div class="veille">
-      <div class="veille-emoji">${veilleMsg.emoji}</div>
-      <div class="veille-title">${veilleMsg.title}</div>
-      <div class="veille-sub">${veilleMsg.sub}</div>
-      ${bestNextDay >= 0 ? `<div class="veille-best">🤙 Prochain bon spot : <strong>${days[bestNextDay].name} ${days[bestNextDay].num}</strong></div>` : ''}
-    </div>`;
-  } else if (best && best.sc >= 35) {
-    const bestLabel = best.sc >= 65 ? 'Meilleure session' : 'Meilleur créneau';
-    middleHTML = `
-    <div class="best-slot">
-      <div class="best-slot-left">
-        <div class="best-slot-icon">🏄</div>
-        <div>
-          <div class="best-slot-label">${bestLabel}</div>
-          <div class="best-slot-val">${best.h}h – ${best.h+2}h · ${best.wh.toFixed(1)}m</div>
-        </div>
-      </div>
-      <div class="best-slot-score">${best.sc}</div>
     </div>`;
   }
 
-  const statsHTML = `
-  <div class="stats-row">
-    <div class="stat">
-      <svg class="stat-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M2 20c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/>
-        <path d="M2 26c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/>
-        <path d="M13 6 Q16 2 19 6 Q22 10 19 14 Q16 18 13 14 Q10 10 13 6Z" stroke-width="1.5"/>
-      </svg>
-      <div class="stat-value">${waveH.toFixed(1)}<span class="unit"> m</span></div>
-      <div class="stat-sub">Houle ${Math.round(period)}s</div>
+  document.getElementById('app').innerHTML=`<div class="screen">
+
+  <div class="header">
+    <h1>Mehdia Plage</h1>
+    <div class="dt">${dt}</div>
+    ${sun?`<div class="sun-row">
+      <div class="sun-item"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/><circle cx="7" cy="7" r="2.5"/></svg>${sun.rise}</div>
+      <div style="width:1px;height:8px;background:rgba(255,255,255,.1)"></div>
+      <div class="sun-item"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/><circle cx="7" cy="7" r="2.5"/></svg>${sun.set}</div>
+    </div>`:''}
+  </div>
+
+  <div class="days">${days.map((d,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?'getMehdiaHour()':'10'};render()">
+    <div class="day-name">${d.name}</div>
+    <div class="day-num">${d.num}</div>
+    <div class="day-dot" style="background:${d.color};box-shadow:0 0 5px ${d.color}44"></div>
+  </div>`).join('')}</div>
+
+  <div class="ring-section"><div class="ring-wrapper">
+    <svg class="ring-svg" viewBox="0 0 220 220">
+      <circle class="ring-track" cx="110" cy="110" r="95"/>
+      <circle class="ring-arc" id="arc" cx="110" cy="110" r="95" stroke="${color}"
+        style="stroke-dashoffset:${C};filter:drop-shadow(0 0 12px ${color}) drop-shadow(0 0 30px ${color}66)"/>
+    </svg>
+    <div class="ring-center">
+      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${label}</div>
+      <div class="ring-sub">${subText}</div>
     </div>
-    <div class="stat-divider"></div>
+  </div></div>
+
+  <div class="stats">
     <div class="stat">
-      <svg class="wind-arrow" style="transform:rotate(${windDir}deg)" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <svg class="stat-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+        <path d="M2 20c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/><path d="M2 26c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/>
+        <path d="M13 6Q16 2 19 6Q22 10 19 14Q16 18 13 14Q10 10 13 6Z" stroke-width="1.5"/>
+      </svg>
+      <div class="stat-val">${fh}<span class="unit">m</span></div>
+      <div class="stat-sub">FACE vague</div>
+    </div>
+    <div class="sdiv"></div>
+    <div class="stat">
+      <svg class="wind-arrow" style="transform:rotate(${windDeg}deg);transition:transform .8s" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <line x1="14" y1="24" x2="14" y2="4"/><polyline points="8,10 14,4 20,10"/>
       </svg>
-      <div class="stat-value">${Math.round(windSpd)}<span class="unit"> km/h</span></div>
-      <div class="stat-sub">${windQuality(windDir)}</div>
+      <div class="stat-val">${Math.round(windSpd)}<span class="unit">km/h</span></div>
+      <div class="stat-sub">${windLabel(windDeg)}</div>
     </div>
-    <div class="stat-divider"></div>
+    <div class="sdiv"></div>
     <div class="stat">
       <svg class="stat-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
         <circle cx="16" cy="16" r="6"/>
@@ -484,162 +358,72 @@ function render() {
         <line x1="6" y1="6" x2="8.1" y2="8.1"/><line x1="23.9" y1="23.9" x2="26" y2="26"/>
         <line x1="26" y1="6" x2="23.9" y2="8.1"/><line x1="8.1" y1="23.9" x2="6" y2="26"/>
       </svg>
-      <div class="stat-value">${Math.round(temp)}<span class="unit">°C</span></div>
-      <div class="stat-sub">${getWeatherLabel(wcode)}</div>
+      <div class="stat-val">${Math.round(temp)}<span class="unit">°</span></div>
+      <div class="stat-sub">${wxLabel(wcode)}</div>
     </div>
-  </div>`;
+  </div>
 
-  const extraHTML = `
-  <div class="extra-row">
+  <div class="extra">
     <div class="extra-card">
-      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <path d="M11 2 Q14 8 14 13a3 3 0 0 1-6 0Q8 8 11 2Z"/>
-      </svg>
-      <div>
-        <div class="extra-label">Eau</div>
-        <div class="extra-val">${seaTemp !== null ? Math.round(seaTemp) : '--'}<span class="unit">°C</span></div>
-      </div>
+      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2Q14 8 14 13a3 3 0 0 1-6 0Q8 8 11 2Z"/></svg>
+      <div><div class="extra-label">Eau</div><div class="extra-val">${seaT!==null?Math.round(seaT):'--'}<span class="unit"> °C</span></div></div>
     </div>
     <div class="extra-card">
       <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <circle cx="11" cy="11" r="4"/>
-        <path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.9 4.9l1.4 1.4M15.7 15.7l1.4 1.4M4.9 17.1l1.4-1.4M15.7 6.3l1.4-1.4"/>
+        <path d="M3 8Q7 4 11 8Q15 12 19 8"/><path d="M3 14Q7 10 11 14Q15 18 19 14"/>
       </svg>
-      <div>
-        <div class="extra-label">Air</div>
-        <div class="extra-val">${Math.round(temp)}<span class="unit">°C</span></div>
-      </div>
+      <div><div class="extra-label">Période</div><div class="extra-val">${Math.round(period)}<span class="unit"> s</span></div></div>
     </div>
-  </div>`;
+  </div>
 
-  let tideHTML = '';
-  if (tide) {
-    const icon = tide.isMontante ? '🌊' : '🏖️';
-    const statusText = tide.isMontante ? 'Montante' : 'Descendante';
-    const nextLabel = tide.nextType === 'high' ? 'Pleine mer' : 'Basse mer';
-    tideHTML = `
-    <div class="tide-card">
-      <div class="tide-left">
-        <div class="tide-icon">${icon}</div>
-        <div>
-          <div class="tide-label">Marée</div>
-          <div class="tide-status">${statusText}</div>
-        </div>
-      </div>
-      <div class="tide-right">
-        <div class="tide-next-label">${nextLabel} à</div>
-        <div class="tide-next-time">${tide.nextTime}</div>
-        <div class="tide-next-sub">${tide.nextIn}${tide.nextHeight ? ' · ' + tide.nextHeight + 'm' : ''}</div>
-      </div>
-    </div>`;
-  }
+  ${tideHTML}
 
-  const hourlyHTML = `
-  <div class="hourly">
-    ${hours.map((h, i) => `
-      <div class="hour-pill ${i === 0 ? 'active' : ''}" onclick="selectHour(this, ${h.h})">
-        <span class="hour-time">${h.h}h${h.isNextDay ? '<span style="font-size:9px;opacity:0.5;margin-left:1px">+1</span>' : ''}</span>
-        <div class="hour-dot ${getDotClass(h.sc)}"></div>
-        <span>${h.wh.toFixed(1)}m</span>
-      </div>
-    `).join('')}
-  </div>`;
+  <div class="hourly-wrap">
+    <div class="hourly-title">Prochaines heures — taille face</div>
+    <div class="hourly">${pills.map((p,i)=>`<div class="hour-pill${i===0?' active':''}" onclick="selHour=${p.h};render()">
+      <div class="hour-time">${String(p.h).padStart(2,'0')}h${p.nextDay?'<span style="font-size:8px;opacity:.4"> +1</span>':''}</div>
+      <div class="hour-dot" style="background:${p.st.color};box-shadow:0 0 5px ${p.st.color}55"></div>
+      <div class="hour-size" style="color:${p.st.color}">${p.fh}m</div>
+      <div class="hour-status" style="color:${p.st.color}99">${p.st.label}</div>
+    </div>`).join('')}</div>
+  </div>
 
-  document.getElementById('app').innerHTML = `
-  <div class="screen">
-    <div class="header">
-      <h1>Mehdia Plage</h1>
-      <div class="datetime">${dateStr}</div>
-      ${sun ? `
-      <div class="sun-row">
-        <div class="sun-item">
-          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/>
-            <circle cx="7" cy="7" r="2.5"/>
-          </svg>${sun.rise}
-        </div>
-        <div style="width:1px;height:10px;background:rgba(255,255,255,0.12)"></div>
-        <div class="sun-item">
-          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/>
-            <circle cx="7" cy="7" r="2.5"/>
-          </svg>${sun.set}
-        </div>
-      </div>` : ''}
-    </div>
+</div>`;
 
-    ${daySelectorHTML}
-    ${ringHTML}
-    ${middleHTML}
-    ${isVeille ? '' : statsHTML}
-    ${isVeille ? '' : extraHTML}
-    ${tideHTML}
-    ${hourlyHTML}
-  </div>`;
-
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    const arc = document.getElementById('ringArc');
-    if (arc) arc.style.strokeDashoffset = dash;
+  // Animate ring
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const a=document.getElementById('arc');
+    if(a) a.style.strokeDashoffset=dash;
   }));
 }
 
-function selectDay(i) {
-  selectedDay = i;
-  selectedHour = i === 0 ? getMehdiaHour() : 10;
-  render();
-}
-
-function selectHour(el, h) {
-  document.querySelectorAll('.hour-pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  selectedHour = h;
-  render();
-}
-
-async function shareApp() {
-  const url = window.location.href;
-  const text = '🌊 Mehdia Surf Report — Consulte les conditions en temps réel !';
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: 'Mehdia Surf Report', text, url });
-    } catch(e) { /* annulé par l'utilisateur */ }
+async function shareApp(){
+  const url=window.location.href;
+  if(navigator.share){
+    try{ await navigator.share({title:'Mehdia Surf',text:'🌊 Conditions en temps réel à Mehdia Plage !',url}); }catch{}
   } else {
-    // Fallback : copier le lien
-    try {
-      await navigator.clipboard.writeText(url);
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = url; document.body.appendChild(ta);
-      ta.select(); document.execCommand('copy');
-      document.body.removeChild(ta);
+    try{ await navigator.clipboard.writeText(url); }catch{
+      const t=document.createElement('textarea');
+      t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
     }
-    const toast = document.getElementById('toast');
-    if (toast) {
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2500);
-    }
+    const toast=document.getElementById('toast');
+    if(toast){ toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),2500); }
   }
 }
 
-async function init() {
-  try {
+async function init(){
+  try{
     await fetchData();
-    document.getElementById('loading').style.display = 'none';
+    document.getElementById('loading').style.display='none';
     render();
-    setInterval(async () => {
-      await fetchData();
-      selectedHour = getMehdiaHour();
-      render();
-    }, 60 * 60 * 1000);
-  } catch(e) {
-    document.getElementById('app').innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:40px;text-align:center">
-        <div style="font-size:36px">⚠️</div>
-        <div style="color:#ef476f;font-size:13px;letter-spacing:1px">Erreur de connexion<br><span style="opacity:0.5;font-size:11px">${e.message}</span></div>
-      </div>`;
+    setInterval(async()=>{ await fetchData(); selHour=getMehdiaHour(); render(); }, 3600000);
+  }catch(e){
+    document.getElementById('app').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:40px;text-align:center">
+      <div style="font-size:36px">⚠️</div>
+      <div style="color:#ef476f;font-size:13px">Erreur de connexion<br><span style="opacity:.5;font-size:11px">${e.message}</span></div>
+    </div>`;
   }
 }
-
 init();
 </script>
 </body>
