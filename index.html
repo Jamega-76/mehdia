@@ -76,17 +76,6 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .extra-label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
 .extra-val{font-size:17px;font-weight:800}
 
-/* TIDE */
-.tide{width:100%;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s .3s ease forwards;opacity:0}
-.tide-left{display:flex;align-items:center;gap:11px}
-.tide-emoji{font-size:20px}
-.tide-label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
-.tide-status{font-size:16px;font-weight:800}
-.tide-right{text-align:right}
-.tide-next-label{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px}
-.tide-next-time{font-size:18px;font-weight:800}
-.tide-next-sub{font-size:11px;color:var(--muted);margin-top:2px}
-
 /* HOURLY */
 .hourly-wrap{width:100%;animation:fadeUp .5s .35s ease forwards;opacity:0}
 .hourly-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;text-align:center}
@@ -130,11 +119,11 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 
 <script>
 const LAT=34.263, LON=-6.653;
-const SGKEY='ba979f76-1107-11f1-b7ff-0242ac120004-ba979fd0-1107-11f1-b7ff-0242ac120004';
+let M=null, W=null, selDay=0;
 const DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const FDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-let M=null, W=null, T=null, selDay=0;
+let M=null, W=null, selDay=0;
 
 function getMehdiaHour(){
   const h=new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date());
@@ -254,24 +243,6 @@ function sunTimes(d){
   }catch{ return null; }
 }
 
-function tideInfo(dayIdx, hour){
-  if(!T?.data?.length) return null;
-  const now=new Date(), ref=new Date(now);
-  ref.setDate(now.getDate()+dayIdx); ref.setHours(hour,0,0,0);
-  const ex=T.data.map(e=>({time:new Date(e.time),type:e.type,height:e.height})).sort((a,b)=>a.time-b.time);
-  const next=ex.find(e=>e.time>ref);
-  if(!next) return null;
-  const dms=next.time-ref, dh=Math.floor(dms/3600000), dm=Math.floor((dms%3600000)/60000);
-  const ts=`${String(next.time.getHours()).padStart(2,'0')}:${String(next.time.getMinutes()).padStart(2,'0')}`;
-  return {
-    montante: next.type==='high',
-    nextType: next.type,
-    nextTime: ts,
-    nextIn: dh>0 ? `dans ${dh}h${dm||''}` : `dans ${dm}min`,
-    nextH: next.height ? next.height.toFixed(1) : null
-  };
-}
-
 async function fetchData(){
   const today=new Date(), end=new Date(today);
   end.setDate(today.getDate()+4);
@@ -281,10 +252,6 @@ async function fetchData(){
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&daily=sunrise,sunset&start_date=${fmt(today)}&end_date=${fmt(end)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
   ]);
   M=await mr.json(); W=await wr.json();
-  try{
-    const tr=await fetch(`https://api.stormglass.io/v2/tide/extremes/point?lat=${LAT}&lng=${LON}&start=${Math.floor(today/1000)}&end=${Math.floor(end/1000)}`,{headers:{'Authorization':SGKEY}});
-    const tj=await tr.json(); T=tj.data?tj:null;
-  }catch{ T=null; }
 }
 
 // 35 conseils santé surf — 5 différents chaque jour (rotation par index du jour de l'année)
@@ -348,7 +315,6 @@ function render(){
   const d=new Date(now); d.setDate(d.getDate()+selDay);
   const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
   const sun=sunTimes(selDay);
-  const tide=tideInfo(selDay,selHour);
 
   const sc=calcScore(waveH,period,windSpd,windDeg);
   const {label,color,night,emoji}=getStatus(sc,selHour,sun);
@@ -384,21 +350,6 @@ function render(){
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
   const ringLabel=label==='SURF OFF' ? `😴 ${label}` : label;
-
-  let tideHTML='';
-  if(tide){
-    tideHTML=`<div class="tide">
-      <div class="tide-left">
-        <div class="tide-emoji">${tide.montante?'🌊':'🏖️'}</div>
-        <div><div class="tide-label">Marée</div><div class="tide-status">${tide.montante?'Montante':'Descendante'}</div></div>
-      </div>
-      <div class="tide-right">
-        <div class="tide-next-label">${tide.nextType==='high'?'Pleine mer':'Basse mer'} à</div>
-        <div class="tide-next-time">${tide.nextTime}</div>
-        <div class="tide-next-sub">${tide.nextIn}${tide.nextH?' · '+tide.nextH+'m':''}</div>
-      </div>
-    </div>`;
-  }
 
   document.getElementById('app').innerHTML=`<div class="screen">
 
@@ -477,8 +428,6 @@ function render(){
       <div><div class="extra-label">Période</div><div class="extra-val">${Math.round(period)}<span class="unit"> s</span></div></div>
     </div>
   </div>
-
-  ${tideHTML}
 
   <div class="days">${days.map((d,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?'getMehdiaHour()':'10'};render()" style="border-color:${i===selDay?d.color+'66':''}">
     <div class="day-name" style="color:${d.color}">${d.name}</div>
