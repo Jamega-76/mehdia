@@ -188,12 +188,13 @@ function getStatus(s, hour, sunTimes, fh){
     // DODO et NETFLIX en priorité
     if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
     if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
-    // NETFLIX aussi autour du lever/coucher de soleil (±1h)
+    // Lever/coucher distincts (±1h)
     if(sunTimes){
       const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
       const h=hour*60;
       const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(Math.abs(h-rise)<=60 || Math.abs(h-set)<=60) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
+      if(Math.abs(h-rise)<=60) return {label:'🏃 TRAINING + PETIT DEJ', color:'#ffb347', night:true};
+      if(Math.abs(h-set)<=60)  return {label:'🍿 NETFLIX TIME',          color:'#b388ff', night:true};
     }
   }
   // EXCELLENT impossible si vagues face < 2m
@@ -348,7 +349,7 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : 'Repos, Netflix, Dodo 🍿')
+    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : label==='🏃 TRAINING + PETIT DEJ' ? 'Réveil, stretching, café ☕' : 'Repos, Netflix, Dodo 🍿')
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
   const ringLabel=label;
