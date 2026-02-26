@@ -195,14 +195,16 @@ function timeSlot(hour){
 }
 
 // Statuts — seuils très sévères
-// PARFAIT : ≥90 → conditions vraiment exceptionnelles, rarement atteint
-// EXCELLENT : ≥76
-// TRES BON : ≥60
-// SURFABLE : ≥42
-// PASSABLE : ≥22
-// NUL : <22
-function getStatus(s, hour){
+function getStatus(s, hour, sunTimes){
   if(hour!==undefined){
+    // SURF OFF : dans les 30 min autour du lever/coucher de soleil
+    if(sunTimes){
+      const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
+      const h=hour*60;
+      const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
+      if(h<rise-30 || h>set+30) return {label:'SURF OFF', color:'#6c6c8a', night:true, emoji:'😴'};
+      if(Math.abs(h-rise)<=30 || Math.abs(h-set)<=30) return {label:'SURF OFF', color:'#6c6c8a', night:true, emoji:'😴'};
+    }
     if(hour>=23 || hour<5) return {label:'DODO TIME',  color:'#9b8eff', night:true};
     if(hour>=20 || hour<7) return {label:'GO NETFLIX', color:'#b388ff', night:true};
   }
@@ -248,7 +250,7 @@ function sunTimes(d){
     const r=W.daily?.sunrise?.[d], s=W.daily?.sunset?.[d];
     if(!r||!s) return null;
     const f=t=>{const x=new Date(t);return`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`};
-    return {rise:f(r), set:f(s)};
+    return {rise:f(r), set:f(s), riseRaw:r, setRaw:s};
   }catch{ return null; }
 }
 
@@ -344,7 +346,7 @@ function render(){
   const fh=faceH(waveH);
 
   const sc=calcScore(waveH,period,windSpd,windDeg);
-  const {label,color,night}=getStatus(sc,selHour);
+  const {label,color,night,emoji}=getStatus(sc,selHour,sun);
 
   const d=new Date(now); d.setDate(d.getDate()+selDay);
   const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
@@ -354,7 +356,7 @@ function render(){
   // 5 jours
   const days=Array.from({length:5},(_,i)=>{
     const x=new Date(now); x.setDate(x.getDate()+i);
-    return {name:DAYS[x.getDay()], num:x.getDate(), sc:dayBestScore(i), color:getStatus(dayBestScore(i),12).color};
+    return {name:DAYS[x.getDay()], num:x.getDate(), sc:dayBestScore(i), color:getStatus(dayBestScore(i),12,null).color};
   });
 
   // Pills horaires : 5 heures consécutives — commence à l'heure EN COURS
@@ -370,7 +372,7 @@ function render(){
     const wp=M.hourly.wave_period[ix]??8;
     const wd=W.hourly.wind_direction_10m?.[ix];
     const ps=calcScore(wh,wp,ws,wd);
-    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h), nextDay:dOff>0};
+    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h,sun), nextDay:dOff>0};
   });
 
   const C=2*Math.PI*95;
@@ -378,8 +380,10 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : '🎬 Pas de session ce soir…')
+    ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : label==='SURF OFF' ? 'Trop tôt ou trop tard pour surfer' : '🎬 Pas de session ce soir…')
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
+
+  const ringLabel=label==='SURF OFF' ? `😴 ${label}` : label;
 
   let tideHTML='';
   if(tide){
@@ -425,7 +429,7 @@ function render(){
         style="stroke-dashoffset:${C};filter:drop-shadow(0 0 12px ${color}) drop-shadow(0 0 30px ${color}66)"/>
     </svg>
     <div class="ring-center">
-      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${label}</div>
+      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${ringLabel}</div>
       <div class="ring-sub">${subText}</div>
     </div>
   </div></div>
