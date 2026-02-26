@@ -100,6 +100,14 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .hour-size{font-size:15px;font-weight:800}
 .hour-status{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
 
+/* TIPS */
+.tips{width:100%;animation:fadeUp .5s .4s ease forwards;opacity:0}
+.tips-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
+.tip-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.tip-item:last-child{border-bottom:none}
+.tip-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.2);min-width:14px;margin-top:1px}
+.tip-text{font-size:12px;color:rgba(255,255,255,.65);line-height:1.5}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -267,6 +275,52 @@ async function fetchData(){
   }catch{ T=null; }
 }
 
+// 35 conseils santé surf — 5 différents chaque jour (rotation par index du jour de l'année)
+const ALL_TIPS=[
+  'Hydrate-toi avant même d\'avoir soif — après 30 min dans l\'eau, tu es déjà en déficit.',
+  'Étire tes épaules et ta nuque 5 min avant d\'entrer à l\'eau pour éviter les blessures.',
+  'Mange léger 1h30 avant la session : une banane et quelques noix, c\'est parfait.',
+  'Applique de la crème solaire résistante à l\'eau, même par temps nuageux.',
+  'Après la session, rince tes oreilles à l\'eau douce pour prévenir l\'otite du surfeur.',
+  'Dors 7 à 8h : c\'est pendant le sommeil que les muscles récupèrent et progressent.',
+  'Bois 500 ml d\'eau dans l\'heure qui suit ta session pour compenser la déshydratation.',
+  'Échauffement dynamique : 10 rotations de chaque épaule avant de prendre ta planche.',
+  'Protège tes yeux du soleil réfléchi par l\'eau — des lunettes UV hors de l\'eau.',
+  'Un régime riche en oméga-3 (poisson, graines de lin) améliore la souplesse articulaire.',
+  'Fais 5 min de cohérence cardiaque avant de surfer pour mieux gérer le stress des vagues.',
+  'La vaseline sur les aisselles et le cou évite les irritations de la combinaison.',
+  'Renforce tes cervicaux : ils absorbent les chocs lors des wipeouts.',
+  'Le gainage central (planche, 30 sec × 3) protège ton dos dans les sessions longues.',
+  'Après une grosse session, un bain froid 10 min accélère la récupération musculaire.',
+  'Vérifie la date de péremption de ton leash — un leash cassé est dangereux.',
+  'Mange une source de protéines dans les 30 min après ta session pour la récupération.',
+  'La respiration nasale en paddle permet de mieux oxygéner et gérer l\'effort.',
+  'Masse tes pieds et mollets après chaque session pour éviter les crampes nocturnes.',
+  'Un écran solaire minéral (oxyde de zinc) est plus efficace et respecte les récifs.',
+  'Évite l\'alcool la veille d\'une session matinale — il dégrade le sommeil et l\'équilibre.',
+  'Travaille ta proprioception : 2 min sur une jambe par jour améliore l\'équilibre sur la planche.',
+  'Hydrate ta peau avec une crème après-soleil à l\'aloé vera après chaque session.',
+  'Un snack riche en glucides 45 min avant : riz au lait, dattes ou fruits secs.',
+  'Renforce tes rotateurs de l\'épaule avec un élastique — la blessure la plus fréquente chez les surfeurs.',
+  'L\'eau froide active la circulation sanguine : commence par 30 sec sous l\'eau froide en sortant.',
+  'Écoute ton corps : une fatigue excessive est un signe de surentraînement, pas de faiblesse.',
+  'Varie les disciplines (yoga, natation, run) pour un développement physique complet.',
+  'Garde une barre de cire dans ta voiture : mieux vaut prévenir que glisser.',
+  'Le stress chronique affaiblit les ligaments : médite 5 min par jour pour mieux récupérer.',
+  'Lave ta combinaison à l\'eau froide après chaque session pour la conserver plus longtemps.',
+  'Un yoga matinal de 10 min améliore la flexibilité de hanche, essentielle pour le surf.',
+  'Surveille les signaux d\'un début d\'otite : douleur ou sensation d\'oreille bouchée après la session.',
+  'Renforce tes poignets avec des rotations quotidiennes — souvent négligés, souvent blessés.',
+  'Varie les heures de session : surfer à marée montante ou descendante change complètement le break.'
+];
+
+function getTips(){
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  const tips=[];
+  for(let i=0;i<5;i++) tips.push(ALL_TIPS[(dayOfYear*5+i)%ALL_TIPS.length]);
+  return tips;
+}
+
 function render(){
   const now=new Date();
   const idx=hi(selDay,selHour);
@@ -419,6 +473,14 @@ function render(){
       <path d="M1 6c1.5-2 3-3.5 5-3.5s3.5 3 6 3 3.5-3 8-3"/>
     </svg>
   </div>`).join('')}</div>
+
+  <div class="tips">
+    <div class="tips-title">Conseils du jour</div>
+    ${getTips().map((t,i)=>`<div class="tip-item">
+      <div class="tip-num">${i+1}</div>
+      <div class="tip-text">${t}</div>
+    </div>`).join('')}
+  </div>
 
 </div>`;
 
