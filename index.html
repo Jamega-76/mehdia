@@ -185,16 +185,16 @@ function timeSlot(hour){
 // Statuts — seuils très sévères
 function getStatus(s, hour, sunTimes){
   if(hour!==undefined){
-    // SURF OFF : dans les 1h autour du lever/coucher de soleil
+    // DODO et NETFLIX en priorité
+    if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
+    if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
+    // SURF OFF : uniquement dans la fenêtre ±1h autour du lever/coucher
     if(sunTimes){
       const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
       const h=hour*60;
       const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(h<rise-60 || h>set+60) return {label:'SURF OFF', color:'#6c6c8a', night:true};
       if(Math.abs(h-rise)<=60 || Math.abs(h-set)<=60) return {label:'SURF OFF', color:'#6c6c8a', night:true};
     }
-    if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
-    if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
   }
   if(s>=90) return {label:'PARFAIT',   color:'#00ff88'};
   if(s>=76) return {label:'EXCELLENT', color:'#00e5ff'};
