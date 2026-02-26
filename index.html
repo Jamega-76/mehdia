@@ -344,9 +344,9 @@ function render(){
     </div>`:''}
   </div>
 
-  <div class="days">${days.map((d,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?'getMehdiaHour()':'10'};render()">
-    <div class="day-name">${d.name}</div>
-    <div class="day-num">${d.num}</div>
+  <div class="days">${days.map((d,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?'getMehdiaHour()':'10'};render()" style="border-color:${i===selDay?d.color+'66':''}">
+    <div class="day-name" style="color:${d.color}">${d.name}</div>
+    <div class="day-num" style="color:${d.color};text-shadow:0 0 12px ${d.color}66">${d.num}</div>
     <svg width="18" height="10" viewBox="0 0 22 10" fill="none" stroke="${d.color}" stroke-width="2" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${d.color}88)">
       <path d="M1 6c1.5-2 3-3.5 5-3.5s3.5 3 6 3 3.5-3 8-3"/>
     </svg>
