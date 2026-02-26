@@ -345,13 +345,13 @@ function render(){
   const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
   const fh=faceH(waveH);
 
-  const sc=calcScore(waveH,period,windSpd,windDeg);
-  const {label,color,night,emoji}=getStatus(sc,selHour,sun);
-
   const d=new Date(now); d.setDate(d.getDate()+selDay);
   const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
   const sun=sunTimes(selDay);
   const tide=tideInfo(selDay,selHour);
+
+  const sc=calcScore(waveH,period,windSpd,windDeg);
+  const {label,color,night,emoji}=getStatus(sc,selHour,sun);
 
   // 5 jours
   const days=Array.from({length:5},(_,i)=>{
