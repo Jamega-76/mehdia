@@ -146,36 +146,41 @@ let selHour=getMehdiaHour();
 // Taille face de vague surfable ≈ 65% de la houle
 function faceH(houle){ return +(houle*0.65).toFixed(1); }
 
-// Score 0-100 — critères stricts
+// Score 0-100 — critères très stricts
 function calcScore(wh, period, wind, windDeg){
   const h=faceH(wh);
 
-  // Zone idéale : 0.8m–1.8m face. En dessous trop petit, au dessus trop gros.
+  // Taille idéale : 1.0–1.8m face. Pénalités sévères en dehors.
   let s=0;
-  if(h<0.3)       s=0;
-  else if(h<0.5)  s=15;
-  else if(h<0.8)  s=30+((h-0.5)/0.3)*15;   // 30→45
-  else if(h<=1.2) s=55+((h-0.8)/0.4)*25;   // 55→80
-  else if(h<=1.8) s=80+((h-1.2)/0.6)*15;   // 80→95
-  else if(h<=2.5) s=95-((h-1.8)/0.7)*30;   // 95→65
-  else if(h<=3.5) s=65-((h-2.5)/1.0)*40;   // 65→25
-  else            s=Math.max(5, 25-(h-3.5)*10);
+  if(h<0.2)       s=0;
+  else if(h<0.4)  s=8;
+  else if(h<0.6)  s=18;
+  else if(h<0.8)  s=28;
+  else if(h<1.0)  s=40;
+  else if(h<=1.4) s=62+((h-1.0)/0.4)*18;  // 62→80 — zone correcte
+  else if(h<=1.8) s=80+((h-1.4)/0.4)*12;  // 80→92 — zone idéale
+  else if(h<=2.2) s=92-((h-1.8)/0.4)*18;  // 92→74 — commence à être gros
+  else if(h<=3.0) s=74-((h-2.2)/0.8)*35;  // 74→39 — gros/difficile
+  else if(h<=4.0) s=39-((h-3.0)/1.0)*30;  // 39→9  — très gros
+  else            s=Math.max(0, 9-(h-4.0)*5);
 
-  // Période — très importante, pénalités sévères
-  if(period>=14)      s=Math.min(100,s+12);
-  else if(period>=11) s=Math.min(100,s+6);
-  else if(period>=8)  s=s;                  // neutre
-  else if(period>=6)  s-=10;
-  else                s-=22;               // houle courte, mauvaise qualité
+  // Période — critique pour la qualité de la vague
+  if(period>=16)      s=Math.min(100,s+15);  // houle longue, vagues propres
+  else if(period>=13) s=Math.min(100,s+8);
+  else if(period>=10) s=Math.min(100,s+2);
+  else if(period>=8)  s-=8;
+  else if(period>=6)  s-=18;
+  else                s-=30;  // houle courte et moche
 
-  // Vent — pénalités sévères, bonus faible
-  const isOffshore = windDeg!==undefined && (()=>{const d=((windDeg-315+540)%360)-180;return Math.abs(d)>135;})();
-  if(wind>35)       s-=40;
-  else if(wind>25)  s-=28;
-  else if(wind>18)  s-=18;
-  else if(wind>12)  s-=8;
-  else if(wind<=8 && isOffshore) s=Math.min(100,s+8);  // offshore léger = bonus
-  else if(wind<=8)  s=Math.min(100,s+3);
+  // Vent — pénalités très sévères
+  const isOff = windDeg!==undefined && (((windDeg-315+540)%360+180)%360-180<-135 || ((windDeg-315+540)%360+180)%360-180>135);
+  if(wind>40)       s-=50;
+  else if(wind>30)  s-=35;
+  else if(wind>22)  s-=22;
+  else if(wind>15)  s-=12;
+  else if(wind>10)  s-=5;
+  else if(wind<=6 && isOff) s=Math.min(100,s+10);  // offshore léger = quasi parfait
+  else if(wind<=6)  s=Math.min(100,s+4);
 
   return Math.max(0,Math.min(100,Math.round(s)));
 }
@@ -189,19 +194,24 @@ function timeSlot(hour){
   return null;
 }
 
-// Statuts du meilleur au pire — seuils stricts
+// Statuts — seuils très sévères
+// PARFAIT : ≥90 → conditions vraiment exceptionnelles, rarement atteint
+// EXCELLENT : ≥76
+// TRES BON : ≥60
+// SURFABLE : ≥42
+// PASSABLE : ≥22
+// NUL : <22
 function getStatus(s, hour){
   if(hour!==undefined){
     if(hour>=23 || hour<5) return {label:'DODO TIME',  color:'#9b8eff', night:true};
     if(hour>=20 || hour<7) return {label:'GO NETFLIX', color:'#b388ff', night:true};
   }
-  // EXCELLENT : score ≥92 (conditions vraiment parfaites)
-  if(s>=92) return {label:'EXCELLENT', color:'#00ff88'};
-  if(s>=75) return {label:'TOP',       color:'#00e5ff'};
-  if(s>=55) return {label:'SYMPA',     color:'#7bed9f'};
-  if(s>=35) return {label:'SURFABLE',  color:'#ffd166'};
-  if(s>=15) return {label:'DUR',       color:'#ff8c42'};
-  return           {label:'PS5 DAY',   color:'#ef476f'};
+  if(s>=90) return {label:'PARFAIT',   color:'#00ff88'};
+  if(s>=76) return {label:'EXCELLENT', color:'#00e5ff'};
+  if(s>=60) return {label:'TRÈS BON',  color:'#7bed9f'};
+  if(s>=42) return {label:'SURFABLE',  color:'#ffd166'};
+  if(s>=22) return {label:'PASSABLE',  color:'#ff8c42'};
+  return           {label:'NUL',       color:'#ef476f'};
 }
 
 function windLabel(deg){
