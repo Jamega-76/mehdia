@@ -185,16 +185,16 @@ function timeSlot(hour){
 // Statuts — seuils très sévères
 function getStatus(s, hour, sunTimes){
   if(hour!==undefined){
-    // SURF OFF : dans les 30 min autour du lever/coucher de soleil
+    // SURF OFF : dans les 1h autour du lever/coucher de soleil
     if(sunTimes){
       const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
       const h=hour*60;
       const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(h<rise-30 || h>set+30) return {label:'SURF OFF', color:'#6c6c8a', night:true, emoji:'😴'};
-      if(Math.abs(h-rise)<=30 || Math.abs(h-set)<=30) return {label:'SURF OFF', color:'#6c6c8a', night:true, emoji:'😴'};
+      if(h<rise-60 || h>set+60) return {label:'SURF OFF', color:'#6c6c8a', night:true};
+      if(Math.abs(h-rise)<=60 || Math.abs(h-set)<=60) return {label:'SURF OFF', color:'#6c6c8a', night:true};
     }
-    if(hour>=23 || hour<5) return {label:'DODO TIME',  color:'#9b8eff', night:true};
-    if(hour>=20 || hour<7) return {label:'GO NETFLIX', color:'#b388ff', night:true};
+    if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
+    if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
   }
   if(s>=90) return {label:'PARFAIT',   color:'#00ff88'};
   if(s>=76) return {label:'EXCELLENT', color:'#00e5ff'};
@@ -345,7 +345,7 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : label==='SURF OFF' ? 'Trop tôt ou trop tard pour surfer' : '🎬 Pas de session ce soir…')
+    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : label==='SURF OFF' ? 'Trop tôt ou trop tard pour surfer' : 'Pas de session ce soir…')
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
   const ringLabel=label==='SURF OFF' ? `😴 ${label}` : label;
