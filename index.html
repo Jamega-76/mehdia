@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -139,37 +138,62 @@ let selHour=getMehdiaHour();
 // Taille face de vague surfable ≈ 65% de la houle
 function faceH(houle){ return +(houle*0.65).toFixed(1); }
 
-// Score 0-100
-function calcScore(wh, period, wind){
+// Score 0-100 — critères stricts
+function calcScore(wh, period, wind, windDeg){
   const h=faceH(wh);
+
+  // Zone idéale : 0.8m–1.8m face. En dessous trop petit, au dessus trop gros.
   let s=0;
-  if(h<0.3) s=5;
-  else if(h<0.5) s=30;
-  else if(h<=0.8) s=48+((h-0.5)/0.3)*12;
-  else if(h<=1.4) s=60+((h-0.8)/0.6)*25;
-  else if(h<=2.0) s=85+((h-1.4)/0.6)*10;
-  else if(h<=2.8) s=95-((h-2.0)/0.8)*25;
-  else s=Math.max(10, 70-(h-2.8)*15);
-  if(period>=14) s=Math.min(100,s+10);
-  else if(period>=10) s=Math.min(100,s+5);
-  else if(period<6) s-=15;
-  if(wind>30) s-=28; else if(wind>20) s-=16; else if(wind>15) s-=8; else if(wind<8) s=Math.min(100,s+5);
+  if(h<0.3)       s=0;
+  else if(h<0.5)  s=15;
+  else if(h<0.8)  s=30+((h-0.5)/0.3)*15;   // 30→45
+  else if(h<=1.2) s=55+((h-0.8)/0.4)*25;   // 55→80
+  else if(h<=1.8) s=80+((h-1.2)/0.6)*15;   // 80→95
+  else if(h<=2.5) s=95-((h-1.8)/0.7)*30;   // 95→65
+  else if(h<=3.5) s=65-((h-2.5)/1.0)*40;   // 65→25
+  else            s=Math.max(5, 25-(h-3.5)*10);
+
+  // Période — très importante, pénalités sévères
+  if(period>=14)      s=Math.min(100,s+12);
+  else if(period>=11) s=Math.min(100,s+6);
+  else if(period>=8)  s=s;                  // neutre
+  else if(period>=6)  s-=10;
+  else                s-=22;               // houle courte, mauvaise qualité
+
+  // Vent — pénalités sévères, bonus faible
+  const isOffshore = windDeg!==undefined && (()=>{const d=((windDeg-315+540)%360)-180;return Math.abs(d)>135;})();
+  if(wind>35)       s-=40;
+  else if(wind>25)  s-=28;
+  else if(wind>18)  s-=18;
+  else if(wind>12)  s-=8;
+  else if(wind<=8 && isOffshore) s=Math.min(100,s+8);  // offshore léger = bonus
+  else if(wind<=8)  s=Math.min(100,s+3);
+
   return Math.max(0,Math.min(100,Math.round(s)));
 }
 
-// Statuts du meilleur au pire
+// Tranche horaire
+function timeSlot(hour){
+  if(hour>=5  && hour<12) return 'Matin';
+  if(hour>=12 && hour<15) return 'Midi';
+  if(hour>=15 && hour<20) return 'Après-midi';
+  if(hour>=20 && hour<23) return 'Soirée';
+  return null;
+}
+
+// Statuts du meilleur au pire — seuils stricts
 function getStatus(s, hour){
-  // Statuts nocturnes (indépendants du score)
   if(hour!==undefined){
-    if(hour>=23 || hour<5)  return {label:'DODO TIME',  color:'#9b8eff', night:true};
-    if(hour>=20 || hour<7)  return {label:'GO NETFLIX', color:'#b388ff', night:true};
+    if(hour>=23 || hour<5) return {label:'DODO TIME',  color:'#9b8eff', night:true};
+    if(hour>=20 || hour<7) return {label:'GO NETFLIX', color:'#b388ff', night:true};
   }
-  if(s>=85) return {label:'EXCELLENT', color:'#00ff88'};
-  if(s>=68) return {label:'TOP',       color:'#00e5ff'};
-  if(s>=50) return {label:'SYMPA',     color:'#7bed9f'};
-  if(s>=33) return {label:'SURFABLE',  color:'#ffd166'};
-  if(s>=16) return {label:'DUR',       color:'#ff8c42'};
-  return              {label:'PS5 DAY', color:'#ef476f'};
+  // EXCELLENT : score ≥92 (conditions vraiment parfaites)
+  if(s>=92) return {label:'EXCELLENT', color:'#00ff88'};
+  if(s>=75) return {label:'TOP',       color:'#00e5ff'};
+  if(s>=55) return {label:'SYMPA',     color:'#7bed9f'};
+  if(s>=35) return {label:'SURFABLE',  color:'#ffd166'};
+  if(s>=15) return {label:'DUR',       color:'#ff8c42'};
+  return           {label:'PS5 DAY',   color:'#ef476f'};
 }
 
 function windLabel(deg){
@@ -195,7 +219,7 @@ function dayBestScore(d){
   let best=0;
   for(let h=6;h<=20;h++){
     const i=hi(d,h);
-    const s=calcScore(M.hourly.wave_height[i]??0, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0);
+    const s=calcScore(M.hourly.wave_height[i]??0, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0, W.hourly.wind_direction_10m?.[i]);
     if(s>best) best=s;
   }
   return best;
@@ -255,7 +279,7 @@ function render(){
   const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
   const fh=faceH(waveH);
 
-  const sc=calcScore(waveH,period,windSpd);
+  const sc=calcScore(waveH,period,windSpd,windDeg);
   const {label,color,night}=getStatus(sc,selHour);
 
   const d=new Date(now); d.setDate(d.getDate()+selDay);
@@ -280,15 +304,18 @@ function render(){
     const wh=M.hourly.wave_height[ix]??0;
     const ws=W.hourly.wind_speed_10m[ix]??0;
     const wp=M.hourly.wave_period[ix]??8;
-    const ps=calcScore(wh,wp,ws);
+    const wd=W.hourly.wind_direction_10m?.[ix];
+    const ps=calcScore(wh,wp,ws,wd);
     return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h), nextDay:dOff>0};
   });
 
   const C=2*Math.PI*95;
   const dash=C-(sc/100)*C;
 
-  const subText=night ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : '🎬 Pas de session ce soir…')
-    : fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`;
+  const slot=timeSlot(selHour);
+  const subText=night
+    ? (label==='DODO TIME' ? '😴 Il est tard, bonne nuit !' : '🎬 Pas de session ce soir…')
+    : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
   let tideHTML='';
   if(tide){
