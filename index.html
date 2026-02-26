@@ -398,7 +398,7 @@ function render(){
       <svg class="wind-arrow" style="transform:rotate(${windDeg}deg);transition:transform .8s" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
         <line x1="14" y1="24" x2="14" y2="4"/><polyline points="8,10 14,4 20,10"/>
       </svg>
-      <div class="stat-val">${Math.round(windSpd)}<span class="unit">km/h</span></div>
+      <div class="stat-val">${Math.round(windSpd)}<span class="unit"> km/h</span></div>
       <div class="stat-sub">${windLabel(windDeg)}</div>
     </div>
     <div class="sdiv"></div>
@@ -410,7 +410,7 @@ function render(){
         <line x1="6" y1="6" x2="8.1" y2="8.1"/><line x1="23.9" y1="23.9" x2="26" y2="26"/>
         <line x1="26" y1="6" x2="23.9" y2="8.1"/><line x1="8.1" y1="23.9" x2="6" y2="26"/>
       </svg>
-      <div class="stat-val">${Math.round(temp)}<span class="unit">°</span></div>
+      <div class="stat-val">${Math.round(temp)}<span class="unit" style="vertical-align:super;font-size:9px">°</span></div>
       <div class="stat-sub">${wxLabel(wcode)}</div>
     </div>
   </div>
