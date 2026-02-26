@@ -183,21 +183,24 @@ function timeSlot(hour){
 }
 
 // Statuts — seuils très sévères
-function getStatus(s, hour, sunTimes){
+function getStatus(s, hour, sunTimes, fh){
   if(hour!==undefined){
     // DODO et NETFLIX en priorité
     if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
     if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
-    // SURF OFF : uniquement dans la fenêtre ±1h autour du lever/coucher
+    // NETFLIX aussi autour du lever/coucher de soleil (±1h)
     if(sunTimes){
       const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
       const h=hour*60;
       const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(Math.abs(h-rise)<=60 || Math.abs(h-set)<=60) return {label:'SURF OFF', color:'#6c6c8a', night:true};
+      if(Math.abs(h-rise)<=60 || Math.abs(h-set)<=60) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
     }
   }
-  if(s>=90) return {label:'PARFAIT',   color:'#00ff88'};
-  if(s>=76) return {label:'EXCELLENT', color:'#00e5ff'};
+  // EXCELLENT impossible si vagues face < 2m
+  if(s>=90 && fh>=2.0) return {label:'PARFAIT',   color:'#00ff88'};
+  if(s>=90 && fh<2.0)  return {label:'EXCELLENT', color:'#00e5ff'};
+  if(s>=76 && fh>=2.0) return {label:'EXCELLENT', color:'#00e5ff'};
+  if(s>=76)            return {label:'TRÈS BON',  color:'#7bed9f'};
   if(s>=60) return {label:'TRÈS BON',  color:'#7bed9f'};
   if(s>=42) return {label:'SURFABLE',  color:'#ffd166'};
   if(s>=22) return {label:'PASSABLE',  color:'#ff8c42'};
@@ -316,12 +319,12 @@ function render(){
   const sun=sunTimes(selDay);
 
   const sc=calcScore(waveH,period,windSpd,windDeg);
-  const {label,color,night,emoji}=getStatus(sc,selHour,sun);
+  const {label,color,night,emoji}=getStatus(sc,selHour,sun,fh);
 
   // 5 jours
   const days=Array.from({length:5},(_,i)=>{
     const x=new Date(now); x.setDate(x.getDate()+i);
-    return {name:DAYS[x.getDay()], num:x.getDate(), sc:dayBestScore(i), color:getStatus(dayBestScore(i),12,null).color};
+    const sc=dayBestScore(i); return {name:DAYS[x.getDay()], num:x.getDate(), sc, color:getStatus(sc,12,null,99).color};
   });
 
   // Pills horaires : 5 heures consécutives — commence à l'heure EN COURS
@@ -337,7 +340,7 @@ function render(){
     const wp=M.hourly.wave_period[ix]??8;
     const wd=W.hourly.wind_direction_10m?.[ix];
     const ps=calcScore(wh,wp,ws,wd);
-    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h,sun), nextDay:dOff>0};
+    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h,sun,faceH(wh)), nextDay:dOff>0};
   });
 
   const C=2*Math.PI*95;
@@ -345,10 +348,10 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : label==='SURF OFF' ? 'Trop tôt ou trop tard pour surfer' : 'Pas de session ce soir…')
+    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : 'Repos, Netflix, Dodo 🍿')
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
-  const ringLabel=label==='SURF OFF' ? `😴 ${label}` : label;
+  const ringLabel=label;
 
   document.getElementById('app').innerHTML=`<div class="screen">
 
