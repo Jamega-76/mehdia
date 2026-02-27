@@ -349,7 +349,7 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='🌙 DODO TIME' ? 'Bonne nuit, à demain !' : label==='🏃 TRAINING + PETIT DEJ' ? 'Réveil, stretching, café ☕' : 'Repos, Netflix, Dodo 🍿')
+    ? (label==='🌙 DODO TIME' ? 'Bonne nuit !' : label==='🏃 TRAINING + PETIT DEJ' ? 'Réveil, stretching, café ☕' : 'Repos, Netflix, Dodo 🍿')
     : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
 
   const ringLabel=label;
