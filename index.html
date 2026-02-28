@@ -27,11 +27,24 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 /* LAYOUT */
 .screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:52px 20px 40px;max-width:420px;margin:0 auto;gap:18px}
 
-/* SHARE */
-.share-btn{position:fixed;top:14px;right:14px;z-index:100;width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:.2s}
-.share-btn:hover{color:#fff}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(70px);background:rgba(30,30,30,0.95);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;color:#fff;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:200}
+/* TOP BUTTONS */
+.top-btns{position:fixed;top:14px;right:14px;z-index:100;display:flex;gap:8px}
+.top-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:.2s;position:relative}
+.top-btn:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+.notif-dot{position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:#00ff88;display:none}
+.notif-dot.on{display:block}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(20,20,20,.96);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;color:#fff;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:500;pointer-events:none}
 .toast.show{transform:translateX(-50%) translateY(0)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#111;border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:28px 24px 44px;transform:translateY(100%);transition:.3s cubic-bezier(.34,1.1,.64,1);max-height:85vh;overflow-y:auto}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px}
 
 /* HEADER */
 .header{text-align:center;animation:fadeUp .5s ease forwards;opacity:0;width:100%}
@@ -40,14 +53,11 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .sun-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:7px}
 .sun-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
 
-/* DAYS */
-.days{display:flex;gap:5px;width:100%;animation:fadeUp .5s .05s ease forwards;opacity:0}
-.day-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px 7px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;transition:.2s}
-.day-btn.active{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.06)}
-.day-name{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
-.day-btn.active .day-name{color:#00ff88}
-.day-num{font-size:15px;font-weight:700}
-.day-dot{width:6px;height:6px;border-radius:50%}
+/* BEST HOUR BANNER */
+.best-banner{width:100%;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:12px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s .04s ease forwards;opacity:0;cursor:pointer;transition:.15s}
+.best-banner:hover{background:rgba(0,255,136,.1)}
+.best-banner-left{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,255,136,.7)}
+.best-banner-right{font-size:13px;font-weight:800;color:#00ff88}
 
 /* RING */
 .ring-section{animation:fadeUp .5s .1s ease forwards;opacity:0}
@@ -56,7 +66,7 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:5}
 .ring-arc{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:597;transition:stroke-dashoffset 1.8s cubic-bezier(.34,1.1,.64,1)}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
-.ring-label{font-size:22px;font-weight:900;letter-spacing:3px;text-transform:uppercase;line-height:1;margin-bottom:8px}
+.ring-label{font-size:19px;font-weight:900;letter-spacing:2px;text-transform:uppercase;line-height:1;margin-bottom:8px}
 .ring-sub{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
 
 /* STATS */
@@ -79,36 +89,173 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 /* HOURLY */
 .hourly-wrap{width:100%;animation:fadeUp .5s .35s ease forwards;opacity:0}
 .hourly-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;text-align:center}
-.hourly{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;width:100%}
+.hourly{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;width:100%;padding-bottom:2px}
 .hourly::-webkit-scrollbar{display:none}
 .hour-pill{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:.2s;flex-shrink:0;background:var(--card);min-width:64px}
-.hour-pill:hover{border-color:rgba(255,255,255,.2)}
-.hour-pill.active{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.05)}
+.hour-pill.best{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.05)}
+.hour-pill.active{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
+.hour-pill.active.best{border-color:rgba(0,255,136,.7)}
 .hour-time{font-size:11px;color:var(--muted);font-weight:600}
 .hour-dot{width:7px;height:7px;border-radius:50%}
 .hour-size{font-size:15px;font-weight:800}
 .hour-status{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
 
+/* WEEK CHART */
+.week-wrap{width:100%;animation:fadeUp .5s .3s ease forwards;opacity:0}
+.week-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
+.week-bars{display:flex;align-items:flex-end;gap:5px;height:56px}
+.week-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;cursor:pointer}
+.week-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .7s cubic-bezier(.34,1.1,.64,1),opacity .2s}
+.week-bar-lbl{font-size:9px;font-weight:600;text-transform:uppercase;color:var(--muted);transition:.2s}
+.week-bar-col.sel .week-bar-lbl{color:#fff}
+
+/* DAYS */
+.days{display:flex;gap:5px;width:100%;animation:fadeUp .5s .05s ease forwards;opacity:0}
+.day-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px 7px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;transition:.2s}
+.day-name{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+.day-num{font-size:15px;font-weight:700}
+
+/* SESSION LOG */
+.log-wrap{width:100%;animation:fadeUp .5s .4s ease forwards;opacity:0}
+.log-section-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
+.log-add-btn{width:100%;padding:11px;border:1px dashed rgba(255,255,255,.15);border-radius:12px;background:transparent;color:rgba(255,255,255,.35);font-size:12px;font-family:inherit;cursor:pointer;transition:.2s;letter-spacing:.5px}
+.log-add-btn:hover{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.6)}
+.log-entry{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.log-entry:last-child{border-bottom:none}
+.log-info{display:flex;flex-direction:column;gap:3px}
+.log-meta{font-size:10px;color:var(--muted);font-weight:600}
+.log-text{font-size:13px;font-weight:700}
+.log-del{background:none;border:none;color:rgba(255,255,255,.2);cursor:pointer;font-size:14px;padding:4px 2px;transition:.2s}
+.log-del:hover{color:rgba(255,100,100,.7)}
+
+/* LOG FORM in modal */
+.log-form{display:flex;flex-direction:column;gap:16px}
+.log-field label{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.log-textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:#fff;font-family:inherit;font-size:14px;outline:none;resize:none;transition:.2s;line-height:1.5}
+.log-textarea:focus{border-color:rgba(255,255,255,.25)}
+.star-row{display:flex;gap:10px}
+.star-btn{background:none;border:none;font-size:26px;cursor:pointer;opacity:.25;transition:.15s;padding:2px;line-height:1}
+.star-btn.on{opacity:1}
+.form-submit{width:100%;padding:13px;background:#00ff88;border:none;border-radius:12px;color:#000;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:.15s;margin-top:4px}
+.form-submit:hover{background:#00e07a}
+
+/* ALERT FORM in modal */
+.alert-form{display:flex;flex-direction:column;gap:18px}
+.alert-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.alert-lbl{font-size:13px;font-weight:600}
+.alert-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.ttrack{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:100px;transition:.25s;cursor:pointer}
+.toggle input:checked+.ttrack{background:#00ff88}
+.tthumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.25s;pointer-events:none}
+.toggle input:checked~.tthumb{transform:translateX(20px)}
+.a-divider{height:1px;background:var(--border)}
+.range-block{display:flex;flex-direction:column;gap:8px}
+.range-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+.range-val-row{display:flex;align-items:baseline;gap:5px}
+.rval{font-size:24px;font-weight:800}
+.runit{font-size:12px;color:var(--muted)}
+input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:#00ff88;border-radius:50%;cursor:pointer;transition:.1s}
+
 /* TIPS */
-.tips{width:100%;margin-top:10px;animation:fadeUp .5s .4s ease forwards;opacity:0}
+.tips{width:100%;margin-top:4px;animation:fadeUp .5s .45s ease forwards;opacity:0}
 .tips-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
 .tip-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .tip-item:last-child{border-bottom:none}
 .tip-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.2);min-width:14px;margin-top:1px}
 .tip-text{font-size:12px;color:rgba(255,255,255,.65);line-height:1.5}
 
+#shareCanvas{display:none;position:absolute;top:-9999px}
+
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<button class="share-btn" onclick="shareApp()" title="Partager">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-    <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-  </svg>
-</button>
-<div class="toast" id="toast">🔗 Lien copié !</div>
+<!-- TOP BUTTONS -->
+<div class="top-btns">
+  <button class="top-btn" id="alertBtn" onclick="openModal('alertModal')" title="Alertes surf">
+    <div class="notif-dot" id="notifDot"></div>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+    </svg>
+  </button>
+  <button class="top-btn" onclick="shareConditions()" title="Partager">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ALERT MODAL -->
+<div class="modal-overlay" id="alertModal" onclick="if(event.target===this)closeModal('alertModal')">
+  <div class="modal">
+    <div class="modal-title">Alertes surf <button class="modal-close" onclick="closeModal('alertModal')">✕</button></div>
+    <div class="alert-form">
+      <div class="alert-row">
+        <div>
+          <div class="alert-lbl">Notifications activées</div>
+          <div class="alert-sub">Alerté quand les conditions matchent</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="notifToggle" onchange="saveAlertPrefs()">
+          <div class="ttrack"></div><div class="tthumb"></div>
+        </label>
+      </div>
+      <div class="a-divider"></div>
+      <div class="range-block">
+        <div class="range-lbl">Vagues min</div>
+        <div class="range-val-row"><span class="rval" id="waveMinVal">0.8</span><span class="runit">m face</span></div>
+        <input type="range" id="waveMinRange" min="0.2" max="3" step="0.1" value="0.8"
+          oninput="document.getElementById('waveMinVal').textContent=parseFloat(this.value).toFixed(1);saveAlertPrefs()">
+      </div>
+      <div class="range-block">
+        <div class="range-lbl">Vent max</div>
+        <div class="range-val-row"><span class="rval" id="windMaxVal">20</span><span class="runit">km/h</span></div>
+        <input type="range" id="windMaxRange" min="5" max="50" step="1" value="20"
+          oninput="document.getElementById('windMaxVal').textContent=this.value;saveAlertPrefs()">
+      </div>
+      <div class="range-block">
+        <div class="range-lbl">Score min</div>
+        <div class="range-val-row"><span class="rval" id="scoreMinVal">50</span><span class="runit">/100</span></div>
+        <input type="range" id="scoreMinRange" min="20" max="95" step="5" value="50"
+          oninput="document.getElementById('scoreMinVal').textContent=this.value;saveAlertPrefs()">
+      </div>
+      <button class="form-submit" onclick="requestAndTestNotif()">🔔 Activer les alertes</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOG MODAL -->
+<div class="modal-overlay" id="logModal" onclick="if(event.target===this)closeModal('logModal')">
+  <div class="modal">
+    <div class="modal-title">Nouvelle session <button class="modal-close" onclick="closeModal('logModal')">✕</button></div>
+    <div class="log-form">
+      <div class="log-field">
+        <label>Note / Ressenti</label>
+        <textarea class="log-textarea" id="logNote" rows="2" placeholder="Belles vagues, offshore léger…"></textarea>
+      </div>
+      <div class="log-field">
+        <label>Évaluation</label>
+        <div class="star-row" id="starRow">
+          <button class="star-btn" data-v="1" onclick="setStar(1)">⭐</button>
+          <button class="star-btn" data-v="2" onclick="setStar(2)">⭐</button>
+          <button class="star-btn" data-v="3" onclick="setStar(3)">⭐</button>
+          <button class="star-btn" data-v="4" onclick="setStar(4)">⭐</button>
+          <button class="star-btn" data-v="5" onclick="setStar(5)">⭐</button>
+        </div>
+      </div>
+      <button class="form-submit" onclick="saveSession()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="shareCanvas" width="800" height="560"></canvas>
 
 <div id="app">
   <div id="loading">
@@ -119,149 +266,137 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 
 <script>
 const LAT=34.263, LON=-6.653;
-let M=null, W=null, selDay=0;
+let M=null, W=null, selDay=0, logStar=3;
+let _currentStatus={label:'',color:'#00ff88',fh:0,sc:0,windSpd:0,period:0};
+
 const DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
 const FDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
 function getMehdiaHour(){
   const h=new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date());
-  const n=parseInt(h);
-  return isNaN(n)?new Date().getHours():n%24;
+  const n=parseInt(h); return isNaN(n)?new Date().getHours():n%24;
 }
 let selHour=getMehdiaHour();
 
-// Taille face de vague surfable ≈ 65% de la houle
-function faceH(houle){ return +(houle*0.65).toFixed(1); }
+function faceH(houle){return+(houle*0.65).toFixed(1);}
 
-// Score 0-100 — critères très stricts
-function calcScore(wh, period, wind, windDeg){
+function calcScore(wh,period,wind,windDeg){
   const h=faceH(wh);
-
-  // Taille idéale : 1.0–1.8m face. Pénalités sévères en dehors.
   let s=0;
   if(h<0.2)       s=0;
   else if(h<0.4)  s=8;
   else if(h<0.6)  s=18;
   else if(h<0.8)  s=28;
   else if(h<1.0)  s=40;
-  else if(h<=1.4) s=62+((h-1.0)/0.4)*18;  // 62→80 — zone correcte
-  else if(h<=1.8) s=80+((h-1.4)/0.4)*12;  // 80→92 — zone idéale
-  else if(h<=2.2) s=92-((h-1.8)/0.4)*18;  // 92→74 — commence à être gros
-  else if(h<=3.0) s=74-((h-2.2)/0.8)*35;  // 74→39 — gros/difficile
-  else if(h<=4.0) s=39-((h-3.0)/1.0)*30;  // 39→9  — très gros
-  else            s=Math.max(0, 9-(h-4.0)*5);
-
-  // Période — critique pour la qualité de la vague
-  if(period>=16)      s=Math.min(100,s+15);  // houle longue, vagues propres
+  else if(h<=1.4) s=62+((h-1.0)/0.4)*18;
+  else if(h<=1.8) s=80+((h-1.4)/0.4)*12;
+  else if(h<=2.2) s=92-((h-1.8)/0.4)*18;
+  else if(h<=3.0) s=74-((h-2.2)/0.8)*35;
+  else if(h<=4.0) s=39-((h-3.0)/1.0)*30;
+  else            s=Math.max(0,9-(h-4.0)*5);
+  if(period>=16)      s=Math.min(100,s+15);
   else if(period>=13) s=Math.min(100,s+8);
   else if(period>=10) s=Math.min(100,s+2);
   else if(period>=8)  s-=8;
   else if(period>=6)  s-=18;
-  else                s-=30;  // houle courte et moche
-
-  // Vent — pénalités très sévères
-  const isOff = windDeg!==undefined && (((windDeg-315+540)%360+180)%360-180<-135 || ((windDeg-315+540)%360+180)%360-180>135);
-  if(wind>40)       s-=50;
-  else if(wind>30)  s-=35;
-  else if(wind>22)  s-=22;
-  else if(wind>15)  s-=12;
-  else if(wind>10)  s-=5;
-  else if(wind<=6 && isOff) s=Math.min(100,s+10);  // offshore léger = quasi parfait
-  else if(wind<=6)  s=Math.min(100,s+4);
-
+  else                s-=30;
+  const isOff=windDeg!==undefined&&(((windDeg-315+540)%360+180)%360-180<-135||((windDeg-315+540)%360+180)%360-180>135);
+  if(wind>40)        s-=50;
+  else if(wind>30)   s-=35;
+  else if(wind>22)   s-=22;
+  else if(wind>15)   s-=12;
+  else if(wind>10)   s-=5;
+  else if(wind<=6&&isOff) s=Math.min(100,s+10);
+  else if(wind<=6)   s=Math.min(100,s+4);
   return Math.max(0,Math.min(100,Math.round(s)));
 }
 
-// Tranche horaire
-function timeSlot(hour){
-  if(hour>=5  && hour<12) return 'Matin';
-  if(hour>=12 && hour<15) return 'Midi';
-  if(hour>=15 && hour<20) return 'Après-midi';
-  if(hour>=20 && hour<23) return 'Soirée';
+function timeSlot(h){
+  if(h>=5&&h<12) return 'Matin';
+  if(h>=12&&h<15) return 'Midi';
+  if(h>=15&&h<20) return 'Après-midi';
+  if(h>=20&&h<23) return 'Soirée';
   return null;
 }
 
-// Statuts — seuils très sévères
-function getStatus(s, hour, sunTimes, fh){
+function getStatus(s,hour,sunTimes,fh){
   if(hour!==undefined){
-    // DODO et NETFLIX en priorité
-    if(hour>=22 || hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff', night:true};
-    if(hour>=19 && hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff', night:true};
-    // Lever/coucher distincts (±1h)
+    if(hour>=22||hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff',night:true};
+    if(hour>=19&&hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff',night:true};
     if(sunTimes){
-      const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes()};
-      const h=hour*60;
-      const rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(Math.abs(h-rise)<=60) return {label:'🏃 TRAINING + PETIT DEJ', color:'#ffb347', night:true};
-      if(Math.abs(h-set)<=60)  return {label:'🍿 NETFLIX TIME',          color:'#b388ff', night:true};
+      const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes();};
+      const hm=hour*60, rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
+      if(Math.abs(hm-rise)<=60) return {label:'🏃 TRAINING + PETIT DEJ',color:'#ffb347',night:true};
+      if(Math.abs(hm-set)<=60)  return {label:'🍿 NETFLIX TIME',color:'#b388ff',night:true};
     }
   }
-  // DREAM CONDITIONS : score parfait ET vagues ≥2m — vraiment exceptionnel
-  if(s>=95 && fh>=2.0) return {label:'🌊 DREAM CONDITIONS', color:'#00ff88'};
-  if(s>=90 && fh>=2.0) return {label:'EXCELLENT',           color:'#00e5ff'};
-  if(s>=90)            return {label:'BON SURF',             color:'#7bed9f'};
-  if(s>=76 && fh>=2.0) return {label:'BON SURF',             color:'#7bed9f'};
-  if(s>=76)            return {label:'SURFABLE',             color:'#ffd166'};
-  if(s>=60) return {label:'SURFABLE',  color:'#ffd166'};
-  if(s>=42) return {label:'JOUABLE',   color:'#ff8c42'};
-  if(s>=22) return {label:'NUL',       color:'#ef476f'};
-  return           {label:'VA A LA SALLE', color:'#888'};
+  if(s>=95&&fh>=2.0) return {label:'🌊 DREAM CONDITIONS',color:'#00ff88'};
+  if(s>=90&&fh>=2.0) return {label:'EXCELLENT',color:'#00e5ff'};
+  if(s>=90)          return {label:'BON SURF',color:'#7bed9f'};
+  if(s>=76&&fh>=2.0) return {label:'BON SURF',color:'#7bed9f'};
+  if(s>=60)          return {label:'SURFABLE',color:'#ffd166'};
+  if(s>=42)          return {label:'JOUABLE',color:'#ff8c42'};
+  if(s>=22)          return {label:'NUL',color:'#ef476f'};
+  return             {label:'VA A LA SALLE',color:'#888'};
 }
 
 function windLabel(deg){
   const d=((deg-315+540)%360)-180;
-  if(Math.abs(d)<45) return 'ONSHORE';
+  if(Math.abs(d)<45)  return 'ONSHORE';
   if(Math.abs(d)>135) return 'OFFSHORE';
-  const dirs=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
-  return dirs[Math.round(deg/22.5)%16];
+  return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'][Math.round(deg/22.5)%16];
 }
-
 function wxLabel(c){
-  if(c===0) return 'Ensoleillé';
-  if(c<=2)  return 'Peu nuageux';
-  if(c<=3)  return 'Couvert';
-  if(c<=48) return 'Brouillard';
-  if(c<=67) return 'Pluie';
-  return 'Orageux';
+  if(c===0) return 'Ensoleillé'; if(c<=2) return 'Peu nuageux';
+  if(c<=3)  return 'Couvert';   if(c<=48) return 'Brouillard';
+  if(c<=67) return 'Pluie';     return 'Orageux';
 }
-
-function hi(day,h){ return day*24+h; }
+function hi(d,h){return d*24+h;}
 
 function dayBestScore(d){
   let best=0;
   for(let h=6;h<=20;h++){
     const i=hi(d,h);
-    const s=calcScore(M.hourly.wave_height[i]??0, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0, W.hourly.wind_direction_10m?.[i]);
+    const s=calcScore(M.hourly.wave_height[i]??0,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
     if(s>best) best=s;
   }
   return best;
 }
 
 function dayDominantColor(d){
-  // Compte les statuts heure par heure (6h-20h) et retourne la couleur majoritaire
   const counts={};
   for(let h=6;h<=20;h++){
     const i=hi(d,h);
     const wh=M.hourly.wave_height[i]??0;
-    const s=calcScore(wh, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0, W.hourly.wind_direction_10m?.[i]);
+    const s=calcScore(wh,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
     const {color}=getStatus(s,h,null,faceH(wh));
     counts[color]=(counts[color]||0)+1;
   }
   return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
 }
 
+function dayBestHour(d){
+  let best=0,bestH=10;
+  for(let h=6;h<=19;h++){
+    const i=hi(d,h);
+    const s=calcScore(M.hourly.wave_height[i]??0,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
+    if(s>best){best=s;bestH=h;}
+  }
+  return {hour:bestH,score:best};
+}
+
 function sunTimes(d){
   try{
-    const r=W.daily?.sunrise?.[d], s=W.daily?.sunset?.[d];
+    const r=W.daily?.sunrise?.[d],s=W.daily?.sunset?.[d];
     if(!r||!s) return null;
-    const f=t=>{const x=new Date(t);return`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`};
-    return {rise:f(r), set:f(s), riseRaw:r, setRaw:s};
-  }catch{ return null; }
+    const f=t=>{const x=new Date(t);return`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`;};
+    return {rise:f(r),set:f(s),riseRaw:r,setRaw:s};
+  }catch{return null;}
 }
 
 async function fetchData(){
-  const today=new Date(), end=new Date(today);
+  const today=new Date(),end=new Date(today);
   end.setDate(today.getDate()+4);
   const fmt=d=>d.toISOString().split('T')[0];
   const [mr,wr]=await Promise.all([
@@ -269,104 +404,328 @@ async function fetchData(){
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&daily=sunrise,sunset&start_date=${fmt(today)}&end_date=${fmt(end)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
   ]);
   M=await mr.json(); W=await wr.json();
+  checkAlerts();
 }
 
-// 35 conseils santé surf — 5 différents chaque jour (rotation par index du jour de l'année)
+// ── SESSION LOG ──────────────────────────────────────
+function getSessions(){try{return JSON.parse(localStorage.getItem('mehdia_sessions')||'[]');}catch{return[];}}
+function saveSessions(a){localStorage.setItem('mehdia_sessions',JSON.stringify(a));}
+
+function setStar(v){
+  logStar=v;
+  document.querySelectorAll('.star-btn').forEach(b=>b.classList.toggle('on',+b.dataset.v<=v));
+}
+
+function saveSession(){
+  const note=document.getElementById('logNote').value.trim();
+  if(!note){showToast('✏️ Ajoute une note !');return;}
+  const sessions=getSessions();
+  const now=new Date();
+  const idx=hi(selDay,selHour);
+  const wh=M.hourly.wave_height[idx]??0;
+  const ws=W.hourly.wind_speed_10m[idx]??0;
+  const sc=calcScore(wh,M.hourly.wave_period[idx]??8,ws,W.hourly.wind_direction_10m?.[idx]);
+  sessions.unshift({
+    date:`${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`,
+    note, stars:logStar,
+    fh:faceH(wh), wind:Math.round(ws), score:sc, ts:Date.now()
+  });
+  saveSessions(sessions.slice(0,30));
+  closeModal('logModal');
+  document.getElementById('logNote').value='';
+  setStar(3);
+  render();
+  showToast('✅ Session enregistrée !');
+}
+
+function deleteSession(ts){
+  saveSessions(getSessions().filter(s=>s.ts!==ts));
+  render();
+}
+
+// ── ALERTS ───────────────────────────────────────────
+function getAlertPrefs(){
+  try{return JSON.parse(localStorage.getItem('mehdia_alerts')||'{"enabled":false,"waveMin":0.8,"windMax":20,"scoreMin":50}');}
+  catch{return {enabled:false,waveMin:0.8,windMax:20,scoreMin:50};}
+}
+function saveAlertPrefs(){
+  const p={
+    enabled:document.getElementById('notifToggle').checked,
+    waveMin:parseFloat(document.getElementById('waveMinRange').value),
+    windMax:parseInt(document.getElementById('windMaxRange').value),
+    scoreMin:parseInt(document.getElementById('scoreMinRange').value)
+  };
+  localStorage.setItem('mehdia_alerts',JSON.stringify(p));
+  document.getElementById('notifDot').className='notif-dot'+(p.enabled?' on':'');
+}
+
+function loadAlertUI(){
+  const p=getAlertPrefs();
+  document.getElementById('notifToggle').checked=p.enabled;
+  document.getElementById('waveMinRange').value=p.waveMin;
+  document.getElementById('waveMinVal').textContent=p.waveMin.toFixed(1);
+  document.getElementById('windMaxRange').value=p.windMax;
+  document.getElementById('windMaxVal').textContent=p.windMax;
+  document.getElementById('scoreMinRange').value=p.scoreMin;
+  document.getElementById('scoreMinVal').textContent=p.scoreMin;
+  document.getElementById('notifDot').className='notif-dot'+(p.enabled?' on':'');
+}
+
+async function requestAndTestNotif(){
+  if(Notification.permission==='default'){
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){showToast('❌ Notifications refusées');return;}
+  }
+  if(Notification.permission!=='granted'){showToast('❌ Notifications bloquées dans les réglages');return;}
+  document.getElementById('notifToggle').checked=true;
+  saveAlertPrefs();
+  new Notification('🌊 Mehdia Surf',{body:'Alertes activées ! Tu seras prévenu quand les conditions sont bonnes.',icon:'icon.png'});
+  showToast('🔔 Alertes activées !');
+  closeModal('alertModal');
+}
+
+function checkAlerts(){
+  const p=getAlertPrefs();
+  if(!p.enabled||!M||!W||Notification.permission!=='granted') return;
+  const lastAlert=localStorage.getItem('mehdia_last_alert');
+  const now=Date.now();
+  if(lastAlert&&now-parseInt(lastAlert)<3600000) return; // max 1 alerte/heure
+  for(let dOff=0;dOff<2;dOff++){
+    for(let hr=6;hr<=19;hr++){
+      const i=hi(dOff,hr);
+      const wh=M.hourly.wave_height[i]??0;
+      const ws=W.hourly.wind_speed_10m[i]??0;
+      const wp=M.hourly.wave_period[i]??8;
+      const wd=W.hourly.wind_direction_10m?.[i];
+      const sc=calcScore(wh,wp,ws,wd);
+      const fh=faceH(wh);
+      if(fh>=p.waveMin&&ws<=p.windMax&&sc>=p.scoreMin){
+        const {label}=getStatus(sc,hr,null,fh);
+        new Notification('🌊 Mehdia Surf',{
+          body:`${dOff===0?'Aujourd\'hui':'Demain'} ${String(hr).padStart(2,'0')}h — ${label} · ${fh}m face · vent ${Math.round(ws)} km/h`,
+          icon:'icon.png'
+        });
+        localStorage.setItem('mehdia_last_alert',String(now));
+        return;
+      }
+    }
+  }
+}
+
+// ── SHARE IMAGE ──────────────────────────────────────
+function shareConditions(){
+  const {label,color,fh,sc,windSpd,period}=_currentStatus;
+  const canvas=document.getElementById('shareCanvas');
+  canvas.style.display='block';
+  const ctx=canvas.getContext('2d');
+  const CW=800,CH=560;
+
+  // Fond
+  ctx.fillStyle='#000000';
+  ctx.fillRect(0,0,CW,CH);
+
+  // Halo
+  const grad=ctx.createRadialGradient(CW/2,CH/2-20,0,CW/2,CH/2-20,300);
+  grad.addColorStop(0,color+'22');
+  grad.addColorStop(1,'transparent');
+  ctx.fillStyle=grad;
+  ctx.fillRect(0,0,CW,CH);
+
+  // Anneau track
+  ctx.beginPath();
+  ctx.arc(CW/2,CH/2-10,140,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,255,255,0.06)';
+  ctx.lineWidth=8;
+  ctx.stroke();
+
+  // Anneau progression
+  const pct=sc/100;
+  ctx.beginPath();
+  ctx.arc(CW/2,CH/2-10,140,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);
+  ctx.strokeStyle=color;
+  ctx.lineWidth=8;
+  ctx.lineCap='round';
+  ctx.shadowColor=color;
+  ctx.shadowBlur=18;
+  ctx.stroke();
+  ctx.shadowBlur=0;
+
+  // Statut
+  ctx.textAlign='center';
+  ctx.fillStyle=color;
+  ctx.font='900 28px Inter, Arial, sans-serif';
+  ctx.shadowColor=color;
+  ctx.shadowBlur=14;
+  ctx.fillText(label,CW/2,CH/2-30);
+  ctx.shadowBlur=0;
+
+  // Score
+  ctx.fillStyle='rgba(255,255,255,0.92)';
+  ctx.font='800 56px Inter, Arial, sans-serif';
+  ctx.fillText(sc,CW/2,CH/2+26);
+  ctx.fillStyle='rgba(255,255,255,0.35)';
+  ctx.font='600 14px Inter, Arial, sans-serif';
+  ctx.fillText('/100',CW/2,CH/2+50);
+
+  // Date & lieu
+  const now=new Date(); now.setDate(now.getDate()+selDay);
+  ctx.fillStyle='rgba(255,255,255,0.45)';
+  ctx.font='600 13px Inter, Arial, sans-serif';
+  ctx.fillText(`${FDAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} · ${String(selHour).padStart(2,'0')}h`,CW/2,CH/2+84);
+
+  // Stats
+  ctx.fillStyle='rgba(255,255,255,0.72)';
+  ctx.font='700 15px Inter, Arial, sans-serif';
+  ctx.fillText(`🌊 ${fh}m face  ·  💨 ${Math.round(windSpd)} km/h  ·  ⏱ ${Math.round(period)}s`,CW/2,CH/2+114);
+
+  // Branding
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  ctx.font='600 12px Inter, Arial, sans-serif';
+  ctx.fillText('mehdia.surf',CW/2,CH-20);
+
+  canvas.toBlob(async blob=>{
+    canvas.style.display='none';
+    const file=new File([blob],'mehdia-surf.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:'Mehdia Surf',text:`🌊 ${label} à Mehdia Plage !`});}
+      catch(e){if(e.name!=='AbortError') showToast('Partage annulé');}
+    } else {
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download='mehdia-surf.png'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('📸 Image téléchargée !');
+    }
+  },'image/png');
+}
+
+// ── UI HELPERS ────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function openModal(id){
+  if(id==='alertModal') loadAlertUI();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ── TIPS ─────────────────────────────────────────────
 const ALL_TIPS=[
-  'Hydrate-toi avant même d\'avoir soif — après 30 min dans l\'eau, tu es déjà en déficit.',
-  'Étire tes épaules et ta nuque 5 min avant d\'entrer à l\'eau pour éviter les blessures.',
-  'Mange léger 1h30 avant la session : une banane et quelques noix, c\'est parfait.',
-  'Applique de la crème solaire résistante à l\'eau, même par temps nuageux.',
-  'Après la session, rince tes oreilles à l\'eau douce pour prévenir l\'otite du surfeur.',
-  'Dors 7 à 8h : c\'est pendant le sommeil que les muscles récupèrent et progressent.',
-  'Bois 500 ml d\'eau dans l\'heure qui suit ta session pour compenser la déshydratation.',
-  'Échauffement dynamique : 10 rotations de chaque épaule avant de prendre ta planche.',
-  'Protège tes yeux du soleil réfléchi par l\'eau — des lunettes UV hors de l\'eau.',
-  'Un régime riche en oméga-3 (poisson, graines de lin) améliore la souplesse articulaire.',
-  'Fais 5 min de cohérence cardiaque avant de surfer pour mieux gérer le stress des vagues.',
-  'La vaseline sur les aisselles et le cou évite les irritations de la combinaison.',
-  'Renforce tes cervicaux : ils absorbent les chocs lors des wipeouts.',
-  'Le gainage central (planche, 30 sec × 3) protège ton dos dans les sessions longues.',
-  'Après une grosse session, un bain froid 10 min accélère la récupération musculaire.',
-  'Vérifie la date de péremption de ton leash — un leash cassé est dangereux.',
-  'Mange une source de protéines dans les 30 min après ta session pour la récupération.',
-  'La respiration nasale en paddle permet de mieux oxygéner et gérer l\'effort.',
-  'Masse tes pieds et mollets après chaque session pour éviter les crampes nocturnes.',
-  'Un écran solaire minéral (oxyde de zinc) est plus efficace et respecte les récifs.',
-  'Évite l\'alcool la veille d\'une session matinale — il dégrade le sommeil et l\'équilibre.',
-  'Travaille ta proprioception : 2 min sur une jambe par jour améliore l\'équilibre sur la planche.',
-  'Hydrate ta peau avec une crème après-soleil à l\'aloé vera après chaque session.',
-  'Un snack riche en glucides 45 min avant : riz au lait, dattes ou fruits secs.',
-  'Renforce tes rotateurs de l\'épaule avec un élastique — la blessure la plus fréquente chez les surfeurs.',
-  'L\'eau froide active la circulation sanguine : commence par 30 sec sous l\'eau froide en sortant.',
-  'Écoute ton corps : une fatigue excessive est un signe de surentraînement, pas de faiblesse.',
-  'Varie les disciplines (yoga, natation, run) pour un développement physique complet.',
-  'Garde une barre de cire dans ta voiture : mieux vaut prévenir que glisser.',
-  'Le stress chronique affaiblit les ligaments : médite 5 min par jour pour mieux récupérer.',
-  'Lave ta combinaison à l\'eau froide après chaque session pour la conserver plus longtemps.',
-  'Un yoga matinal de 10 min améliore la flexibilité de hanche, essentielle pour le surf.',
-  'Surveille les signaux d\'un début d\'otite : douleur ou sensation d\'oreille bouchée après la session.',
-  'Renforce tes poignets avec des rotations quotidiennes — souvent négligés, souvent blessés.',
-  'Varie les heures de session : surfer à marée montante ou descendante change complètement le break.'
+  "Hydrate-toi avant même d'avoir soif — après 30 min dans l'eau, tu es déjà en déficit.",
+  "Étire tes épaules et ta nuque 5 min avant d'entrer à l'eau pour éviter les blessures.",
+  "Mange léger 1h30 avant la session : une banane et quelques noix, c'est parfait.",
+  "Applique de la crème solaire résistante à l'eau, même par temps nuageux.",
+  "Après la session, rince tes oreilles à l'eau douce pour prévenir l'otite du surfeur.",
+  "Dors 7 à 8h : c'est pendant le sommeil que les muscles récupèrent et progressent.",
+  "Bois 500 ml d'eau dans l'heure qui suit ta session pour compenser la déshydratation.",
+  "Échauffement dynamique : 10 rotations de chaque épaule avant de prendre ta planche.",
+  "Protège tes yeux du soleil réfléchi par l'eau — des lunettes UV hors de l'eau.",
+  "Un régime riche en oméga-3 (poisson, graines de lin) améliore la souplesse articulaire.",
+  "Fais 5 min de cohérence cardiaque avant de surfer pour mieux gérer le stress des vagues.",
+  "La vaseline sur les aisselles et le cou évite les irritations de la combinaison.",
+  "Renforce tes cervicaux : ils absorbent les chocs lors des wipeouts.",
+  "Le gainage central (planche, 30 sec × 3) protège ton dos dans les sessions longues.",
+  "Après une grosse session, un bain froid 10 min accélère la récupération musculaire.",
+  "Vérifie la date de péremption de ton leash — un leash cassé est dangereux.",
+  "Mange une source de protéines dans les 30 min après ta session pour la récupération.",
+  "La respiration nasale en paddle permet de mieux oxygéner et gérer l'effort.",
+  "Masse tes pieds et mollets après chaque session pour éviter les crampes nocturnes.",
+  "Un écran solaire minéral (oxyde de zinc) est plus efficace et respecte les récifs.",
+  "Évite l'alcool la veille d'une session matinale — il dégrade le sommeil et l'équilibre.",
+  "Travaille ta proprioception : 2 min sur une jambe par jour améliore l'équilibre sur la planche.",
+  "Hydrate ta peau avec une crème après-soleil à l'aloé vera après chaque session.",
+  "Un snack riche en glucides 45 min avant : riz au lait, dattes ou fruits secs.",
+  "Renforce tes rotateurs de l'épaule avec un élastique — la blessure la plus fréquente chez les surfeurs.",
+  "L'eau froide active la circulation sanguine : commence par 30 sec sous l'eau froide en sortant.",
+  "Écoute ton corps : une fatigue excessive est un signe de surentraînement, pas de faiblesse.",
+  "Varie les disciplines (yoga, natation, run) pour un développement physique complet.",
+  "Garde une barre de cire dans ta voiture : mieux vaut prévenir que glisser.",
+  "Le stress chronique affaiblit les ligaments : médite 5 min par jour pour mieux récupérer.",
+  "Lave ta combinaison à l'eau froide après chaque session pour la conserver plus longtemps.",
+  "Un yoga matinal de 10 min améliore la flexibilité de hanche, essentielle pour le surf.",
+  "Surveille les signaux d'un début d'otite : douleur ou sensation d'oreille bouchée après la session.",
+  "Renforce tes poignets avec des rotations quotidiennes — souvent négligés, souvent blessés.",
+  "Varie les heures de session : surfer à marée montante ou descendante change complètement le break."
 ];
-
 function getTips(){
-  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
-  const tips=[];
-  for(let i=0;i<5;i++) tips.push(ALL_TIPS[(dayOfYear*5+i)%ALL_TIPS.length]);
-  return tips;
+  const day=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  return Array.from({length:5},(_,i)=>ALL_TIPS[(day*5+i)%ALL_TIPS.length]);
 }
 
+// ── RENDER ────────────────────────────────────────────
 function render(){
   const now=new Date();
   const idx=hi(selDay,selHour);
   const waveH=M.hourly.wave_height[idx]??0;
   const period=M.hourly.wave_period[idx]??8;
   const windSpd=W.hourly.wind_speed_10m[idx]??0;
-  const windDeg=W.hourly.wind_direction_10m?.[idx]??W.current.wind_direction_10m??0;
-  const temp=W.hourly.temperature_2m[idx]??W.current.temperature_2m??0;
-  const wcode=W.hourly.weather_code[idx]??W.current.weather_code??0;
+  const windDeg=W.hourly.wind_direction_10m?.[idx]??W.current?.wind_direction_10m??0;
+  const temp=W.hourly.temperature_2m[idx]??W.current?.temperature_2m??0;
+  const wcode=W.hourly.weather_code[idx]??W.current?.weather_code??0;
   const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
   const fh=faceH(waveH);
 
   const d=new Date(now); d.setDate(d.getDate()+selDay);
   const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
   const sun=sunTimes(selDay);
-
   const sc=calcScore(waveH,period,windSpd,windDeg);
-  const {label,color,night,emoji}=getStatus(sc,selHour,sun,fh);
+  const {label,color,night}=getStatus(sc,selHour,sun,fh);
+
+  // Sauvegarde état pour le partage image
+  _currentStatus={label,color,fh,sc,windSpd,period};
+
+  // Meilleure heure
+  const best=dayBestHour(selDay);
+  const bestFh=faceH(M.hourly.wave_height[hi(selDay,best.hour)]??0);
+  const bestSt=getStatus(best.score,best.hour,null,bestFh);
 
   // 5 jours
   const days=Array.from({length:5},(_,i)=>{
     const x=new Date(now); x.setDate(x.getDate()+i);
-    const sc=dayBestScore(i); return {name:DAYS[x.getDay()], num:x.getDate(), sc, color:dayDominantColor(i)};
+    return {name:DAYS[x.getDay()],num:x.getDate(),sc:dayBestScore(i),color:dayDominantColor(i)};
   });
 
-  // Pills horaires : 5 heures consécutives — commence à l'heure EN COURS
+  // Pills
   const curH=getMehdiaHour();
-  const startH=selDay===0 ? curH : 8;
-  const pills=Array.from({length:5},(_,i)=>{
-    const absH=startH+i;
-    const dOff=Math.floor(absH/24);
-    const h=absH%24;
+  const startH=selDay===0?curH:8;
+  const pills=Array.from({length:6},(_,i)=>{
+    const absH=startH+i, dOff=Math.floor(absH/24), h=absH%24;
     const ix=hi(selDay+dOff,h);
     const wh=M.hourly.wave_height[ix]??0;
     const ws=W.hourly.wind_speed_10m[ix]??0;
     const wp=M.hourly.wave_period[ix]??8;
     const wd=W.hourly.wind_direction_10m?.[ix];
     const ps=calcScore(wh,wp,ws,wd);
-    return {h, fh:faceH(wh), sc:ps, st:getStatus(ps,h,sun,faceH(wh)), nextDay:dOff>0};
+    return {h,fh:faceH(wh),sc:ps,st:getStatus(ps,h,sun,faceH(wh)),nextDay:dOff>0,isBest:h===best.hour&&dOff===0};
   });
+
+  // Week scores
+  const weekScores=days.map((_,i)=>dayBestScore(i));
+  const maxSc=Math.max(...weekScores,1);
 
   const C=2*Math.PI*95;
   const dash=C-(sc/100)*C;
 
   const slot=timeSlot(selHour);
   const subText=night
-    ? (label==='🌙 DODO TIME' ? 'Bonne nuit !' : label==='🏃 TRAINING + PETIT DEJ' ? 'Réveil, stretching, café ☕' : 'Repos, Netflix, Dodo 🍿')
-    : (slot ? `${slot} · ` : '') + (fh<0.3 ? 'Mer plate…' : fh<0.5 ? 'Petites vaguelettes' : `Vagues ~${fh}m face`);
+    ?(label==='🌙 DODO TIME'?'Bonne nuit !':label==='🏃 TRAINING + PETIT DEJ'?'Réveil, stretching, café ☕':'Repos, Netflix, Dodo 🍿')
+    :(slot?`${slot} · `:'')+(fh<0.3?'Mer plate…':fh<0.5?'Petites vaguelettes':`Vagues ~${fh}m face`);
 
-  const ringLabel=label;
+  // Sessions
+  const sessions=getSessions();
+  const sessHTML=sessions.length?sessions.slice(0,3).map(s=>`
+    <div class="log-entry">
+      <div class="log-info">
+        <div class="log-meta">${s.date} · ${s.fh}m · ${s.wind} km/h</div>
+        <div class="log-text">${s.note}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px">${'⭐'.repeat(s.stars)}</span>
+        <button class="log-del" onclick="deleteSession(${s.ts})">✕</button>
+      </div>
+    </div>`).join(''):'';
 
   document.getElementById('app').innerHTML=`<div class="screen">
 
@@ -380,9 +739,14 @@ function render(){
     </div>`:''}
   </div>
 
+  ${best.score>=35?`<div class="best-banner" onclick="selHour=${best.hour};render()">
+    <div class="best-banner-left">⚡ Meilleure heure du jour</div>
+    <div class="best-banner-right" style="color:${bestSt.color}">${String(best.hour).padStart(2,'0')}h · ${bestSt.label}</div>
+  </div>`:''}
+
   <div class="hourly-wrap">
     <div class="hourly-title">Prochaines heures — taille face</div>
-    <div class="hourly">${pills.map((p,i)=>`<div class="hour-pill${i===0?' active':''}" onclick="selHour=${p.h};render()">
+    <div class="hourly">${pills.map((p,i)=>`<div class="hour-pill${i===0?' active':''}${p.isBest?' best':''}" onclick="selHour=${p.h};render()">
       <div class="hour-time">${String(p.h).padStart(2,'0')}h${p.nextDay?'<span style="font-size:8px;opacity:.4"> +1</span>':''}</div>
       <div class="hour-dot" style="background:${p.st.color};box-shadow:0 0 5px ${p.st.color}55"></div>
       <div class="hour-size" style="color:${p.st.color}">${p.fh}m</div>
@@ -397,7 +761,7 @@ function render(){
         style="stroke-dashoffset:${C};filter:drop-shadow(0 0 12px ${color}) drop-shadow(0 0 30px ${color}66)"/>
     </svg>
     <div class="ring-center">
-      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${ringLabel}</div>
+      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${label}</div>
       <div class="ring-sub">${subText}</div>
     </div>
   </div></div>
@@ -446,43 +810,41 @@ function render(){
     </div>
   </div>
 
-  <div class="days">${days.map((d,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?'getMehdiaHour()':'10'};render()" style="border-color:${i===selDay?d.color+'66':''}">
-    <div class="day-name" style="color:${d.color}">${d.name}</div>
-    <div class="day-num" style="color:${d.color};text-shadow:0 0 12px ${d.color}66">${d.num}</div>
-    <svg width="18" height="10" viewBox="0 0 22 10" fill="none" stroke="${d.color}" stroke-width="2" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${d.color}88)">
+  <div class="week-wrap">
+    <div class="week-title">Score semaine</div>
+    <div class="week-bars">
+      ${days.map((day,i)=>`<div class="week-bar-col${i===selDay?' sel':''}" onclick="selDay=${i};selHour=${i===0?getMehdiaHour():10};render()">
+        <div class="week-bar" style="height:${Math.max(4,Math.round((day.sc/maxSc)*44))}px;background:${day.color};opacity:${i===selDay?1:.45};${i===selDay?`box-shadow:0 0 10px ${day.color}55`:''};"></div>
+        <div class="week-bar-lbl" style="${i===selDay?`color:${day.color}`:''};">${day.name}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="days">${days.map((day,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?getMehdiaHour():10};render()" style="${i===selDay?`border-color:${day.color}66`:''}">
+    <div class="day-name" style="color:${day.color}">${day.name}</div>
+    <div class="day-num" style="color:${day.color};text-shadow:0 0 12px ${day.color}66">${day.num}</div>
+    <svg width="18" height="10" viewBox="0 0 22 10" fill="none" stroke="${day.color}" stroke-width="2" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${day.color}88)">
       <path d="M1 6c1.5-2 3-3.5 5-3.5s3.5 3 6 3 3.5-3 8-3"/>
     </svg>
   </div>`).join('')}</div>
 
+  <div class="log-wrap">
+    <div class="log-section-title">Mes sessions</div>
+    <button class="log-add-btn" onclick="openModal('logModal')">+ Enregistrer une session</button>
+    ${sessHTML?`<div style="margin-top:8px">${sessHTML}</div>`:''}
+  </div>
+
   <div class="tips">
     <div class="tips-title">Conseils du jour</div>
-    ${getTips().map((t,i)=>`<div class="tip-item">
-      <div class="tip-num">${i+1}</div>
-      <div class="tip-text">${t}</div>
-    </div>`).join('')}
+    ${getTips().map((t,i)=>`<div class="tip-item"><div class="tip-num">${i+1}</div><div class="tip-text">${t}</div></div>`).join('')}
   </div>
 
 </div>`;
 
-  // Animate ring
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     const a=document.getElementById('arc');
     if(a) a.style.strokeDashoffset=dash;
   }));
-}
-
-async function shareApp(){
-  const url=window.location.href;
-  if(navigator.share){
-    try{ await navigator.share({title:'Mehdia Surf',text:'🌊 Conditions en temps réel à Mehdia Plage !',url}); }catch{}
-  } else {
-    try{ await navigator.clipboard.writeText(url); }catch{
-      const t=document.createElement('textarea');
-      t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
-    }
-    const toast=document.getElementById('toast');
-    if(toast){ toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),2500); }
-  }
 }
 
 async function init(){
@@ -490,7 +852,8 @@ async function init(){
     await fetchData();
     document.getElementById('loading').style.display='none';
     render();
-    setInterval(async()=>{ await fetchData(); selHour=getMehdiaHour(); render(); }, 3600000);
+    loadAlertUI();
+    setInterval(async()=>{await fetchData();selHour=getMehdiaHour();render();},3600000);
   }catch(e){
     document.getElementById('app').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:40px;text-align:center">
       <div style="font-size:36px">⚠️</div>
