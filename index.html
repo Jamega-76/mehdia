@@ -31,8 +31,6 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .top-btns{position:fixed;top:14px;right:14px;z-index:100;display:flex;gap:8px}
 .top-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:.2s;position:relative}
 .top-btn:hover{color:#fff;border-color:rgba(255,255,255,.25)}
-.notif-dot{position:absolute;top:7px;right:7px;width:5px;height:5px;border-radius:50%;background:#00ff88;display:none}
-.notif-dot.on{display:block}
 
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(20,20,20,.96);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;color:#fff;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:500;pointer-events:none}
@@ -116,27 +114,6 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 .day-num{font-size:15px;font-weight:700}
 
 
-
-/* ALERT FORM in modal */
-.alert-form{display:flex;flex-direction:column;gap:18px}
-.alert-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
-.alert-lbl{font-size:13px;font-weight:600}
-.alert-sub{font-size:11px;color:var(--muted);margin-top:3px}
-.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0;position:absolute}
-.ttrack{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:100px;transition:.25s;cursor:pointer}
-.toggle input:checked+.ttrack{background:#00ff88}
-.tthumb{position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.25s;pointer-events:none}
-.toggle input:checked~.tthumb{transform:translateX(20px)}
-.a-divider{height:1px;background:var(--border)}
-.range-block{display:flex;flex-direction:column;gap:8px}
-.range-lbl{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
-.range-val-row{display:flex;align-items:baseline;gap:5px}
-.rval{font-size:24px;font-weight:800}
-.runit{font-size:12px;color:var(--muted)}
-input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:#00ff88;border-radius:50%;cursor:pointer;transition:.1s}
-
 /* TIPS */
 .tips{width:100%;margin-top:4px;animation:fadeUp .5s .45s ease forwards;opacity:0}
 .tips-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
@@ -154,12 +131,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 
 <!-- TOP BUTTONS -->
 <div class="top-btns">
-  <button class="top-btn" id="alertBtn" onclick="openModal('alertModal')" title="Alertes surf">
-    <div class="notif-dot" id="notifDot"></div>
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-  </button>
   <button class="top-btn" onclick="shareConditions()" title="Partager">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
       <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -170,44 +141,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 
 <div class="toast" id="toast"></div>
 
-<!-- ALERT MODAL -->
-<div class="modal-overlay" id="alertModal" onclick="if(event.target===this)closeModal('alertModal')">
-  <div class="modal">
-    <div class="modal-title">Alertes surf <button class="modal-close" onclick="closeModal('alertModal')">✕</button></div>
-    <div class="alert-form">
-      <div class="alert-row">
-        <div>
-          <div class="alert-lbl">Notifications activées</div>
-          <div class="alert-sub">Alerté quand les conditions matchent</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="notifToggle" onchange="saveAlertPrefs()">
-          <div class="ttrack"></div><div class="tthumb"></div>
-        </label>
-      </div>
-      <div class="a-divider"></div>
-      <div class="range-block">
-        <div class="range-lbl">Vagues min</div>
-        <div class="range-val-row"><span class="rval" id="waveMinVal">0.8</span><span class="runit">m face</span></div>
-        <input type="range" id="waveMinRange" min="0.2" max="3" step="0.1" value="0.8"
-          oninput="document.getElementById('waveMinVal').textContent=parseFloat(this.value).toFixed(1);saveAlertPrefs()">
-      </div>
-      <div class="range-block">
-        <div class="range-lbl">Vent max</div>
-        <div class="range-val-row"><span class="rval" id="windMaxVal">20</span><span class="runit">km/h</span></div>
-        <input type="range" id="windMaxRange" min="5" max="50" step="1" value="20"
-          oninput="document.getElementById('windMaxVal').textContent=this.value;saveAlertPrefs()">
-      </div>
-      <div class="range-block">
-        <div class="range-lbl">Score min</div>
-        <div class="range-val-row"><span class="rval" id="scoreMinVal">50</span><span class="runit">/100</span></div>
-        <input type="range" id="scoreMinRange" min="20" max="95" step="5" value="50"
-          oninput="document.getElementById('scoreMinVal').textContent=this.value;saveAlertPrefs()">
-      </div>
-      <button class="form-submit" onclick="requestAndTestNotif()">🔔 Activer les alertes</button>
-    </div>
-  </div>
-</div>
 
 
 
@@ -370,79 +303,8 @@ async function fetchData(){
   if(!mj.hourly?.wave_height) throw new Error('Données marine invalides');
   if(!wj.hourly?.wind_speed_10m) throw new Error('Données météo invalides');
   M=mj; W=wj;
-  checkAlerts();
 }
 
-
-
-// ── ALERTS ───────────────────────────────────────────
-function getAlertPrefs(){
-  try{return JSON.parse(localStorage.getItem('mehdia_alerts')||'{"enabled":false,"waveMin":0.8,"windMax":20,"scoreMin":50}');}
-  catch{return {enabled:false,waveMin:0.8,windMax:20,scoreMin:50};}
-}
-function saveAlertPrefs(){
-  const p={
-    enabled:document.getElementById('notifToggle').checked,
-    waveMin:parseFloat(document.getElementById('waveMinRange').value),
-    windMax:parseInt(document.getElementById('windMaxRange').value),
-    scoreMin:parseInt(document.getElementById('scoreMinRange').value)
-  };
-  localStorage.setItem('mehdia_alerts',JSON.stringify(p));
-  document.getElementById('notifDot').className='notif-dot'+(p.enabled?' on':'');
-}
-
-function loadAlertUI(){
-  const p=getAlertPrefs();
-  document.getElementById('notifToggle').checked=p.enabled;
-  document.getElementById('waveMinRange').value=p.waveMin;
-  document.getElementById('waveMinVal').textContent=p.waveMin.toFixed(1);
-  document.getElementById('windMaxRange').value=p.windMax;
-  document.getElementById('windMaxVal').textContent=p.windMax;
-  document.getElementById('scoreMinRange').value=p.scoreMin;
-  document.getElementById('scoreMinVal').textContent=p.scoreMin;
-  document.getElementById('notifDot').className='notif-dot'+(p.enabled?' on':'');
-}
-
-async function requestAndTestNotif(){
-  if(Notification.permission==='default'){
-    const perm=await Notification.requestPermission();
-    if(perm!=='granted'){showToast('❌ Notifications refusées');return;}
-  }
-  if(Notification.permission!=='granted'){showToast('❌ Notifications bloquées dans les réglages');return;}
-  document.getElementById('notifToggle').checked=true;
-  saveAlertPrefs();
-  new Notification('🌊 Mehdia Surf',{body:'Alertes activées ! Tu seras prévenu quand les conditions sont bonnes.',icon:'icon.png'});
-  showToast('🔔 Alertes activées !');
-  closeModal('alertModal');
-}
-
-function checkAlerts(){
-  const p=getAlertPrefs();
-  if(!p.enabled||!M||!W||Notification.permission!=='granted') return;
-  const lastAlert=localStorage.getItem('mehdia_last_alert');
-  const now=Date.now();
-  if(lastAlert&&now-parseInt(lastAlert)<3600000) return; // max 1 alerte/heure
-  for(let dOff=0;dOff<2;dOff++){
-    for(let hr=6;hr<=19;hr++){
-      const i=hi(dOff,hr);
-      const wh=M.hourly.wave_height[i]??0;
-      const ws=W.hourly.wind_speed_10m[i]??0;
-      const wp=M.hourly.wave_period[i]??8;
-      const wd=W.hourly.wind_direction_10m?.[i];
-      const sc=calcScore(wh,wp,ws,wd);
-      const fh=faceH(wh);
-      if(fh>=p.waveMin&&ws<=p.windMax&&sc>=p.scoreMin){
-        const {label}=getStatus(sc,hr,null,fh);
-        new Notification('🌊 Mehdia Surf',{
-          body:`${dOff===0?'Aujourd\'hui':'Demain'} ${String(hr).padStart(2,'0')}h — ${label} · ${fh}m face · vent ${Math.round(ws)} km/h`,
-          icon:'icon.png'
-        });
-        localStorage.setItem('mehdia_last_alert',String(now));
-        return;
-      }
-    }
-  }
-}
 
 // ── SHARE IMAGE ──────────────────────────────────────
 function shareConditions(){
@@ -556,7 +418,6 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),2600);
 }
 function openModal(id){
-  if(id==='alertModal') loadAlertUI();
   document.getElementById(id).classList.add('open');
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
@@ -780,7 +641,6 @@ async function init(){
     await fetchData();
     document.getElementById('loading').style.display='none';
     render();
-    loadAlertUI();
     setInterval(async()=>{await fetchData();selHour=getMehdiaHour();render();},3600000);
   }catch(e){
     document.getElementById('app').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:40px;text-align:center">
