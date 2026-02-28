@@ -238,6 +238,19 @@ function dayBestScore(d){
   return best;
 }
 
+function dayDominantColor(d){
+  // Compte les statuts heure par heure (6h-20h) et retourne la couleur majoritaire
+  const counts={};
+  for(let h=6;h<=20;h++){
+    const i=hi(d,h);
+    const wh=M.hourly.wave_height[i]??0;
+    const s=calcScore(wh, M.hourly.wave_period[i]??8, W.hourly.wind_speed_10m[i]??0, W.hourly.wind_direction_10m?.[i]);
+    const {color}=getStatus(s,h,null,faceH(wh));
+    counts[color]=(counts[color]||0)+1;
+  }
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+}
+
 function sunTimes(d){
   try{
     const r=W.daily?.sunrise?.[d], s=W.daily?.sunset?.[d];
@@ -326,7 +339,7 @@ function render(){
   // 5 jours
   const days=Array.from({length:5},(_,i)=>{
     const x=new Date(now); x.setDate(x.getDate()+i);
-    const sc=dayBestScore(i); return {name:DAYS[x.getDay()], num:x.getDate(), sc, color:getStatus(sc,12,null,99).color};
+    const sc=dayBestScore(i); return {name:DAYS[x.getDay()], num:x.getDate(), sc, color:dayDominantColor(i)};
   });
 
   // Pills horaires : 5 heures consécutives — commence à l'heure EN COURS
