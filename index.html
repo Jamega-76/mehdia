@@ -244,8 +244,13 @@ const FDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
 const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
 
 function getMehdiaHour(){
-  const h=new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date());
-  const n=parseInt(h); return isNaN(n)?new Date().getHours():n%24;
+  try {
+    const h=new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date());
+    const n=parseInt(h);
+    return isNaN(n)?new Date().getHours():n%24;
+  } catch(e) {
+    return new Date().getUTCHours();
+  }
 }
 let selHour=getMehdiaHour();
 
@@ -624,32 +629,35 @@ function angleInRange(angle, min, max) {
   return angle >= min || angle <= max; // wraps around 360
 }
 
-function scoreSpot(spot, windDeg, windSpd, swellDeg, fh) {
-  let score = 0;
+function scoreSpot(spot, windDeg, windSpd, swellDeg, wh, period) {
+  // Base : score global réel
+  let base = calcScore(wh, period, windSpd, windDeg);
 
-  // Vent trop fort → mauvais partout
-  if (windSpd > spot.windMax) return { rating: 'bad', score: 0 };
+  // Vent trop fort pour ce spot → on pénalise davantage
+  if (windSpd > spot.windMax) base = Math.max(0, base - 20);
 
-  // Vent dans la bonne direction ?
+  // Vent dans la bonne direction pour ce spot ? bonus/malus
   const windOk = angleInRange(windDeg, spot.windIdeal[0], spot.windIdeal[1]);
-  if (windOk) score += 40;
-  else if (windSpd < 12) score += 15; // vent léger, direction pas idéale mais ok
+  if (windOk) base = Math.min(100, base + 8);
+  else if (windSpd > 12) base = Math.max(0, base - 10);
 
   // Houle dans la bonne direction ?
   const swellOk = angleInRange(swellDeg, spot.swellIdeal[0], spot.swellIdeal[1]);
-  if (swellOk) score += 40;
+  if (swellOk) base = Math.min(100, base + 8);
+  else base = Math.max(0, base - 8);
 
-  // Taille de vague correcte (0.4m–2.5m face)
-  if (fh >= 0.4 && fh <= 2.5) score += 20;
-  else if (fh >= 0.3) score += 8;
-
-  const rating = score >= 70 ? 'best' : score >= 40 ? 'ok' : 'bad';
-  return { rating, score };
+  // On réutilise getStatus pour avoir le même label/couleur que le reste de l'app
+  const fh = faceH(wh);
+  const st = getStatus(base, null, null, fh);
+  return { base, st };
 }
 
-function getSpotRecommendations(windDeg, windSpd, swellDeg, fh) {
+function getSpotRecommendations(windDeg, windSpd, swellDeg, wh, period) {
   return SPOTS
-    .map(s => ({ ...s, ...scoreSpot(s, windDeg, windSpd, swellDeg, fh) }))
+    .map(s => {
+      const { base, st } = scoreSpot(s, windDeg, windSpd, swellDeg, wh, period);
+      return { ...s, score: base, st };
+    })
     .sort((a, b) => b.score - a.score);
 }
 
@@ -867,18 +875,17 @@ function render(){
   <div class="spots-wrap">
     <div class="spots-title">Spots du moment</div>
     ${(()=>{
-      const recs=getSpotRecommendations(windDeg,windSpd,swellDeg,fh);
-      // N'affiche que best et ok, max 4 spots
-      const visible=recs.filter(s=>s.rating!=='bad').slice(0,4);
+      const recs=getSpotRecommendations(windDeg,windSpd,swellDeg,waveH,period);
+      const visible=recs.filter(s=>s.score>=22).slice(0,4);
       if(!visible.length) return `<div style="text-align:center;font-size:12px;color:var(--muted);padding:12px 0">Conditions difficiles sur tous les spots 🤷</div>`;
       return visible.map(s=>`
-        <div class="spot-card ${s.rating}">
+        <div class="spot-card" style="border-color:${s.st.color}33;background:${s.st.color}08">
           <div class="spot-left">
             <div class="spot-name">${s.emoji} ${s.name}</div>
             <div class="spot-desc">${s.desc}</div>
           </div>
           <div class="spot-right">
-            <div class="spot-badge" style="background:${s.rating==='best'?'rgba(0,255,136,.15)':'rgba(255,209,102,.12)'};color:${s.rating==='best'?'#00ff88':'#ffd166'}">${s.rating==='best'?'✦ TOP':'OK'}</div>
+            <div class="spot-badge" style="background:${s.st.color}22;color:${s.st.color}">${s.st.label}</div>
             <div class="spot-wave">${typeLabel(s.type)}</div>
           </div>
         </div>`).join('');
