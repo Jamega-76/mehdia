@@ -445,70 +445,109 @@ function shareConditions(){
   const canvas=document.getElementById('shareCanvas');
   canvas.style.display='block';
   const ctx=canvas.getContext('2d');
-  const CW=800,CH=560;
+  const CW=800, CH=640;
+  canvas.width=CW; canvas.height=CH;
 
-  // Fond
-  ctx.fillStyle='#000000';
+  // ── Fond noir
+  ctx.fillStyle='#000';
   ctx.fillRect(0,0,CW,CH);
 
-  // Halo
-  const grad=ctx.createRadialGradient(CW/2,CH/2-20,0,CW/2,CH/2-20,300);
-  grad.addColorStop(0,color+'22');
+  // ── Halo coloré centré en haut
+  const grad=ctx.createRadialGradient(CW/2,180,0,CW/2,180,340);
+  grad.addColorStop(0,color+'30');
   grad.addColorStop(1,'transparent');
   ctx.fillStyle=grad;
   ctx.fillRect(0,0,CW,CH);
 
-  // Anneau track
-  ctx.beginPath();
-  ctx.arc(CW/2,CH/2-10,140,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,255,255,0.06)';
-  ctx.lineWidth=8;
-  ctx.stroke();
+  // ── Ligne de séparation subtile en bas
+  ctx.strokeStyle='rgba(255,255,255,0.07)';
+  ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(40,CH-90); ctx.lineTo(CW-40,CH-90); ctx.stroke();
 
-  // Anneau progression
-  const pct=sc/100;
-  ctx.beginPath();
-  ctx.arc(CW/2,CH/2-10,140,-Math.PI/2,-Math.PI/2+pct*Math.PI*2);
-  ctx.strokeStyle=color;
-  ctx.lineWidth=8;
-  ctx.lineCap='round';
-  ctx.shadowColor=color;
-  ctx.shadowBlur=18;
-  ctx.stroke();
-  ctx.shadowBlur=0;
-
-  // Statut
+  // ── STATUT — grand, en haut, couleur néon
   ctx.textAlign='center';
+  ctx.font='900 52px Inter, Arial Black, sans-serif';
   ctx.fillStyle=color;
-  ctx.font='900 28px Inter, Arial, sans-serif';
   ctx.shadowColor=color;
-  ctx.shadowBlur=14;
-  ctx.fillText(label,CW/2,CH/2-30);
+  ctx.shadowBlur=28;
+  ctx.fillText(label, CW/2, 110);
   ctx.shadowBlur=0;
 
-  // Score
-  ctx.fillStyle='rgba(255,255,255,0.92)';
-  ctx.font='800 56px Inter, Arial, sans-serif';
-  ctx.fillText(sc,CW/2,CH/2+26);
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.font='600 14px Inter, Arial, sans-serif';
-  ctx.fillText('/100',CW/2,CH/2+50);
+  // ── Score / 100 sous le statut
+  ctx.font='700 18px Inter, Arial, sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.3)';
+  ctx.fillText(`score ${sc} / 100`, CW/2, 148);
 
-  // Date & lieu
+  // ── 3 blocs de stats côte à côte
+  const stats = [
+    { icon:'🌊', value: `${fh}m`, label:'HOULE FACE' },
+    { icon:'💨', value: `${Math.round(windSpd)} km/h`, label:'VENT' },
+    { icon:'⏱', value: `${Math.round(period)}s`, label:'PÉRIODE' },
+  ];
+  const colW = CW / 3;
+  stats.forEach((s, i) => {
+    const cx = colW * i + colW / 2;
+    const cy = 260;
+
+    // Fond card
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    roundRect(ctx, colW*i+24, cy-54, colW-48, 120, 16);
+    ctx.fill();
+
+    // Bordure card
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, colW*i+24, cy-54, colW-48, 120, 16);
+    ctx.stroke();
+
+    // Icône
+    ctx.font = '28px sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.icon, cx, cy - 10);
+
+    // Valeur
+    ctx.font = '800 30px Inter, Arial Black, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(s.value, cx, cy + 28);
+
+    // Label
+    ctx.font = '600 11px Inter, Arial, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.letterSpacing = '2px';
+    ctx.fillText(s.label, cx, cy + 52);
+  });
+
+  // ── Date & lieu
   const now=new Date(); now.setDate(now.getDate()+selDay);
-  ctx.fillStyle='rgba(255,255,255,0.45)';
-  ctx.font='600 13px Inter, Arial, sans-serif';
-  ctx.fillText(`${FDAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} · ${String(selHour).padStart(2,'0')}h`,CW/2,CH/2+84);
+  ctx.textAlign='center';
+  ctx.font='600 15px Inter, Arial, sans-serif';
+  ctx.fillStyle='rgba(255,255,255,0.4)';
+  ctx.fillText(`Mehdia Plage · ${FDAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} · ${String(selHour).padStart(2,'0')}h`, CW/2, 430);
 
-  // Stats
-  ctx.fillStyle='rgba(255,255,255,0.72)';
-  ctx.font='700 15px Inter, Arial, sans-serif';
-  ctx.fillText(`🌊 ${fh}m face  ·  💨 ${Math.round(windSpd)} km/h  ·  ⏱ ${Math.round(period)}s`,CW/2,CH/2+114);
+  // ── CTA "GO MEHDIA CHECK SURF"
+  const ctaY = 510;
+  const ctaW = 420, ctaH = 54;
+  const ctaX = (CW - ctaW) / 2;
 
-  // Branding
-  ctx.fillStyle='rgba(255,255,255,0.18)';
-  ctx.font='600 12px Inter, Arial, sans-serif';
-  ctx.fillText('mehdia.surf',CW/2,CH-20);
+  // Fond CTA
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 20;
+  roundRect(ctx, ctaX, ctaY - ctaH/2, ctaW, ctaH, 100);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // Texte CTA
+  ctx.font = '800 16px Inter, Arial Black, sans-serif';
+  ctx.fillStyle = '#000';
+  ctx.textAlign = 'center';
+  ctx.fillText('GO MEHDIA — CHECK SURF 🌊', CW/2, ctaY + 6);
+
+  // ── URL sous le CTA
+  ctx.font = '500 12px Inter, Arial, sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.fillText('mehdia.surf', CW/2, CH - 20);
 
   canvas.toBlob(async blob=>{
     canvas.style.display='none';
@@ -524,6 +563,20 @@ function shareConditions(){
       showToast('📸 Image téléchargée !');
     }
   },'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
 }
 
 // ── UI HELPERS ────────────────────────────────────────
