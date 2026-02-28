@@ -137,20 +137,6 @@ html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-syst
 input[type=range]{-webkit-appearance:none;width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:2px;outline:none;cursor:pointer}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:#00ff88;border-radius:50%;cursor:pointer;transition:.1s}
 
-/* SPOTS */
-.spots-wrap{width:100%;animation:fadeUp .5s .42s ease forwards;opacity:0}
-.spots-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
-.spot-card{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;margin-bottom:6px;border:1px solid var(--border);background:var(--card);transition:.2s}
-.spot-card.best{border-color:rgba(0,255,136,.35);background:rgba(0,255,136,.05)}
-.spot-card.ok{border-color:rgba(255,209,102,.25);background:rgba(255,209,102,.04)}
-.spot-card.bad{opacity:.4}
-.spot-left{display:flex;flex-direction:column;gap:3px}
-.spot-name{font-size:14px;font-weight:800;letter-spacing:.3px}
-.spot-desc{font-size:10px;color:var(--muted);line-height:1.4}
-.spot-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.spot-badge{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:100px}
-.spot-wave{font-size:10px;color:var(--muted)}
-
 /* TIPS */
 .tips{width:100%;margin-top:4px;animation:fadeUp .5s .45s ease forwards;opacity:0}
 .tips-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
@@ -298,12 +284,12 @@ function timeSlot(h){
 function getStatus(s,hour,sunTimes,fh){
   if(hour!==undefined){
     if(hour>=22||hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff',night:true};
-    if(hour>=19&&hour<22) return {label:'🍿 NETFLIX TIME', color:'#b388ff',night:true};
+    if(hour>=19&&hour<22) return {label:'☪️ RAMADAN TIME', color:'#b388ff',night:true};
     if(sunTimes){
       const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes();};
       const hm=hour*60, rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
       if(Math.abs(hm-rise)<=60) return {label:'🏃 TRAINING + PETIT DEJ',color:'#ffb347',night:true};
-      if(Math.abs(hm-set)<=60)  return {label:'🍿 NETFLIX TIME',color:'#b388ff',night:true};
+      if(Math.abs(hm-set)<=60)  return {label:'☪️ RAMADAN TIME',color:'#b388ff',night:true};
     }
   }
   if(s>=95&&fh>=2.0) return {label:'🌊 DREAM CONDITIONS',color:'#00ff88'};
@@ -375,7 +361,7 @@ async function fetchData(){
   end.setDate(today.getDate()+4);
   const fmt=d=>d.toISOString().split('T')[0];
   const [mr,wr]=await Promise.all([
-    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,wave_direction,sea_surface_temperature&start_date=${fmt(today)}&end_date=${fmt(end)}&timezone=Africa/Casablanca`),
+    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,sea_surface_temperature&start_date=${fmt(today)}&end_date=${fmt(end)}&timezone=Africa/Casablanca`),
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&daily=sunrise,sunset&start_date=${fmt(today)}&end_date=${fmt(end)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
   ]);
   M=await mr.json(); W=await wr.json();
@@ -552,122 +538,6 @@ function openModal(id){
 }
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-// ── SPOTS ─────────────────────────────────────────────
-// Mehdia faces NW (~315°). Swell dominant from NW-W.
-// windDeg = direction FROM which wind blows.
-// swellDeg idem.
-const SPOTS = [
-  {
-    id:'sharatan', name:'Sharatan', emoji:'🌊',
-    type:'left', location:'Embouchure Oued Sebou',
-    desc:'Gauche le long de la rivière, face à la poissonerie',
-    // Meilleur avec houle NW-W, vent de S-SE (offshore depuis la rive)
-    // Protégé du vent dominant N-NE par la jetée nord
-    windIdeal:[150,220],   // vent du S-SSE = offshore ici
-    swellIdeal:[270,330],  // houle W-NW
-    windSensitive: true,   // très sensible au vent
-    windMax: 18,
-    exposed: false
-  },
-  {
-    id:'lmoone', name:"L'Moone", emoji:'➡️',
-    type:'right', location:'Le long de la jetée nord',
-    desc:'Droite le long de la jetée, protégée du NW',
-    // Protégée par la jetée contre le vent NW-N
-    // Fonctionne bien avec houle W-SW
-    windIdeal:[180,270],
-    swellIdeal:[240,310],
-    windSensitive: false,
-    windMax: 28,
-    exposed: false
-  },
-  {
-    id:'caduz', name:'Caduz', emoji:'🔀',
-    type:'pic', location:'Face au Kenz Mehdia',
-    desc:'Pic polyvalent devant l\'hôtel, droites et gauches',
-    windIdeal:[160,250],
-    swellIdeal:[280,340],
-    windSensitive: false,
-    windMax: 25,
-    exposed: false
-  },
-  {
-    id:'lrolob', name:"L'Rolob", emoji:'🔀',
-    type:'pic', location:'Centre de plage',
-    desc:'Pic au centre, à gauche de Caduz',
-    windIdeal:[160,250],
-    swellIdeal:[280,340],
-    windSensitive: false,
-    windMax: 25,
-    exposed: false
-  },
-  {
-    id:'atlantic', name:'Atlantic', emoji:'💨',
-    type:'pic', location:'Bout de plage sud',
-    desc:'Très exposé au vent, meilleur par petit temps',
-    windIdeal:[160,230],
-    swellIdeal:[260,330],
-    windSensitive: true,
-    windMax: 15,
-    exposed: true
-  },
-  {
-    id:'chelhate', name:'Chelhate', emoji:'🌊',
-    type:'left', location:'Rive nord de l\'Oued Sebou',
-    desc:'Gauche le long de la digue, de l\'autre côté de la rivière',
-    windIdeal:[140,220],
-    swellIdeal:[270,320],
-    windSensitive: true,
-    windMax: 20,
-    exposed: false
-  }
-];
-
-function angleInRange(angle, min, max) {
-  angle = ((angle % 360) + 360) % 360;
-  if (min <= max) return angle >= min && angle <= max;
-  return angle >= min || angle <= max; // wraps around 360
-}
-
-function scoreSpot(spot, windDeg, windSpd, swellDeg, wh, period) {
-  // Base : score global réel
-  let base = calcScore(wh, period, windSpd, windDeg);
-
-  // Vent trop fort pour ce spot → on pénalise davantage
-  if (windSpd > spot.windMax) base = Math.max(0, base - 20);
-
-  // Vent dans la bonne direction pour ce spot ? bonus/malus
-  const windOk = angleInRange(windDeg, spot.windIdeal[0], spot.windIdeal[1]);
-  if (windOk) base = Math.min(100, base + 8);
-  else if (windSpd > 12) base = Math.max(0, base - 10);
-
-  // Houle dans la bonne direction ?
-  const swellOk = angleInRange(swellDeg, spot.swellIdeal[0], spot.swellIdeal[1]);
-  if (swellOk) base = Math.min(100, base + 8);
-  else base = Math.max(0, base - 8);
-
-  // On réutilise getStatus pour avoir le même label/couleur que le reste de l'app
-  const fh = faceH(wh);
-  const st = getStatus(base, null, null, fh);
-  return { base, st };
-}
-
-function getSpotRecommendations(windDeg, windSpd, swellDeg, wh, period) {
-  return SPOTS
-    .map(s => {
-      const { base, st } = scoreSpot(s, windDeg, windSpd, swellDeg, wh, period);
-      return { ...s, score: base, st };
-    })
-    .sort((a, b) => b.score - a.score);
-}
-
-function typeLabel(type) {
-  if (type === 'left')  return '◀ Gauche';
-  if (type === 'right') return '▶ Droite';
-  return '◆ Pic';
-}
-
-
 const ALL_TIPS=[
   "Hydrate-toi avant même d'avoir soif — après 30 min dans l'eau, tu es déjà en déficit.",
   "Étire tes épaules et ta nuque 5 min avant d'entrer à l'eau pour éviter les blessures.",
@@ -721,7 +591,6 @@ function render(){
   const temp=W.hourly.temperature_2m[idx]??W.current?.temperature_2m??0;
   const wcode=W.hourly.weather_code[idx]??W.current?.weather_code??0;
   const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
-  const swellDeg=M.hourly.wave_direction?.[idx]??315; // défaut NW si absent
   const fh=faceH(waveH);
 
   const d=new Date(now); d.setDate(d.getDate()+selDay);
@@ -767,7 +636,7 @@ function render(){
 
   const slot=timeSlot(selHour);
   const subText=night
-    ?(label==='🌙 DODO TIME'?'Bonne nuit !':label==='🏃 TRAINING + PETIT DEJ'?'Réveil, stretching, café ☕':'Repos, Netflix, Dodo 🍿')
+    ?(label==='🌙 DODO TIME'?'Bonne nuit !':label==='🏃 TRAINING + PETIT DEJ'?'Réveil, stretching, café ☕':'Repos, Iftar, Dodo ☪️')
     :(slot?`${slot} · `:'')+(fh<0.3?'Mer plate…':fh<0.5?'Petites vaguelettes':`Vagues ~${fh}m face`);
 
   document.getElementById('app').innerHTML=`<div class="screen">
@@ -870,28 +739,6 @@ function render(){
       <path d="M1 6c1.5-2 3-3.5 5-3.5s3.5 3 6 3 3.5-3 8-3"/>
     </svg>
   </div>`).join('')}</div>
-
-
-  <div class="spots-wrap">
-    <div class="spots-title">Spots du moment</div>
-    ${(()=>{
-      const recs=getSpotRecommendations(windDeg,windSpd,swellDeg,waveH,period);
-      const visible=recs.filter(s=>s.score>=22).slice(0,4);
-      if(!visible.length) return `<div style="text-align:center;font-size:12px;color:var(--muted);padding:12px 0">Conditions difficiles sur tous les spots 🤷</div>`;
-      return visible.map(s=>`
-        <div class="spot-card" style="border-color:${s.st.color}33;background:${s.st.color}08">
-          <div class="spot-left">
-            <div class="spot-name">${s.emoji} ${s.name}</div>
-            <div class="spot-desc">${s.desc}</div>
-          </div>
-          <div class="spot-right">
-            <div class="spot-badge" style="background:${s.st.color}22;color:${s.st.color}">${s.st.label}</div>
-            <div class="spot-wave">${typeLabel(s.type)}</div>
-          </div>
-        </div>`).join('');
-    })()}
-  </div>
-
   <div class="tips">
     <div class="tips-title">Conseils du jour</div>
     ${getTips().map((t,i)=>`<div class="tip-item"><div class="tip-num">${i+1}</div><div class="tip-text">${t}</div></div>`).join('')}
