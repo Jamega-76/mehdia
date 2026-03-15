@@ -67,35 +67,36 @@
         /* === ZONE DYNAMIQUE === */
         #app { display: flex; flex-direction: column; gap: 20px; }
 
-        /* Correction de l'espacement du graphique : ajout d'un padding en bas (34px au lieu de 24px) */
-        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 34px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        /* AJOUT DU PADDING EN BAS DE CARTE (40px) POUR DÉCOLLER LES JOURS */
+        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 40px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
-        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
-        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 5px; }
+        
+        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; }
+        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 10px; }
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
         .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
         
-        .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 30px; position: relative; cursor: pointer; }
+        .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 32px; position: relative; cursor: pointer; -webkit-tap-highlight-color: transparent; }
         .bar-value { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); z-index: 5; }
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; position: relative; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === TOOLTIP DE RÉPARTITION (CLIC SUR LA BARRE) === */
+        /* === BULLE INFO AU CLIC SUR LA BARRE === */
         .bar-split { 
-            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
-            background: var(--text-main); color: var(--bg-color); border-radius: 8px; padding: 6px 8px;
-            font-size: 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(5px);
+            background: var(--text-main); color: var(--bg-color); border-radius: 8px; padding: 8px 10px;
+            font-size: 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
             opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 20;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
         }
         .bar-split::after { 
             content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-            border-width: 4px; border-style: solid; border-color: var(--text-main) transparent transparent transparent; 
+            border-width: 5px; border-style: solid; border-color: var(--text-main) transparent transparent transparent; 
         }
-        .bar-container.show-split .bar-split { opacity: 1; transform: translateX(-50%) translateY(-24px); } /* Saute au-dessus de la valeur */
-        .split-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 500; }
+        .bar-container.show-split .bar-split { opacity: 1; transform: translateX(-50%) translateY(-22px); }
+        .split-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 600; }
         .split-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
         .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
@@ -543,7 +544,7 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        // === PASSAGE À 9 JOURS ===
+        // === 1. ON PASSE A 9 JOURS ===
         const dates9Days = [];
         for (let i = 8; i >= 0; i--) {
             const d = new Date(today);
@@ -723,7 +724,7 @@
                 return matchSelect && matchSearch;
             });
 
-            // Initialisation avec compteurs séparés pour le tooltip
+            // Tableau de 9 jours pour l'affichage graphique
             const graphData = dates9Days.map(time => ({ 
                 label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
                 count: 0,
@@ -767,11 +768,10 @@
                         <div class="chart-bars">
             `;
 
+            // === 3. TOOLTIP AU CLIC ===
             graphData.forEach(day => {
                 const heightPercentage = (day.count / maxEpisodes) * 100;
                 const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
-                
-                // La barre devient interactive et affiche le tooltip au clic
                 html += `
                     <div class="bar-container" onclick="this.classList.toggle('show-split')">
                         ${day.count > 0 ? `<div class="bar-value">${day.count}</div>` : ''}
@@ -786,7 +786,7 @@
             });
             html += `</div></div></section>`;
 
-            // SMART INSIGHT (Ajusté pour le tableau à 9 jours, Aujourd'hui = index 8)
+            // L'indice d'aujourd'hui est le 8ème du tableau
             const todayCount = graphData[8].count; const yestCount = graphData[7].count; const dbyCount = graphData[6].count;
             let insightText = "";
             if (yestCount > dbyCount) insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
@@ -856,7 +856,7 @@
         // GESTION DU PLAYER AUDIO BETA
         // ==========================================
         function openPlayer() {
-            const todayStart = new Date(dates9Days[8]); // Aujourd'hui
+            const todayStart = new Date(dates9Days[8]); // On cible bien l'indice 8 pour Aujourd'hui
             
             playerQueue = historyData.filter(ep => {
                 const epDate = new Date(ep.date);
@@ -1038,7 +1038,6 @@
             const container = document.getElementById('history-container');
             let html = '<div class="calendar-strip">';
             
-            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
             dates9Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
