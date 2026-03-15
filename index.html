@@ -65,14 +65,13 @@
         .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
         /* === ZONE DYNAMIQUE === */
-        #app { display: flex; flex-direction: column; gap: 20px; }
+        #app { display: flex; flex-direction: column; gap: 20px; padding-bottom: 80px; /* Ajoute un espace pour ne pas cacher le bas avec le mini-player */ }
 
-        /* AJOUT DU PADDING EN BAS DE CARTE (40px) POUR DÉCOLLER LES JOURS */
+        /* Correction de l'espacement du graphique : ajout d'un padding en bas (34px au lieu de 24px) */
         .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 40px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
         .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
         .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
-        
-        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; }
+        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
         .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 10px; }
         .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
         .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
@@ -83,7 +82,7 @@
         .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; position: relative; }
         .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-        /* === BULLE INFO AU CLIC SUR LA BARRE === */
+        /* === TOOLTIP DE RÉPARTITION (CLIC SUR LA BARRE) === */
         .bar-split { 
             position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(5px);
             background: var(--text-main); color: var(--bg-color); border-radius: 8px; padding: 8px 10px;
@@ -151,7 +150,7 @@
         .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
         .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
 
-        /* === LECTEUR AUDIO === */
+        /* === LECTEUR AUDIO FULLSCREEN === */
         .player-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
@@ -176,7 +175,6 @@
         
         .buttons-container { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
         
-        /* Boutons 15s */
         .btn-skip-15 { background: none; border: none; color: white; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.2s; }
         .btn-skip-15:active { opacity: 1; transform: scale(0.95); }
         .btn-skip-15 svg { width: 32px; height: 32px; }
@@ -198,6 +196,25 @@
         .queue-pod { font-size: 12px; color: #a0a0a0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .queue-playing-icon { width: 16px; height: 16px; color: var(--green-dot); display: none; }
         .queue-item.playing .queue-playing-icon { display: block; }
+
+        /* === NOUVEAU: MINI PLAYER FLOTTANT === */
+        .mini-player {
+            display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            width: calc(100% - 40px); max-width: 400px;
+            background-color: var(--card-bg); border-radius: var(--border-radius-sm); 
+            padding: 8px 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.15); z-index: 900;
+            align-items: center; gap: 12px; cursor: pointer; transition: background-color 0.3s;
+            border: 1px solid var(--border-line);
+        }
+        .mini-cover { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .mini-info { flex: 1; overflow: hidden; }
+        .mini-title { font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mini-podcast { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .mini-controls { display: flex; align-items: center; gap: 6px; }
+        .mini-btn { background: none; border: none; color: var(--text-main); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; }
+        .mini-btn svg { width: 22px; height: 22px; fill: currentColor; }
+        .mini-btn-close { color: var(--text-secondary); margin-left: 4px; border-left: 1px solid var(--border-line); padding-left: 12px; }
+        .mini-btn-close svg { width: 18px; height: 18px; }
 
         /* Autres Settings... */
         .setting-group { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
@@ -398,6 +415,33 @@
         </div>
     </div>
 
+    <div id="mini-player" class="mini-player" onclick="openPlayer()">
+        <img id="mini-player-cover" class="mini-cover" src="">
+        <div class="mini-info">
+            <div id="mini-player-title" class="mini-title">Titre</div>
+            <div id="mini-player-podcast" class="mini-podcast">Podcast</div>
+        </div>
+        <div class="mini-controls" onclick="event.stopPropagation()">
+            <button class="mini-btn" onclick="seekAudio(-15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                </svg>
+            </button>
+            <button class="mini-btn" onclick="togglePlay()">
+                <svg id="mini-play-icon" viewBox="0 0 24 24" style="width:24px; height:24px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="mini-pause-icon" viewBox="0 0 24 24" style="display:none; width:24px; height:24px;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            <button class="mini-btn" onclick="seekAudio(15)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+                </svg>
+            </button>
+            <button class="mini-btn mini-btn-close" onclick="closeMiniPlayer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
     <audio id="main-audio"></audio>
 
     <script>
@@ -544,7 +588,7 @@
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        // === 1. ON PASSE A 9 JOURS ===
+        // === 9 JOURS ===
         const dates9Days = [];
         for (let i = 8; i >= 0; i--) {
             const d = new Date(today);
@@ -579,6 +623,20 @@
             } else {
                 fetchFeeds(false);
             }
+            
+            // Lier les événements du lecteur audio global pour le mini-player
+            audioEl.addEventListener('play', () => {
+                document.getElementById('play-icon').style.display = 'none';
+                document.getElementById('pause-icon').style.display = 'block';
+                document.getElementById('mini-play-icon').style.display = 'none';
+                document.getElementById('mini-pause-icon').style.display = 'block';
+            });
+            audioEl.addEventListener('pause', () => {
+                document.getElementById('play-icon').style.display = 'block';
+                document.getElementById('pause-icon').style.display = 'none';
+                document.getElementById('mini-play-icon').style.display = 'block';
+                document.getElementById('mini-pause-icon').style.display = 'none';
+            });
         }
 
         function loadFromCache() {
@@ -724,7 +782,6 @@
                 return matchSelect && matchSearch;
             });
 
-            // Tableau de 9 jours pour l'affichage graphique
             const graphData = dates9Days.map(time => ({ 
                 label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
                 count: 0,
@@ -768,10 +825,10 @@
                         <div class="chart-bars">
             `;
 
-            // === 3. TOOLTIP AU CLIC ===
             graphData.forEach(day => {
                 const heightPercentage = (day.count / maxEpisodes) * 100;
                 const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
+                
                 html += `
                     <div class="bar-container" onclick="this.classList.toggle('show-split')">
                         ${day.count > 0 ? `<div class="bar-value">${day.count}</div>` : ''}
@@ -786,7 +843,6 @@
             });
             html += `</div></div></section>`;
 
-            // L'indice d'aujourd'hui est le 8ème du tableau
             const todayCount = graphData[8].count; const yestCount = graphData[7].count; const dbyCount = graphData[6].count;
             let insightText = "";
             if (yestCount > dbyCount) insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
@@ -819,9 +875,9 @@
                 <div class="distribution-card">
                     <div class="dist-title">Répartition du jour</div>
                     <div class="dist-bar">
-                        ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"><span class="dist-pct">${Math.round(pctNatif)}%</span></div>` : ''}
-                        ${pctIntegrale > 0 ? `<div class="dist-segment bg-integrale" style="width: ${pctIntegrale}%"><span class="dist-pct">${Math.round(pctIntegrale)}%</span></div>` : ''}
-                        ${pctChronique > 0 ? `<div class="dist-segment bg-chronique" style="width: ${pctChronique}%"><span class="dist-pct">${Math.round(pctChronique)}%</span></div>` : ''}
+                        ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"></div>` : ''}
+                        ${pctIntegrale > 0 ? `<div class="dist-segment bg-integrale" style="width: ${pctIntegrale}%"></div>` : ''}
+                        ${pctChronique > 0 ? `<div class="dist-segment bg-chronique" style="width: ${pctChronique}%"></div>` : ''}
                     </div>
                     <div class="dist-legend">
                         ${countNatifs > 0 ? `<div class="legend-item"><div class="legend-dot bg-natif"></div>Natifs</div>` : ''}
@@ -856,7 +912,7 @@
         // GESTION DU PLAYER AUDIO BETA
         // ==========================================
         function openPlayer() {
-            const todayStart = new Date(dates9Days[8]); // On cible bien l'indice 8 pour Aujourd'hui
+            const todayStart = new Date(dates9Days[8]);
             
             playerQueue = historyData.filter(ep => {
                 const epDate = new Date(ep.date);
@@ -870,6 +926,8 @@
                 return;
             }
 
+            document.getElementById('mini-player').style.display = 'none'; // Masquer le mini player si ouvert
+
             renderPlayerQueue();
             document.getElementById('player-modal').style.display = 'flex';
             
@@ -878,14 +936,35 @@
             }
         }
 
-        function closePlayer() { document.getElementById('player-modal').style.display = 'none'; }
+        function closePlayer() { 
+            document.getElementById('player-modal').style.display = 'none'; 
+            
+            // Affiche le mini player si on a une piste chargée (même en pause)
+            if (currentTrackIndex !== -1) {
+                document.getElementById('mini-player').style.display = 'flex';
+            }
+        }
+
+        function closeMiniPlayer(event) {
+            if (event) event.stopPropagation(); // Évite de rouvrir le grand lecteur
+            audioEl.pause();
+            document.getElementById('mini-player').style.display = 'none';
+        }
 
         function loadTrack(index) {
             currentTrackIndex = index;
             const track = playerQueue[index];
+            
+            // Grand lecteur
             document.getElementById('player-title').innerText = track.title;
             document.getElementById('player-podcast').innerText = track.podcast;
             document.getElementById('player-cover').src = track.image;
+            
+            // Mini lecteur
+            document.getElementById('mini-player-title').innerText = track.title;
+            document.getElementById('mini-player-podcast').innerText = track.podcast;
+            document.getElementById('mini-player-cover').src = track.image;
+
             audioEl.src = track.url;
             audioEl.load();
             renderPlayerQueue();
@@ -900,12 +979,8 @@
             
             if (audioEl.paused) {
                 audioEl.play();
-                document.getElementById('play-icon').style.display = 'none';
-                document.getElementById('pause-icon').style.display = 'block';
             } else {
                 audioEl.pause();
-                document.getElementById('play-icon').style.display = 'block';
-                document.getElementById('pause-icon').style.display = 'none';
             }
         }
 
@@ -915,8 +990,6 @@
             if (nextIndex >= playerQueue.length) nextIndex = 0; 
             loadTrack(nextIndex);
             audioEl.play();
-            document.getElementById('play-icon').style.display = 'none';
-            document.getElementById('pause-icon').style.display = 'block';
         }
 
         function playPrev() {
@@ -925,8 +998,6 @@
             if (prevIndex < 0) prevIndex = playerQueue.length - 1;
             loadTrack(prevIndex);
             audioEl.play();
-            document.getElementById('play-icon').style.display = 'none';
-            document.getElementById('pause-icon').style.display = 'block';
         }
 
         function seekAudio(seconds) {
@@ -1038,6 +1109,7 @@
             const container = document.getElementById('history-container');
             let html = '<div class="calendar-strip">';
             
+            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
             dates9Days.forEach(time => {
                 const d = new Date(time);
                 const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
