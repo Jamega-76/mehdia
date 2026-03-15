@@ -1,656 +1,1146 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mehdia Surf</title>
-<link rel="icon" href="icon.png">
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Mehdia Surf">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#000;--muted:rgba(255,255,255,0.4);--card:rgba(255,255,255,0.05);--border:rgba(255,255,255,0.09)}
-html,body{height:100%;background:#000;color:#fff;font-family:'Inter',-apple-system,sans-serif;overflow-x:hidden}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Podcast Tracker</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#f2f2f7">
+    <link rel="apple-touch-icon" href="icon-192.png?v=3">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-/* LOADING */
-#loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:18px}
-.loader{width:44px;height:44px;border:2px solid rgba(0,255,136,0.15);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-size:11px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+    <style>
+        /* === VARIABLES & RESET === */
+        :root {
+            --bg-color: #f2f2f7; 
+            --card-bg: #ffffff;
+            --text-main: #000000;
+            --text-secondary: #8e8e93;
+            --green-dot: #34c759;
+            --gray-dot: #d1d1d6;
+            --border-line: #e5e5ea;
+            --border-radius-lg: 24px;
+            --border-radius-sm: 16px;
+            
+            --color-natif: #82b1ff;       
+            --color-integrale: #ffcc80;   
+            --color-chronique: #a5d6a7;   
+        }
 
-/* LAYOUT */
-.screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:52px 20px 40px;max-width:420px;margin:0 auto;gap:18px}
+        body.dark-mode {
+            --bg-color: #000000;
+            --card-bg: #1c1c1e;
+            --text-main: #ffffff;
+            --text-secondary: #8e8e98;
+            --border-line: #38383a;
+            --gray-dot: #48484a;
+        }
 
-/* TOP BUTTONS */
-.top-btns{position:fixed;top:14px;right:14px;z-index:100;display:flex;gap:8px}
-.top-btn{width:36px;height:36px;background:var(--card);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:.2s;position:relative}
-.top-btn:hover{color:#fff;border-color:rgba(255,255,255,.25)}
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
 
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(20,20,20,.96);border:1px solid var(--border);border-radius:100px;padding:10px 20px;font-size:13px;color:#fff;white-space:nowrap;transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:500;pointer-events:none}
-.toast.show{transform:translateX(-50%) translateY(0)}
+        body { background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; padding: 20px; transition: background-color 0.3s, color 0.3s; overscroll-behavior-y: none; }
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:.25s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:#111;border:1px solid var(--border);border-radius:24px 24px 0 0;width:100%;max-width:420px;padding:28px 24px 44px;transform:translateY(100%);transition:.3s cubic-bezier(.34,1.1,.64,1);max-height:85vh;overflow-y:auto}
-.modal-overlay.open .modal{transform:translateY(0)}
-.modal-title{font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:space-between}
-.modal-close{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px}
+        .app-container { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 20px; position: relative; }
 
-/* HEADER */
-.header{text-align:center;animation:fadeUp .5s ease forwards;opacity:0;width:100%}
-.header h1{font-size:22px;font-weight:700;margin-bottom:4px}
-.dt{font-size:13px;color:var(--muted)}
-.sun-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:7px}
-.sun-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)}
+        /* === PULL TO REFRESH === */
+        .ptr-indicator { height: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 14px; font-weight: 600; transition: height 0.2s ease-out, opacity 0.2s ease-out; margin-top: -10px; margin-bottom: -10px; }
+        .ptr-indicator.active { opacity: 1; }
+        .spin-icon { display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* BEST HOUR BANNER */
-.best-banner{width:100%;background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.2);border-radius:12px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;animation:fadeUp .5s .04s ease forwards;opacity:0;cursor:pointer;transition:.15s}
-.best-banner:hover{background:rgba(0,255,136,.1)}
-.best-banner-left{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(0,255,136,.7)}
-.best-banner-right{font-size:13px;font-weight:800;color:#00ff88}
+        /* === HEADER === */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .filter-container { position: relative; }
+        .filter-select { appearance: none; background-color: var(--card-bg); border: none; padding: 10px 32px 10px 16px; border-radius: 20px; font-weight: 600; font-size: 15px; color: var(--text-main); box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; outline: none; transition: background-color 0.3s; }
+        .filter-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; width: 12px; height: 12px; }
+        .header-icons { display: flex; gap: 12px; background-color: var(--card-bg); padding: 8px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .header-icons svg { width: 20px; height: 20px; color: var(--text-main); cursor: pointer; }
 
-/* RING */
-.ring-section{animation:fadeUp .5s .1s ease forwards;opacity:0}
-.ring-wrapper{position:relative;width:220px;height:220px}
-.ring-svg{width:220px;height:220px;transform:rotate(-90deg)}
-.ring-track{fill:none;stroke:rgba(255,255,255,.07);stroke-width:5}
-.ring-arc{fill:none;stroke-width:5;stroke-linecap:round;stroke-dasharray:597;stroke-dashoffset:597;transition:stroke-dashoffset 1.8s cubic-bezier(.34,1.1,.64,1)}
-.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}
-.ring-label{font-size:19px;font-weight:900;letter-spacing:2px;text-transform:uppercase;line-height:1;margin-bottom:8px}
-.ring-sub{font-size:12px;color:rgba(255,255,255,.6);line-height:1.5}
+        /* === BARRE DE RECHERCHE === */
+        .search-container { display: none; background-color: var(--card-bg); border-radius: 12px; padding: 8px 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); align-items: center; gap: 10px; margin-top: -10px; animation: slideDown 0.2s ease-out; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .search-input { flex: 1; border: none; outline: none; font-size: 15px; background: transparent; color: var(--text-main); }
+        .search-close { color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; }
 
-/* STATS */
-.stats{display:flex;align-items:stretch;width:100%;animation:fadeUp .5s .2s ease forwards;opacity:0}
-.stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0}
-.sdiv{width:1px;background:var(--border);margin:6px 0}
-.stat-icon{width:26px;height:26px;color:rgba(255,255,255,.5)}
-.stat-val{font-size:21px;font-weight:800;line-height:1;letter-spacing:-1px}
-.unit{font-size:11px;font-weight:500;color:rgba(255,255,255,.5);letter-spacing:0}
-.stat-sub{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.8px;text-transform:uppercase;text-align:center}
-.wind-arrow{width:24px;height:24px;color:rgba(255,255,255,.5)}
+        /* === ZONE DYNAMIQUE === */
+        #app { display: flex; flex-direction: column; gap: 20px; }
 
-/* EXTRA */
-.extra{display:flex;gap:8px;width:100%;animation:fadeUp .5s .25s ease forwards;opacity:0}
-.extra-card{flex:1;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 13px;display:flex;align-items:center;gap:9px}
-.extra-card svg{width:20px;height:20px;color:rgba(255,255,255,.45);flex-shrink:0}
-.extra-label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
-.extra-val{font-size:17px;font-weight:800}
+        /* Correction de l'espacement du graphique : ajout d'un padding en bas (34px au lieu de 24px) */
+        .chart-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px 24px 34px 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .chart-subtitle { color: var(--text-secondary); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+        .chart-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
+        .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
+        .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 5px; }
+        .grid-line-container { position: absolute; width: 100%; left: 0; display: flex; justify-content: flex-end; align-items: flex-end; border-bottom: 1px solid var(--border-line); z-index: 1; transition: border-color 0.3s; }
+        .grid-line-container.base-line { border-bottom: 2px solid var(--text-secondary); }
+        .grid-line-label { font-size: 11px; color: var(--text-secondary); background: var(--card-bg); padding-left: 8px; transform: translateY(50%); transition: background-color 0.3s; }
+        
+        .bar-container { display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; width: 30px; position: relative; cursor: pointer; }
+        .bar-value { font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); z-index: 5; }
+        .bar { width: 18px; background-color: var(--text-main); border-radius: 4px 4px 0 0; transition: height 0.5s ease, background-color 0.3s; position: relative; }
+        .bar-label { position: absolute; bottom: -24px; font-size: 11px; color: var(--text-secondary); font-weight: 500; }
 
-/* HOURLY */
-.hourly-wrap{width:100%;animation:fadeUp .5s .35s ease forwards;opacity:0}
-.hourly-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:9px;text-align:center}
-.hourly{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;width:100%;padding-bottom:2px}
-.hourly::-webkit-scrollbar{display:none}
-.hour-pill{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;cursor:pointer;transition:.2s;flex-shrink:0;background:var(--card);min-width:64px}
-.hour-pill.best{border-color:rgba(0,255,136,.4);background:rgba(0,255,136,.05)}
-.hour-pill.active{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04)}
-.hour-pill.active.best{border-color:rgba(0,255,136,.7)}
-.hour-time{font-size:11px;color:var(--muted);font-weight:600}
-.hour-dot{width:7px;height:7px;border-radius:50%}
-.hour-size{font-size:15px;font-weight:800}
-.hour-status{font-size:9px;font-weight:600;letter-spacing:.5px;text-transform:uppercase}
+        /* === TOOLTIP DE RÉPARTITION (CLIC SUR LA BARRE) === */
+        .bar-split { 
+            position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(10px);
+            background: var(--text-main); color: var(--bg-color); border-radius: 8px; padding: 6px 8px;
+            font-size: 11px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 20;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2); 
+        }
+        .bar-split::after { 
+            content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+            border-width: 4px; border-style: solid; border-color: var(--text-main) transparent transparent transparent; 
+        }
+        .bar-container.show-split .bar-split { opacity: 1; transform: translateX(-50%) translateY(-24px); } /* Saute au-dessus de la valeur */
+        .split-row { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-weight: 500; }
+        .split-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-/* WEEK CHART */
-.week-wrap{width:100%;animation:fadeUp .5s .3s ease forwards;opacity:0}
-.week-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
-.week-bars{display:flex;align-items:flex-end;gap:5px;height:56px}
-.week-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;cursor:pointer}
-.week-bar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .7s cubic-bezier(.34,1.1,.64,1),opacity .2s}
-.week-bar-lbl{font-size:9px;font-weight:600;text-transform:uppercase;color:var(--muted);transition:.2s}
-.week-bar-col.sel .week-bar-lbl{color:#fff}
+        .smart-insight-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; align-items: flex-start; gap: 16px; transition: background-color 0.3s; }
+        .insight-icon-container { flex-shrink: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; margin-top: 2px; color: #ffcc80;}
+        .insight-text { color: var(--text-main); font-size: 15px; line-height: 1.5; font-weight: 500; }
 
-/* DAYS */
-.days{display:flex;gap:5px;width:100%;animation:fadeUp .5s .05s ease forwards;opacity:0}
-.day-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 4px 7px;border:1px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;transition:.2s}
-.day-name{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
-.day-num{font-size:15px;font-weight:700}
+        .distribution-card { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); transition: background-color 0.3s; }
+        .dist-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text-main); }
+        .dist-bar { display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; background-color: var(--bg-color); transition: background-color 0.3s; position: relative; }
+        .dist-segment { transition: width 0.4s ease; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .dist-pct { font-size: 11px; font-weight: 700; color: #ffffff; white-space: nowrap; opacity: 1; pointer-events: none; text-shadow: 0px 1px 3px rgba(0,0,0,0.3); }
 
+        .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; color: var(--text-main); }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-/* TIPS */
-.tips{width:100%;margin-top:4px;animation:fadeUp .5s .45s ease forwards;opacity:0}
-.tips-title{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;text-align:center}
-.tip-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
-.tip-item:last-child{border-bottom:none}
-.tip-num{font-size:10px;font-weight:700;color:rgba(255,255,255,.2);min-width:14px;margin-top:1px}
-.tip-text{font-size:12px;color:rgba(255,255,255,.65);line-height:1.5}
+        .bg-natif { background-color: var(--color-natif); }
+        .bg-integrale { background-color: var(--color-integrale); }
+        .bg-chronique { background-color: var(--color-chronique); }
 
-#shareCanvas{display:none;position:absolute;top:-9999px}
+        .section-title { font-size: 18px; font-weight: 600; color: var(--text-secondary); margin: 5px 0 0 5px; }
+        .podcast-list { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: background-color 0.3s; }
+        .podcast-item { display: flex; align-items: center; padding: 16px 12px; margin: 0 -12px; border-bottom: 1px solid var(--bg-color); cursor: pointer; transition: all 0.2s ease; border-radius: 12px; }
+        .podcast-item:hover { background-color: var(--bg-color); transform: scale(0.99); }
+        .podcast-item:active { opacity: 0.6; }
+        .podcast-item:last-child { border-bottom: none; }
+        .podcast-img { width: 48px; height: 48px; border-radius: 12px; background-color: var(--border-line); object-fit: cover; margin-right: 16px; }
+        .podcast-info { flex: 1; overflow: hidden; }
+        .podcast-name-container { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .podcast-name { font-size: 16px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .status-dot.active { background-color: var(--green-dot); }
+        .status-dot.inactive { background-color: var(--gray-dot); }
+        .podcast-episode { font-size: 13px; color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .podcast-count { font-size: 17px; font-weight: 600; color: var(--text-main); margin-left: 10px; }
 
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-</style>
+        .loading-container { background-color: var(--card-bg); border-radius: var(--border-radius-lg); padding: 30px 24px; text-align: center; margin-top: 20px; }
+        .loading-title { font-size: 16px; font-weight: 600; color: var(--text-main); margin-bottom: 16px; }
+        .progress-bar-bg { width: 100%; height: 8px; background-color: var(--border-line); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+        .progress-bar-fill { height: 100%; width: 0%; background-color: var(--text-main); border-radius: 4px; transition: width 0.1s ease-out; }
+        .progress-text { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+
+        .update-badge { position: fixed; bottom: 40px; left: 50%; transform: translate(-50%, 150px); background-color: var(--text-main); color: var(--bg-color); padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); cursor: pointer; z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
+        .update-badge.show { transform: translate(-50%, 0); }
+
+        /* === MODALS (Base) === */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; align-items: flex-end; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { background: var(--bg-color); width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; padding: 24px; overflow-y: auto; position: relative; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 20px; font-weight: 700; color: var(--text-main); }
+        .modal-close { background: var(--gray-dot); color: var(--text-main); border: none; border-radius: 50%; width: 30px; height: 30px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+
+        /* === LECTEUR AUDIO === */
+        .player-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(20, 20, 20, 0.85); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
+            z-index: 1000; flex-direction: column; align-items: center; color: white;
+            animation: fadeIn 0.3s ease-out; overflow-y: auto; scroll-behavior: smooth;
+        }
+        .player-header { width: 100%; max-width: 400px; display: flex; justify-content: space-between; align-items: center; padding: 20px; }
+        .player-header span { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a0a0a0; }
+        .player-close { background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; justify-content: center; align-items: center; }
+        
+        .player-cover-container { width: 100%; max-width: 300px; padding: 0 20px; margin: 20px 0; }
+        .player-cover { width: 100%; aspect-ratio: 1/1; border-radius: 20px; object-fit: cover; box-shadow: 0 15px 35px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        
+        .player-info { width: 100%; max-width: 400px; padding: 0 30px; text-align: center; margin-bottom: 30px; }
+        .player-track-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .player-track-podcast { font-size: 16px; color: #a0a0a0; font-weight: 500; }
+        
+        .player-controls { width: 100%; max-width: 400px; padding: 0 30px; display: flex; flex-direction: column; gap: 20px; }
+        .progress-container { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #a0a0a0; }
+        .progress-bar { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.2); outline: none; }
+        .progress-bar::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 12px; height: 12px; border-radius: 50%; background: white; cursor: pointer; }
+        
+        .buttons-container { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 10px; }
+        
+        /* Boutons 15s */
+        .btn-skip-15 { background: none; border: none; color: white; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; opacity: 0.8; transition: opacity 0.2s; }
+        .btn-skip-15:active { opacity: 1; transform: scale(0.95); }
+        .btn-skip-15 svg { width: 32px; height: 32px; }
+        
+        .btn-play-pause { width: 64px; height: 64px; border-radius: 50%; background: white; color: black; border: none; display: flex; justify-content: center; align-items: center; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: transform 0.1s; }
+        .btn-play-pause:active { transform: scale(0.95); }
+        .btn-play-pause svg { width: 28px; height: 28px; fill: currentColor; }
+        .btn-skip { background: none; border: none; color: white; cursor: pointer; padding: 10px; opacity: 0.8; }
+        .btn-skip:active { opacity: 1; transform: scale(0.95); }
+        .btn-skip svg { width: 28px; height: 28px; fill: currentColor; }
+        
+        .player-queue { width: 100%; max-width: 400px; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 24px 24px 0 0; flex: 1; }
+        .queue-title { font-size: 14px; font-weight: 600; color: #a0a0a0; margin-bottom: 15px; padding-left: 10px; }
+        .queue-item { display: flex; align-items: center; padding: 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; gap: 12px; }
+        .queue-item:hover, .queue-item.playing { background: rgba(255,255,255,0.1); }
+        .queue-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+        .queue-info { flex: 1; overflow: hidden; }
+        .queue-track { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: white; }
+        .queue-pod { font-size: 12px; color: #a0a0a0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .queue-playing-icon { width: 16px; height: 16px; color: var(--green-dot); display: none; }
+        .queue-item.playing .queue-playing-icon { display: block; }
+
+        /* Autres Settings... */
+        .setting-group { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .setting-label { font-size: 16px; font-weight: 500; color: var(--text-main); }
+        .toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--gray-dot); transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--green-dot); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .add-form { display: flex; flex-direction: column; gap: 10px; background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
+        .form-input { padding: 10px; border-radius: 8px; border: 1px solid var(--border-line); background: var(--bg-color); color: var(--text-main); }
+        .form-btn { background: var(--text-main); color: var(--bg-color); border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .manage-list { background: var(--card-bg); border-radius: 12px; overflow: hidden; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border-line); }
+        .delete-btn { color: #ff3b30; background: none; border: none; font-weight: 600; cursor: pointer; }
+
+        /* CALENDRIER HISTORIQUE */
+        .calendar-strip { display: flex; overflow-x: auto; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--border-line); margin-bottom: 20px; scroll-behavior: smooth; }
+        .calendar-strip::-webkit-scrollbar { display: none; }
+        .calendar-strip { -ms-overflow-style: none; scrollbar-width: none; }
+        .calendar-day { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 65px; padding: 12px 0; border-radius: 16px; background: var(--card-bg); color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .calendar-day.active { background: var(--text-main); color: var(--bg-color); transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .calendar-day-name { font-size: 13px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+        .calendar-day-num { font-size: 22px; font-weight: 700; }
+        .history-day-title { font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 15px; }
+        .history-count-badge { font-weight: 500; color: var(--text-secondary); font-size: 15px; margin-left: 5px; }
+        .history-item { background: var(--card-bg); padding: 16px; border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); transition: transform 0.2s ease; cursor: pointer;}
+        .history-item:active { transform: scale(0.98); }
+        .history-time { font-size: 12px; font-weight: 600; color: var(--green-dot); margin-bottom: 6px; }
+        .history-podcast { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text-main); }
+        .history-title { font-size: 14px; font-style: italic; color: var(--text-secondary); }
+
+    </style>
 </head>
-<body>
+<body id="body">
 
-<!-- TOP BUTTONS -->
-<div class="top-btns">
-  <button class="top-btn" onclick="shareConditions()" title="Partager">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-      <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-    </svg>
-  </button>
-</div>
+    <div class="app-container" id="main-container">
+        
+        <div id="ptr-indicator" class="ptr-indicator">↓ Tirer pour actualiser</div>
 
-<div class="toast" id="toast"></div>
+        <header class="header">
+            <div class="filter-container">
+                <select id="podcast-filter" class="filter-select" onchange="updateView()">
+                    <option value="all">Tous</option>
+                    <option value="comptabilise">Comptabilisés</option>
+                    <option value="non-comptabilise">Non comptabilisés</option>
+                    <option value="natif">Natifs</option>
+                    <option value="integrale">Intégrales (Bêta)</option>
+                    <option value="chroniques">Chroniques (Bêta)</option>
+                </select>
+                <svg class="filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </div>
+            
+            <div class="header-icons">
+                <svg onclick="toggleSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                
+                <svg onclick="openPlayer()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon>
+                </svg>
 
+                <svg onclick="openHistory()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
+        </header>
 
+        <div id="search-bar" class="search-container">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px; color:var(--text-secondary)"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="search-input" class="search-input" placeholder="Rechercher un podcast..." oninput="updateView()">
+            <span class="search-close" onclick="closeSearch()">Annuler</span>
+        </div>
 
+        <div id="app">
+            <div class="loading-container" id="loading-box">
+                <div class="loading-title">Synchronisation initiale...</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Démarrage...</div>
+            </div>
+        </div>
 
-<canvas id="shareCanvas" width="800" height="650"></canvas>
-
-<div id="app">
-  <div id="loading">
-    <div class="loader"></div>
-    <div class="loading-text">Chargement des vagues…</div>
-  </div>
-</div>
-
-<script>
-const LAT=34.263, LON=-6.653;
-let M=null, W=null, selDay=0;
-let _currentStatus={label:'',color:'#00ff88',fh:0,sc:0,windSpd:0,period:0};
-
-const DAYS=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-const FDAYS=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
-const MONTHS=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-
-function getMehdiaHour(){
-  try {
-    const h=new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Casablanca',hour:'numeric',hour12:false}).format(new Date());
-    const n=parseInt(h);
-    return isNaN(n)?new Date().getHours():n%24;
-  } catch(e) {
-    return new Date().getUTCHours();
-  }
-}
-let selHour=getMehdiaHour();
-
-function faceH(houle){return+(houle*0.65).toFixed(1);}
-
-function calcScore(wh,period,wind,windDeg){
-  const h=faceH(wh);
-  let s=0;
-  if(h<0.2)       s=0;
-  else if(h<0.4)  s=8;
-  else if(h<0.6)  s=18;
-  else if(h<0.8)  s=28;
-  else if(h<1.0)  s=40;
-  else if(h<=1.4) s=62+((h-1.0)/0.4)*18;
-  else if(h<=1.8) s=80+((h-1.4)/0.4)*12;
-  else if(h<=2.2) s=92-((h-1.8)/0.4)*18;
-  else if(h<=3.0) s=74-((h-2.2)/0.8)*35;
-  else if(h<=4.0) s=39-((h-3.0)/1.0)*30;
-  else            s=Math.max(0,9-(h-4.0)*5);
-  if(period>=16)      s=Math.min(100,s+15);
-  else if(period>=13) s=Math.min(100,s+8);
-  else if(period>=10) s=Math.min(100,s+2);
-  else if(period>=8)  s-=8;
-  else if(period>=6)  s-=18;
-  else                s-=30;
-  const isOff=windDeg!==undefined&&(((windDeg-315+540)%360+180)%360-180<-135||((windDeg-315+540)%360+180)%360-180>135);
-  if(wind>40)        s-=50;
-  else if(wind>30)   s-=35;
-  else if(wind>22)   s-=22;
-  else if(wind>15)   s-=12;
-  else if(wind>10)   s-=5;
-  else if(wind<=6&&isOff) s=Math.min(100,s+10);
-  else if(wind<=6)   s=Math.min(100,s+4);
-  return Math.max(0,Math.min(100,Math.round(s)));
-}
-
-function timeSlot(h){
-  if(h>=5&&h<12) return 'Matin';
-  if(h>=12&&h<15) return 'Midi';
-  if(h>=15&&h<20) return 'Après-midi';
-  if(h>=20&&h<23) return 'Soirée';
-  return null;
-}
-
-function getStatus(s,hour,sunTimes,fh){
-  if(hour!==undefined){
-    if(hour>=22||hour<6)  return {label:'🌙 DODO TIME',    color:'#9b8eff',night:true};
-    if(hour>=19&&hour<22) return {label:'☪️ RAMADAN TIME', color:'#b388ff',night:true};
-    if(sunTimes){
-      const toMin=t=>{const x=new Date(t);return x.getHours()*60+x.getMinutes();};
-      const hm=hour*60, rise=toMin(sunTimes.riseRaw), set=toMin(sunTimes.setRaw);
-      if(Math.abs(hm-rise)<=60) return {label:'🏃 TRAINING + PETIT DEJ',color:'#ffb347',night:true};
-      if(Math.abs(hm-set)<=60)  return {label:'☪️ RAMADAN TIME',color:'#b388ff',night:true};
-    }
-  }
-  if(s>=95&&fh>=2.0) return {label:'🌊 DREAM CONDITIONS',color:'#00ff88'};
-  if(s>=90&&fh>=2.0) return {label:'EXCELLENT',color:'#00e5ff'};
-  if(s>=90)          return {label:'BON SURF',color:'#7bed9f'};
-  if(s>=76&&fh>=2.0) return {label:'BON SURF',color:'#7bed9f'};
-  if(s>=60)          return {label:'SURFABLE',color:'#ffd166'};
-  if(s>=42)          return {label:'JOUABLE',color:'#ff8c42'};
-  if(s>=22)          return {label:'NUL',color:'#ef476f'};
-  return             {label:'VA A LA SALLE',color:'#888'};
-}
-
-function windLabel(deg){
-  const d=((deg-315+540)%360)-180;
-  if(Math.abs(d)<45)  return 'ONSHORE';
-  if(Math.abs(d)>135) return 'OFFSHORE';
-  return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'][Math.round(deg/22.5)%16];
-}
-function wxLabel(c){
-  if(c===0) return 'Ensoleillé'; if(c<=2) return 'Peu nuageux';
-  if(c<=3)  return 'Couvert';   if(c<=48) return 'Brouillard';
-  if(c<=67) return 'Pluie';     return 'Orageux';
-}
-function hi(d,h){return d*24+h;}
-
-function dayBestScore(d){
-  let best=0;
-  for(let h=6;h<=20;h++){
-    const i=hi(d,h);
-    const s=calcScore(M.hourly.wave_height[i]??0,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
-    if(s>best) best=s;
-  }
-  return best;
-}
-
-function dayDominantColor(d){
-  const counts={};
-  for(let h=6;h<=20;h++){
-    const i=hi(d,h);
-    const wh=M.hourly.wave_height[i]??0;
-    const s=calcScore(wh,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
-    const {color}=getStatus(s,h,null,faceH(wh));
-    counts[color]=(counts[color]||0)+1;
-  }
-  return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
-}
-
-function dayBestHour(d){
-  let best=0,bestH=10;
-  for(let h=6;h<=19;h++){
-    const i=hi(d,h);
-    const s=calcScore(M.hourly.wave_height[i]??0,M.hourly.wave_period[i]??8,W.hourly.wind_speed_10m[i]??0,W.hourly.wind_direction_10m?.[i]);
-    if(s>best){best=s;bestH=h;}
-  }
-  return {hour:bestH,score:best};
-}
-
-function sunTimes(d){
-  try{
-    const r=W.daily?.sunrise?.[d],s=W.daily?.sunset?.[d];
-    if(!r||!s) return null;
-    const f=t=>{const x=new Date(t);return`${String(x.getHours()).padStart(2,'0')}:${String(x.getMinutes()).padStart(2,'0')}`;};
-    return {rise:f(r),set:f(s),riseRaw:r,setRaw:s};
-  }catch{return null;}
-}
-
-async function fetchData(){
-  const today=new Date(),end=new Date(today);
-  end.setDate(today.getDate()+4);
-  const fmt=d=>d.toISOString().split('T')[0];
-  const [mr,wr]=await Promise.all([
-    fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${LAT}&longitude=${LON}&hourly=wave_height,wave_period,sea_surface_temperature&start_date=${fmt(today)}&end_date=${fmt(end)}&timezone=Africa/Casablanca`),
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&hourly=temperature_2m,wind_speed_10m,wind_direction_10m,weather_code&daily=sunrise,sunset&start_date=${fmt(today)}&end_date=${fmt(end)}&wind_speed_unit=kmh&timezone=Africa/Casablanca`)
-  ]);
-  const mj=await mr.json(), wj=await wr.json();
-  if(mj.error) throw new Error('Marine API: '+(mj.reason||'erreur inconnue'));
-  if(wj.error) throw new Error('Weather API: '+(wj.reason||'erreur inconnue'));
-  if(!mj.hourly?.wave_height) throw new Error('Données marine invalides');
-  if(!wj.hourly?.wind_speed_10m) throw new Error('Données météo invalides');
-  M=mj; W=wj;
-}
-
-
-// ── SHARE IMAGE ──────────────────────────────────────
-function shareConditions(){
-  const {label,color,fh,sc,windSpd,period}=_currentStatus;
-  const canvas=document.getElementById('shareCanvas');
-  canvas.style.display='block';
-  const ctx=canvas.getContext('2d');
-  const CW=640, CH=640;
-  canvas.width=CW; canvas.height=CH;
-
-  const now=new Date(); now.setDate(now.getDate()+selDay);
-  const dateStr=`${FDAYS[now.getDay()]} ${now.getDate()} ${MONTHS[now.getMonth()]} · ${String(selHour).padStart(2,'0')}h`;
-
-  // ── Fond coloré flat (couleur du statut très désaturée)
-  ctx.fillStyle='#0a0a0a';
-  ctx.fillRect(0,0,CW,CH);
-
-  // Bande colorée en haut
-  ctx.fillStyle=color;
-  ctx.fillRect(0,0,CW,6);
-
-  // ── STATUT — uppercase, très grand, couleur néon
-  ctx.textAlign='left';
-  ctx.font='900 58px Inter, Arial Black, sans-serif';
-  ctx.fillStyle=color;
-  ctx.fillText(label, 48, 120);
-
-  // ── Score — petit, sobre, à droite du statut
-  ctx.textAlign='right';
-  ctx.font='700 16px Inter, Arial, sans-serif';
-  ctx.fillStyle='rgba(255,255,255,0.25)';
-  ctx.fillText(`${sc} / 100`, CW-48, 120);
-
-  // ── Ligne séparatrice fine
-  ctx.strokeStyle=color+'33';
-  ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(48,148); ctx.lineTo(CW-48,148); ctx.stroke();
-
-  // ── 3 stats en colonne, flat
-  const statsData=[
-    {label:'HOULE', value:`${fh}m face`},
-    {label:'VENT',  value:`${Math.round(windSpd)} km/h`},
-    {label:'PÉRIODE', value:`${Math.round(period)}s`},
-  ];
-  statsData.forEach((s,i)=>{
-    const y=228+i*110;
-    // Label
-    ctx.textAlign='left';
-    ctx.font='600 11px Inter, Arial, sans-serif';
-    ctx.fillStyle='rgba(255,255,255,0.35)';
-    ctx.fillText(s.label, 48, y);
-    // Valeur
-    ctx.font='800 42px Inter, Arial Black, sans-serif';
-    ctx.fillStyle='#ffffff';
-    ctx.fillText(s.value, 48, y+48);
-    // Ligne fine sous chaque stat
-    if(i<2){
-      ctx.strokeStyle='rgba(255,255,255,0.07)';
-      ctx.lineWidth=1;
-      ctx.beginPath(); ctx.moveTo(48,y+66); ctx.lineTo(CW-48,y+66); ctx.stroke();
-    }
-  });
-
-  // ── Bas : date + lien texte
-  ctx.strokeStyle='rgba(255,255,255,0.07)';
-  ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(48,CH-90); ctx.lineTo(CW-48,CH-90); ctx.stroke();
-
-  ctx.textAlign='left';
-  ctx.font='500 13px Inter, Arial, sans-serif';
-  ctx.fillStyle='rgba(255,255,255,0.35)';
-  ctx.fillText(dateStr, 48, CH-58);
-
-  ctx.textAlign='right';
-  ctx.font='700 13px Inter, Arial, sans-serif';
-  ctx.fillStyle=color;
-  ctx.fillText('jamega-76.github.io/mehdia', CW-48, CH-58);
-
-  ctx.textAlign='left';
-  ctx.font='600 11px Inter, Arial, sans-serif';
-  ctx.fillStyle='rgba(255,255,255,0.2)';
-  ctx.fillText('GO MEHDIA — CHECK SURF', 48, CH-30);
-
-  ctx.textAlign='right';
-  ctx.font='600 11px Inter, Arial, sans-serif';
-  ctx.fillStyle='rgba(255,255,255,0.15)';
-  ctx.fillText('mehdia surf report', CW-48, CH-30);
-
-  canvas.toBlob(async blob=>{
-    canvas.style.display='none';
-    const file=new File([blob],'mehdia-surf.png',{type:'image/png'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){
-      try{await navigator.share({files:[file],title:'Mehdia Surf',text:`🌊 ${label} — jamega-76.github.io/mehdia`});}
-      catch(e){if(e.name!=='AbortError') showToast('Partage annulé');}
-    } else {
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download='mehdia-surf.png'; a.click();
-      URL.revokeObjectURL(url);
-      showToast('📸 Image téléchargée !');
-    }
-  },'image/png');
-}
-
-
-
-// ── UI HELPERS ────────────────────────────────────────
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2600);
-}
-function openModal(id){
-  document.getElementById(id).classList.add('open');
-}
-function closeModal(id){document.getElementById(id).classList.remove('open');}
-
-const ALL_TIPS=[
-  "Hydrate-toi avant même d'avoir soif — après 30 min dans l'eau, tu es déjà en déficit.",
-  "Étire tes épaules et ta nuque 5 min avant d'entrer à l'eau pour éviter les blessures.",
-  "Mange léger 1h30 avant la session : une banane et quelques noix, c'est parfait.",
-  "Applique de la crème solaire résistante à l'eau, même par temps nuageux.",
-  "Après la session, rince tes oreilles à l'eau douce pour prévenir l'otite du surfeur.",
-  "Dors 7 à 8h : c'est pendant le sommeil que les muscles récupèrent et progressent.",
-  "Bois 500 ml d'eau dans l'heure qui suit ta session pour compenser la déshydratation.",
-  "Échauffement dynamique : 10 rotations de chaque épaule avant de prendre ta planche.",
-  "Protège tes yeux du soleil réfléchi par l'eau — des lunettes UV hors de l'eau.",
-  "Un régime riche en oméga-3 (poisson, graines de lin) améliore la souplesse articulaire.",
-  "Fais 5 min de cohérence cardiaque avant de surfer pour mieux gérer le stress des vagues.",
-  "La vaseline sur les aisselles et le cou évite les irritations de la combinaison.",
-  "Renforce tes cervicaux : ils absorbent les chocs lors des wipeouts.",
-  "Le gainage central (planche, 30 sec × 3) protège ton dos dans les sessions longues.",
-  "Après une grosse session, un bain froid 10 min accélère la récupération musculaire.",
-  "Vérifie la date de péremption de ton leash — un leash cassé est dangereux.",
-  "Mange une source de protéines dans les 30 min après ta session pour la récupération.",
-  "La respiration nasale en paddle permet de mieux oxygéner et gérer l'effort.",
-  "Masse tes pieds et mollets après chaque session pour éviter les crampes nocturnes.",
-  "Un écran solaire minéral (oxyde de zinc) est plus efficace et respecte les récifs.",
-  "Évite l'alcool la veille d'une session matinale — il dégrade le sommeil et l'équilibre.",
-  "Travaille ta proprioception : 2 min sur une jambe par jour améliore l'équilibre sur la planche.",
-  "Hydrate ta peau avec une crème après-soleil à l'aloé vera après chaque session.",
-  "Un snack riche en glucides 45 min avant : riz au lait, dattes ou fruits secs.",
-  "Renforce tes rotateurs de l'épaule avec un élastique — la blessure la plus fréquente chez les surfeurs.",
-  "L'eau froide active la circulation sanguine : commence par 30 sec sous l'eau froide en sortant.",
-  "Écoute ton corps : une fatigue excessive est un signe de surentraînement, pas de faiblesse.",
-  "Varie les disciplines (yoga, natation, run) pour un développement physique complet.",
-  "Garde une barre de cire dans ta voiture : mieux vaut prévenir que glisser.",
-  "Le stress chronique affaiblit les ligaments : médite 5 min par jour pour mieux récupérer.",
-  "Lave ta combinaison à l'eau froide après chaque session pour la conserver plus longtemps.",
-  "Un yoga matinal de 10 min améliore la flexibilité de hanche, essentielle pour le surf.",
-  "Surveille les signaux d'un début d'otite : douleur ou sensation d'oreille bouchée après la session.",
-  "Renforce tes poignets avec des rotations quotidiennes — souvent négligés, souvent blessés.",
-  "Varie les heures de session : surfer à marée montante ou descendante change complètement le break."
-];
-function getTips(){
-  const day=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
-  return Array.from({length:3},(_,i)=>ALL_TIPS[(day*3+i)%ALL_TIPS.length]);
-}
-
-// ── RENDER ────────────────────────────────────────────
-function render(){
-  const now=new Date();
-  const idx=hi(selDay,selHour);
-  const waveH=M.hourly.wave_height[idx]??0;
-  const period=M.hourly.wave_period[idx]??8;
-  const windSpd=W.hourly.wind_speed_10m[idx]??0;
-  const windDeg=W.hourly.wind_direction_10m?.[idx]??W.current?.wind_direction_10m??0;
-  const temp=W.hourly.temperature_2m[idx]??W.current?.temperature_2m??0;
-  const wcode=W.hourly.weather_code[idx]??W.current?.weather_code??0;
-  const seaT=M.hourly.sea_surface_temperature?.[idx]??null;
-  const fh=faceH(waveH);
-
-  const d=new Date(now); d.setDate(d.getDate()+selDay);
-  const dt=`${FDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}, ${String(selHour).padStart(2,'0')}h`;
-  const sun=sunTimes(selDay);
-  const sc=calcScore(waveH,period,windSpd,windDeg);
-  const {label,color,night}=getStatus(sc,selHour,sun,fh);
-
-  // Sauvegarde état pour le partage image
-  _currentStatus={label,color,fh,sc,windSpd,period};
-
-  // Meilleure heure
-  const best=dayBestHour(selDay);
-  const bestFh=faceH(M.hourly.wave_height[hi(selDay,best.hour)]??0);
-  const bestSt=getStatus(best.score,best.hour,null,bestFh);
-
-  // 5 jours
-  const days=Array.from({length:5},(_,i)=>{
-    const x=new Date(now); x.setDate(x.getDate()+i);
-    return {name:DAYS[x.getDay()],num:x.getDate(),sc:dayBestScore(i),color:dayDominantColor(i)};
-  });
-
-  // Pills
-  const curH=getMehdiaHour();
-  const startH=selDay===0?curH:8;
-  const pills=Array.from({length:6},(_,i)=>{
-    const absH=startH+i, dOff=Math.floor(absH/24), h=absH%24;
-    const ix=hi(selDay+dOff,h);
-    const wh=M.hourly.wave_height[ix]??0;
-    const ws=W.hourly.wind_speed_10m[ix]??0;
-    const wp=M.hourly.wave_period[ix]??8;
-    const wd=W.hourly.wind_direction_10m?.[ix];
-    const ps=calcScore(wh,wp,ws,wd);
-    return {h,fh:faceH(wh),sc:ps,st:getStatus(ps,h,sun,faceH(wh)),nextDay:dOff>0,isBest:h===best.hour&&dOff===0};
-  });
-
-  // Week scores
-  const weekScores=days.map((_,i)=>dayBestScore(i));
-  const maxSc=Math.max(...weekScores,1);
-
-  const C=2*Math.PI*95;
-  const dash=C-(sc/100)*C;
-
-  const slot=timeSlot(selHour);
-  const subText=night
-    ?(label==='🌙 DODO TIME'?'Bonne nuit !':label==='🏃 TRAINING + PETIT DEJ'?'Réveil, stretching, café ☕':'Repos, Iftar, Dodo ☪️')
-    :(slot?`${slot} · `:'')+(fh<0.3?'Mer plate…':fh<0.5?'Petites vaguelettes':`Vagues ~${fh}m face`);
-
-  document.getElementById('app').innerHTML=`<div class="screen">
-
-  <div class="header">
-    <h1>Mehdia Plage</h1>
-    <div class="dt">${dt}</div>
-    ${sun?`<div class="sun-row">
-      <div class="sun-item"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/><circle cx="7" cy="7" r="2.5"/></svg>${sun.rise}</div>
-      <div style="width:1px;height:8px;background:rgba(255,255,255,.1)"></div>
-      <div class="sun-item"><svg width="11" height="11" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M7 2v1M7 11v1M2 7H1M13 7h-1M3.5 3.5l-.7-.7M11.2 11.2l-.7-.7M3.5 10.5l-.7.7M11.2 2.8l-.7.7"/><circle cx="7" cy="7" r="2.5"/></svg>${sun.set}</div>
-    </div>`:''}
-  </div>
-
-  ${best.score>=35?`<div class="best-banner" onclick="selHour=${best.hour};render()">
-    <div class="best-banner-left">⚡ Meilleure heure du jour</div>
-    <div class="best-banner-right" style="color:${bestSt.color}">${String(best.hour).padStart(2,'0')}h · ${bestSt.label}</div>
-  </div>`:''}
-
-  <div class="hourly-wrap">
-    <div class="hourly-title">Prochaines heures — taille face</div>
-    <div class="hourly">${pills.map((p,i)=>`<div class="hour-pill${i===0?' active':''}${p.isBest?' best':''}" onclick="selHour=${p.h};render()">
-      <div class="hour-time">${String(p.h).padStart(2,'0')}h${p.nextDay?'<span style="font-size:8px;opacity:.4"> +1</span>':''}</div>
-      <div class="hour-dot" style="background:${p.st.color};box-shadow:0 0 5px ${p.st.color}55"></div>
-      <div class="hour-size" style="color:${p.st.color}">${p.fh}m</div>
-      <div class="hour-status" style="color:${p.st.color}99">${p.st.label}</div>
-    </div>`).join('')}</div>
-  </div>
-
-  <div class="ring-section"><div class="ring-wrapper">
-    <svg class="ring-svg" viewBox="0 0 220 220">
-      <circle class="ring-track" cx="110" cy="110" r="95"/>
-      <circle class="ring-arc" id="arc" cx="110" cy="110" r="95" stroke="${color}"
-        style="stroke-dashoffset:${C};filter:drop-shadow(0 0 12px ${color}) drop-shadow(0 0 30px ${color}66)"/>
-    </svg>
-    <div class="ring-center">
-      <div class="ring-label" style="color:${color};text-shadow:0 0 30px ${color}88">${label}</div>
-      <div class="ring-sub">${subText}</div>
+        <div id="update-badge" class="update-badge" onclick="applyUpdate()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Mise à jour disponible
+        </div>
     </div>
-  </div></div>
 
-  <div class="stats">
-    <div class="stat">
-      <svg class="stat-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <path d="M2 20c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/><path d="M2 26c2-3 4-5 7-5s5 4 9 4 5-4 12-4"/>
-        <path d="M13 6Q16 2 19 6Q22 10 19 14Q16 18 13 14Q10 10 13 6Z" stroke-width="1.5"/>
-      </svg>
-      <div class="stat-val">${fh}<span class="unit">m</span></div>
-      <div class="stat-sub">FACE vague</div>
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Paramètres</div>
+                <button class="modal-close" onclick="closeModals()">×</button>
+            </div>
+            
+            <div class="setting-group">
+                <span class="setting-label">Mode Sombre</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-group">
+                <span class="setting-label">Actualisation auto (15m)</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="auto-refresh-toggle" onchange="toggleAutoRefresh()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="section-title" style="margin-left:0; margin-top:20px;">Ajouter un podcast</div>
+            <div class="add-form">
+                <input type="text" id="new-podcast-url" class="form-input" placeholder="URL du flux RSS (https://...)">
+                <select id="new-podcast-comptabilise" class="form-input">
+                    <option value="true">Comptabilisé</option>
+                    <option value="false">Hors-comptage</option>
+                </select>
+                <label style="display:flex; align-items:center; gap:8px; font-size:14px; margin-top:5px; margin-bottom:5px; color:var(--text-main);">
+                    <input type="checkbox" id="new-podcast-natif" style="width:16px; height:16px;">
+                    Podcast Natif
+                </label>
+                <button class="form-btn" onclick="addPodcast()">Ajouter à la liste</button>
+            </div>
+            <div class="section-title" style="margin-left:0;">Gérer les flux existants</div>
+            <div class="manage-list" id="manage-list-container"></div>
+        </div>
     </div>
-    <div class="sdiv"></div>
-    <div class="stat">
-      <svg class="wind-arrow" style="transform:rotate(${windDeg}deg);transition:transform .8s" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <line x1="14" y1="24" x2="14" y2="4"/><polyline points="8,10 14,4 20,10"/>
-      </svg>
-      <div class="stat-val">${Math.round(windSpd)}<span class="unit"> km/h</span></div>
-      <div class="stat-sub">${windLabel(windDeg)}</div>
+
+    <div id="history-modal" class="modal-overlay">
+        <div class="modal-content" style="height: 90vh;">
+            <div class="modal-header">
+                <div class="modal-title">Calendrier des sorties</div>
+                <button class="modal-close" onclick="closeModals()">×</button>
+            </div>
+            <div id="history-container"></div>
+        </div>
     </div>
-    <div class="sdiv"></div>
-    <div class="stat">
-      <svg class="stat-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
-        <circle cx="16" cy="16" r="6"/>
-        <line x1="16" y1="2" x2="16" y2="5"/><line x1="16" y1="27" x2="16" y2="30"/>
-        <line x1="2" y1="16" x2="5" y2="16"/><line x1="27" y1="16" x2="30" y2="16"/>
-        <line x1="6" y1="6" x2="8.1" y2="8.1"/><line x1="23.9" y1="23.9" x2="26" y2="26"/>
-        <line x1="26" y1="6" x2="23.9" y2="8.1"/><line x1="8.1" y1="23.9" x2="6" y2="26"/>
-      </svg>
-      <div class="stat-val">${Math.round(temp)}<span class="unit" style="vertical-align:super;font-size:9px">°</span></div>
-      <div class="stat-sub">${wxLabel(wcode)}</div>
+
+    <div id="player-modal" class="player-modal">
+        <div class="player-header">
+            <span>En lecture (Aujourd'hui)</span>
+            <button class="player-close" onclick="closePlayer()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px; height:16px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+        </div>
+        
+        <div class="player-cover-container">
+            <img id="player-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="Cover" class="player-cover">
+        </div>
+        
+        <div class="player-info">
+            <div id="player-title" class="player-track-title">Sélectionnez un épisode</div>
+            <div id="player-podcast" class="player-track-podcast">...</div>
+        </div>
+        
+        <div class="player-controls">
+            <div class="progress-container">
+                <span id="player-time-current">0:00</span>
+                <input type="range" id="player-progress" class="progress-bar" value="0" min="0" max="100">
+                <span id="player-time-total">0:00</span>
+            </div>
+            <div class="buttons-container">
+                
+                <button class="btn-skip-15" onclick="seekAudio(-15)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+                        <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
+                    </svg>
+                </button>
+                
+                <button class="btn-skip" onclick="playPrev()">
+                    <svg viewBox="0 0 24 24"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
+                </button>
+                
+                <button class="btn-play-pause" onclick="togglePlay()">
+                    <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <svg id="pause-icon" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                </button>
+                
+                <button class="btn-skip" onclick="playNext()">
+                    <svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
+                </button>
+                
+                <button class="btn-skip-15" onclick="seekAudio(15)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+                        <text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text>
+                    </svg>
+                </button>
+                
+            </div>
+        </div>
+        
+        <div class="player-queue">
+            <div class="queue-title">À SUIVRE</div>
+            <div id="player-queue-list"></div>
+        </div>
     </div>
-  </div>
 
-  <div class="extra">
-    <div class="extra-card">
-      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M11 2Q14 8 14 13a3 3 0 0 1-6 0Q8 8 11 2Z"/></svg>
-      <div><div class="extra-label">Eau</div><div class="extra-val">${seaT!==null?Math.round(seaT):'--'}<span class="unit"> °C</span></div></div>
-    </div>
-    <div class="extra-card">
-      <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-        <path d="M3 8Q7 4 11 8Q15 12 19 8"/><path d="M3 14Q7 10 11 14Q15 18 19 14"/>
-      </svg>
-      <div><div class="extra-label">Période</div><div class="extra-val">${Math.round(period)}<span class="unit"> s</span></div></div>
-    </div>
-  </div>
+    <audio id="main-audio"></audio>
 
-  <div class="week-wrap">
-    <div class="week-title">Score semaine</div>
-    <div class="week-bars">
-      ${days.map((day,i)=>`<div class="week-bar-col${i===selDay?' sel':''}" onclick="selDay=${i};selHour=${i===0?getMehdiaHour():10};render()">
-        <div class="week-bar" style="height:${Math.max(4,Math.round((day.sc/maxSc)*44))}px;background:${day.color};opacity:${i===selDay?1:.45};${i===selDay?`box-shadow:0 0 10px ${day.color}55`:''};"></div>
-        <div class="week-bar-lbl" style="${i===selDay?`color:${day.color}`:''};">${day.name}</div>
-      </div>`).join('')}
-    </div>
-  </div>
+    <script>
+        // === LA LISTE COMPLÈTE ===
+        const defaultPodcastConfig = [
+            { url: "https://feeds.audiomeans.fr/feed/17652c76-f6e2-47da-b4de-ab791a8de6f9.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/b38cbcd5-a1b8-4f4c-997a-d40c2c04f9e8.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/abd60e2a-fac4-413f-bf0a-463aa19796dc.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/7b065cde-def6-4740-b96f-571366b7e54c.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/7b5cfe03-5ba9-4428-a41a-cf5c90d4ef49.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c0afb1da-71a8-4a43-8b2f-9decd86c3198.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/a8aae616-7e41-429f-a0f5-5b8d1c322fc7.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/ea13af31-37bf-4ed1-a0fb-87498c26d64b.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/9562ff43-55ee-44af-95e0-db69d162ebae.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/4be07d58-3177-4e44-8c9a-9ab1eedd2c34.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/aae35f24-4d4f-4976-bae5-0f629c3d08f5.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/b3d92b2e-f448-42fd-91ff-13e605c39ccd.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/23446ca3-fe7a-4be3-8dca-6f8a64a06806.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0f9366c9-ea8d-43d8-a7a0-135ca0c05a1d.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/d46afe4c-2f13-4f73-9a6e-b36b2e37dcbf.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/4a8dccbe-3444-4c27-8f42-c26d21406bc1.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0f56e4cd-d44d-4968-ac12-9d1159a54d4c.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/78a1e8b4-d078-44de-b74b-78f38a8923ae.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/6b9f30c8-cdf9-4ede-aada-aec380317df1.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/49687653-10e2-4068-b513-a29218042228.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/4483fcfa-6adc-47bc-97b8-c4c78ea4951e.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/456411ca-cea1-4a88-a9d5-98b990722ed6.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/9a5e8977-e246-4457-b438-51a1f498d911.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/55f098ba-f624-42b7-b29b-e61099ce2b79.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c50fd628-34ad-4eca-9def-546cb7c2ae31.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/e7d6f6f9-6084-49e6-80ee-82e921b40d5d.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0ee58dde-db1f-4508-95c4-8e23bcc1ec9b.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/84b3b99d-eb46-413b-9d96-595af98a3f79.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/134be58f-3f43-447f-baf9-3acc9262dcfd.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/3f623a0b-f338-4e18-ba74-c194e0e6e8bf.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/33dfee79-12e7-41c6-9023-7ac20bf91db1.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/5799f0c0-d531-402b-8c09-14671fcccfb7.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/5d025ae3-c104-4b3c-b20d-0c5bdb4df97d.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/1ef17db5-ad83-4c9f-84b7-449df8b38b32.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/fc535eee-8df2-4f13-9d12-0d4c8c0d1154.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/1019002c-dd56-48c1-808d-f1d0f5ec1113.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/22ed053d-cd0c-4598-babe-8da182bfd557.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/44b11857-392e-491a-ab69-69bd3543ec63.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/4be07d58-3177-4e44-8c9a-9ab1eedd2c34.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/078c3a40-6a61-47ab-bf75-5653f3a1463f.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/ac193b03-3b95-435b-8c37-a01d5eda5d1d.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/dbada355-20e2-42ad-8901-6945bd8d4800.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/2223a715-ca4a-4360-abe2-dc5a906c7fbb.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/a1cd7837-0832-4070-8e43-14d5beac123a.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/8f8a3fe9-5298-409e-b938-b1f990c2c8ad.xml", comptabilise: true, natif: false },
+            
+            // --- LES NATIFS ---
+            { url: "https://feeds.audiomeans.fr/feed/1c147c6c-b4f0-46ae-a101-d0436ffa3d0e.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/80a39a48-f044-436e-ad5b-63d3154efa91.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/13c59b4e-7b42-49a8-849f-d4eb25baeb19.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/5a3426bf-0329-4df2-a63e-87169b371be7.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/0b81db9c-9ba5-4faa-921c-3ae8ab7d15e2.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/13847b2e-82d3-11ee-af22-df4d4a91bfdc.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/a9132511-29db-4d76-bbf5-ad6e53a6375d.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/19e73a34-5dd4-4680-913f-a34294ccd927.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/5ced65f3-0264-4fac-8785-d12d13b5c2f1.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/1075b04c-0b6b-4ba0-b129-e83c241aa304.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/ee883851-2ab1-4296-b3f2-6f70f3a8f0e8.xml", comptabilise: true, natif: true }, 
+            { url: "https://feeds.audiomeans.fr/feed/6f8c5a53-9a85-4f33-80ea-699424d45309.xml", comptabilise: true, natif: true }, 
 
-  <div class="days">${days.map((day,i)=>`<div class="day-btn${i===selDay?' active':''}" onclick="selDay=${i};selHour=${i===0?getMehdiaHour():10};render()" style="${i===selDay?`border-color:${day.color}66`:''}">
-    <div class="day-name" style="color:${day.color}">${day.name}</div>
-    <div class="day-num" style="color:${day.color};text-shadow:0 0 12px ${day.color}66">${day.num}</div>
-    <svg width="18" height="10" viewBox="0 0 22 10" fill="none" stroke="${day.color}" stroke-width="2" stroke-linecap="round" style="filter:drop-shadow(0 0 4px ${day.color}88)">
-      <path d="M1 6c1.5-2 3-3.5 5-3.5s3.5 3 6 3 3.5-3 8-3"/>
-    </svg>
-  </div>`).join('')}</div>
-  <div class="tips">
-    <div class="tips-title">Conseils du jour</div>
-    ${getTips().map((t,i)=>`<div class="tip-item"><div class="tip-num">${i+1}</div><div class="tip-text">${t}</div></div>`).join('')}
-  </div>
+            { url: "https://feeds.audiomeans.fr/feed/f649a24a-afec-4c3b-b01d-985223ff1e74.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/5938c170-dc0b-41a5-a59d-019a05f687c2.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/1aceff0b-992d-4337-9f75-3dff622fd8af.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/76c7cbeb-73a8-41c6-9700-01818b258f27.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/278cab38-f438-459f-bae1-8cb4f6dc5436.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/1f679704-d4ce-4a80-aadb-380f7ed08072.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/a58f57cc-71b0-4e5b-a349-4a8ba3479f80.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/f2265776-504d-4ff6-89b0-784deacfcb38.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0bfadaff-71b8-43ce-b964-4199e425207e.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/8f59879f-806a-46dd-aa79-9160e503b679.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/82443457-3b11-434e-99cc-9de8338c8a57.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/283ea31f-bb34-407e-bff1-4d2245824ffe.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/474e4787-d49f-4473-ab2d-9aebcf510cfa.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/502ede2c-7341-4477-a374-e27a0c64d738.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/db384986-c141-4f27-b4f4-652bc6064c31.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/361d9d7c-191f-419f-833e-83f498149fed.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/03f60f8c-8247-4c78-99dc-faa175730ec3.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/82faf41f-e3ee-4e5f-80f5-42f177d513e2.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/24076e71-d1f1-4e8f-8c86-3840ee6562ad.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/a99c7a56-9ff6-4320-b559-d066c0977f22.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0edf40bd-9b3c-4428-9bfb-230f4bf98895.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/397935a1-ddef-48a3-9659-caaef04c70a3.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/5f798351-a176-416c-abda-8a12d48774fe.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/2b1e500d-8b2f-47e1-8f17-cae751c4b281.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/d083eb0b-49b3-479b-b02a-6895f18a7fab.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/f2303b00-a943-4ab0-8702-aa97447e6112.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/301b48c3-3751-46d1-b740-9508bac8be91.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c9c019ab-6ec7-49de-a7c2-e6c50ddf2e37.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/77dd9729-e2b2-462a-90fa-d6b45464ed8e.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/d8da0358-f829-400a-a9bd-836a08c5cfcb.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/506f075f-8a18-42bf-b589-a60d7d65fef0.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/5b279160-ca91-477b-99b1-4276074257ac.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/aefbab20-4311-449c-8d7e-12b6d1f4b5b4.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/9d4e94a2-0ac1-47bc-b677-3143eb989333.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c6e434d6-801e-4849-b56e-747d6d5a51ea.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/39d1fc14-8d85-4bba-afe0-2cf9e3b4053f.xml", comptabilise: true, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/8670e1d5-b8d8-486b-9ea4-e8d5c09966f5.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/34e71064-2a44-4541-bec3-4c21ddf69bfe.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/0ba247d7-b0e0-4c22-87f5-7c84cfdea897.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c9c019ab-6ec7-49de-a7c2-e6c50ddf2e37.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/a32f5059-de31-4db9-8ae9-8ded1af35316.xml", comptabilise: false, natif: false },
+            { url: "https://feeds.audiomeans.fr/feed/c35816b2-174c-4f9e-9889-6fb86fdd8fe5.xml", comptabilise: false, natif: false }
+        ];
 
-</div>`;
+        let podcastConfig = JSON.parse(localStorage.getItem('podcastConfig'));
 
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const a=document.getElementById('arc');
-    if(a) a.style.strokeDashoffset=dash;
-  }));
-}
+        if (podcastConfig) {
+            let configUpdated = false;
+            let actuPod = podcastConfig.find(p => p.url === "https://feeds.audiomeans.fr/feed/6f8c5a53-9a85-4f33-80ea-699424d45309.xml");
+            if (actuPod && actuPod.natif === false) { actuPod.natif = true; configUpdated = true; }
 
-async function init(){
-  try{
-    await fetchData();
-    document.getElementById('loading').style.display='none';
-    render();
-    setInterval(async()=>{await fetchData();selHour=getMehdiaHour();render();},3600000);
-  }catch(e){
-    document.getElementById('app').innerHTML=`<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px;padding:40px;text-align:center">
-      <div style="font-size:36px">⚠️</div>
-      <div style="color:#ef476f;font-size:13px;line-height:1.6">Erreur de chargement<br><span style="opacity:.6;font-size:11px">${e.message}</span></div>
-      <button onclick="location.reload()" style="margin-top:8px;padding:10px 24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;color:#fff;font-size:12px;cursor:pointer;font-family:inherit">↩ Réessayer</button>
-    </div>`;
-  }
-}
-init();
-</script>
+            podcastConfig.forEach(p => {
+                if (typeof p.natif === 'undefined') {
+                    const defaultPod = defaultPodcastConfig.find(dp => dp.url === p.url);
+                    p.natif = defaultPod ? defaultPod.natif : false;
+                    configUpdated = true;
+                }
+            });
+            if (configUpdated) localStorage.setItem('podcastConfig', JSON.stringify(podcastConfig));
+        } else {
+            podcastConfig = defaultPodcastConfig;
+            localStorage.setItem('podcastConfig', JSON.stringify(podcastConfig));
+        }
+
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        let isAutoRefresh = localStorage.getItem('autoRefresh') === 'true';
+        let refreshIntervalId = null;
+
+        let allPodcastsData = []; 
+        let historyData = []; 
+        let freshPodcastsData = [];
+        let freshHistoryData = [];
+        let selectedHistoryDate = null; 
+
+        let playerQueue = [];
+        let currentTrackIndex = -1;
+        const audioEl = document.getElementById('main-audio');
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // === PASSAGE À 9 JOURS ===
+        const dates9Days = [];
+        for (let i = 8; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            dates9Days.push(d.getTime());
+        }
+
+        const integraleExceptions = [
+            "au coeur de l'actu", "au cœur de l'actu",
+            "au coeur de l'histoire", "au cœur de l'histoire",
+            "au coeur de la france", "au cœur de la france",
+            "destins extraordinaires",
+            "au coeur des archives", "au cœur des archives"
+        ];
+
+        function parseDuration(str) {
+            if (!str) return 0;
+            let parts = str.split(':');
+            if (parts.length === 3) { return parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]); } 
+            else if (parts.length === 2) { return parseInt(parts[0]) * 60 + parseInt(parts[1]); } 
+            else { return parseInt(str) || 0; }
+        }
+
+        function initApp() {
+            if(isDarkMode) { document.body.classList.add('dark-mode'); document.getElementById('dark-mode-toggle').checked = true; }
+            if(isAutoRefresh) { document.getElementById('auto-refresh-toggle').checked = true; startAutoRefresh(); }
+
+            const hasCache = loadFromCache();
+            if (hasCache) {
+                updateView();
+                fetchFeeds(true);
+            } else {
+                fetchFeeds(false);
+            }
+        }
+
+        function loadFromCache() {
+            try {
+                const cacheStr = localStorage.getItem('podcastsDataCache');
+                if (cacheStr) {
+                    const cache = JSON.parse(cacheStr);
+                    allPodcastsData = cache.podcasts.map(p => {
+                        const currentConfig = podcastConfig.find(c => c.url === p.url);
+                        return { ...p, latestPubDate: new Date(p.latestPubDate), natif: currentConfig ? currentConfig.natif : false, hasIntegrale: p.hasIntegrale || false };
+                    });
+                    historyData = cache.history.map(h => ({ ...h, date: new Date(h.date) }));
+                    return true;
+                }
+            } catch (e) { console.error("Erreur cache", e); }
+            return false;
+        }
+
+        function saveToCache(podcasts, history) { localStorage.setItem('podcastsDataCache', JSON.stringify({ podcasts, history })); }
+
+        async function fetchFeeds(isBackground = false, isPtr = false) {
+            let loadedCount = 0;
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            const totalFeeds = podcastConfig.length;
+            
+            let tempPodcastsData = [];
+            let tempHistoryData = [];
+
+            const chunkSize = 10; 
+
+            for (let i = 0; i < totalFeeds; i += chunkSize) {
+                const chunk = podcastConfig.slice(i, i + chunkSize);
+                
+                await Promise.all(chunk.map(async (config) => {
+                    try {
+                        const response = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(config.url)}`);
+                        if (!response.ok) throw new Error(`Erreur HTTP`);
+                        
+                        const xmlText = await response.text();
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+                        const title = xmlDoc.querySelector("channel > title")?.textContent || "Podcast inconnu";
+                        const titleLower = title.toLowerCase();
+                        let imgUrl = xmlDoc.querySelector("channel > image > url")?.textContent || xmlDoc.querySelector("channel > itunes\\:image, image")?.getAttribute('href') || "";
+
+                        const items = Array.from(xmlDoc.querySelectorAll("item"));
+                        if (items.length > 0) {
+                            const latestItem = items[0];
+                            const latestTitle = latestItem.querySelector("title")?.textContent || "Sans titre";
+                            const latestPubDate = new Date(latestItem.querySelector("pubDate")?.textContent);
+
+                            const dailyCounts = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0 }; 
+                            let podcastHasIntegrale = false; 
+
+                            const isException = integraleExceptions.some(ex => titleLower.includes(ex));
+
+                            items.forEach(item => {
+                                const pubDateStr = item.querySelector("pubDate")?.textContent;
+                                if (!pubDateStr) return;
+
+                                if (!isException) {
+                                    const durationNode = item.getElementsByTagName('itunes:duration')[0] || item.querySelector('duration');
+                                    const durationStr = durationNode ? durationNode.textContent : '';
+                                    if (parseDuration(durationStr) >= 2700) { podcastHasIntegrale = true; }
+                                }
+
+                                const exactDate = new Date(pubDateStr);
+                                const pubDateOnly = new Date(exactDate);
+                                pubDateOnly.setHours(0,0,0,0);
+
+                                const dayIndex = dates9Days.indexOf(pubDateOnly.getTime());
+                                if (dayIndex !== -1) {
+                                    dailyCounts[dayIndex]++;
+                                    tempHistoryData.push({
+                                        podcast: title,
+                                        title: item.querySelector("title")?.textContent || "Sans titre",
+                                        date: exactDate,
+                                        url: item.querySelector("enclosure")?.getAttribute("url") || config.url,
+                                        image: imgUrl 
+                                    });
+                                }
+                            });
+
+                            tempPodcastsData.push({
+                                url: config.url, comptabilise: config.comptabilise, natif: config.natif,
+                                hasIntegrale: podcastHasIntegrale, name: title, image: imgUrl,
+                                latestEpisodeTitle: latestTitle, latestPubDate: latestPubDate,
+                                dailyCounts: dailyCounts, episodesToday: dailyCounts[8] 
+                            });
+                        }
+                    } catch (error) { console.error("Erreur sur " + config.url); }
+                    
+                    loadedCount++;
+                    if(!isBackground && !isPtr && progressFill && progressText) {
+                        const percent = (loadedCount / totalFeeds) * 100;
+                        progressFill.style.width = `${percent}%`;
+                        progressText.innerText = `${loadedCount} / ${totalFeeds} terminés`;
+                    }
+                }));
+            }
+
+            tempPodcastsData.sort((a, b) => b.latestPubDate - a.latestPubDate);
+            tempHistoryData.sort((a, b) => b.date - a.date); 
+
+            if (isBackground && !isPtr) {
+                const isDifferent = JSON.stringify(tempHistoryData) !== JSON.stringify(historyData);
+                freshPodcastsData = tempPodcastsData;
+                freshHistoryData = tempHistoryData;
+                saveToCache(tempPodcastsData, tempHistoryData); 
+                if (isDifferent) { document.getElementById('update-badge').classList.add('show'); }
+            } else {
+                allPodcastsData = tempPodcastsData;
+                historyData = tempHistoryData;
+                saveToCache(tempPodcastsData, tempHistoryData);
+                updateView();
+            }
+        }
+
+        function applyUpdate() {
+            allPodcastsData = freshPodcastsData;
+            historyData = freshHistoryData;
+            document.getElementById('update-badge').classList.remove('show');
+            updateView();
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function updateView() {
+            const filterValue = document.getElementById('podcast-filter').value;
+            const searchValue = document.getElementById('search-input').value.toLowerCase();
+            
+            let filteredData = allPodcastsData.filter(p => {
+                let matchSelect = false;
+                if (filterValue === 'all') matchSelect = true;
+                else if (filterValue === 'comptabilise') matchSelect = p.comptabilise === true;
+                else if (filterValue === 'non-comptabilise') matchSelect = p.comptabilise === false;
+                else if (filterValue === 'natif') matchSelect = p.natif === true;
+                else if (filterValue === 'integrale') matchSelect = p.hasIntegrale === true;
+                else if (filterValue === 'chroniques') matchSelect = (p.hasIntegrale === false && p.natif === false); 
+                
+                let matchSearch = p.name.toLowerCase().includes(searchValue);
+                return matchSelect && matchSearch;
+            });
+
+            // Initialisation avec compteurs séparés pour le tooltip
+            const graphData = dates9Days.map(time => ({ 
+                label: new Date(time).toLocaleDateString('fr-FR', { weekday: 'short' }), 
+                count: 0,
+                compte: 0,
+                nonCompte: 0
+            }));
+
+            let grandTotal = 0;
+            filteredData.forEach(pod => {
+                for (let i = 0; i < 9; i++) {
+                    graphData[i].count += pod.dailyCounts[i];
+                    if (pod.comptabilise) {
+                        graphData[i].compte += pod.dailyCounts[i];
+                    } else {
+                        graphData[i].nonCompte += pod.dailyCounts[i];
+                    }
+                    grandTotal += pod.dailyCounts[i];
+                }
+            });
+
+            renderApp(filteredData, graphData, grandTotal);
+            if(document.getElementById('history-modal').style.display === 'flex') { renderHistory(); }
+        }
+
+        function renderApp(podcasts, graphData, total9Days) {
+            const appDiv = document.getElementById('app');
+            const maxEpisodes = Math.max(...graphData.map(d => d.count), 1); 
+            const tier1 = Math.round(maxEpisodes / 3);
+            const tier2 = Math.round((maxEpisodes / 3) * 2);
+            const tier3 = maxEpisodes;
+
+            let html = `
+                <section class="chart-card">
+                    <div class="chart-subtitle">Total sur 9 jours</div>
+                    <div class="chart-title">${total9Days}</div>
+                    <div class="chart-area">
+                        <div class="grid-line-container" style="bottom: 100%;"><div class="grid-line-label">${tier3}</div></div>
+                        <div class="grid-line-container" style="bottom: 66%;"><div class="grid-line-label">${tier2}</div></div>
+                        <div class="grid-line-container" style="bottom: 33%;"><div class="grid-line-label">${tier1}</div></div>
+                        <div class="grid-line-container base-line" style="bottom: 0;"><div class="grid-line-label">0</div></div>
+                        <div class="chart-bars">
+            `;
+
+            graphData.forEach(day => {
+                const heightPercentage = (day.count / maxEpisodes) * 100;
+                const finalHeight = day.count > 0 ? Math.max(heightPercentage, 5) : 0; 
+                
+                // La barre devient interactive et affiche le tooltip au clic
+                html += `
+                    <div class="bar-container" onclick="this.classList.toggle('show-split')">
+                        ${day.count > 0 ? `<div class="bar-value">${day.count}</div>` : ''}
+                        <div class="bar" style="height: ${finalHeight}%;">
+                            <div class="bar-split">
+                                <div class="split-row"><div class="split-dot" style="background:var(--green-dot)"></div>${day.compte} Comptés</div>
+                                <div class="split-row"><div class="split-dot" style="background:var(--text-secondary)"></div>${day.nonCompte} Hors</div>
+                            </div>
+                        </div>
+                        <span class="bar-label">${day.label.charAt(0).toUpperCase() + day.label.slice(1,3)}</span>
+                    </div>`;
+            });
+            html += `</div></div></section>`;
+
+            // SMART INSIGHT (Ajusté pour le tableau à 9 jours, Aujourd'hui = index 8)
+            const todayCount = graphData[8].count; const yestCount = graphData[7].count; const dbyCount = graphData[6].count;
+            let insightText = "";
+            if (yestCount > dbyCount) insightText += `Hausse d'activité hier (${yestCount} sorties) par rapport à avant-hier (${dbyCount}). `;
+            else if (yestCount < dbyCount) insightText += `Baisse de régime hier (${yestCount} sorties) contre ${dbyCount} avant-hier. `;
+            else if (yestCount > 0 && yestCount === dbyCount) insightText += `Activité stable hier (${yestCount} sorties). `;
+            
+            if (todayCount > yestCount && todayCount > 0) insightText += `Aujourd'hui s'annonce très fort avec déjà ${todayCount} publication(s) !`;
+            else if (todayCount === 0) insightText += `Journée encore très calme aujourd'hui.`;
+            else insightText += `La dynamique continue aujourd'hui avec ${todayCount} publication(s).`;
+
+            const bulbIcon = `<svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg>`;
+            html += `<div class="smart-insight-card"><div class="insight-icon-container">${bulbIcon}</div><div class="insight-text">${insightText}</div></div>`;
+
+            let countNatifs = 0; let countIntegrales = 0; let countChroniques = 0; let totalDist = 0; 
+            podcasts.forEach(p => {
+                if (p.episodesToday > 0 && p.comptabilise) {
+                    if (p.natif) countNatifs += p.episodesToday;
+                    else if (p.hasIntegrale) countIntegrales += p.episodesToday;
+                    else countChroniques += p.episodesToday;
+                    totalDist += p.episodesToday;
+                }
+            });
+
+            if (totalDist > 0) {
+                const pctNatif = (countNatifs / totalDist) * 100;
+                const pctIntegrale = (countIntegrales / totalDist) * 100;
+                const pctChronique = (countChroniques / totalDist) * 100;
+                
+                html += `
+                <div class="distribution-card">
+                    <div class="dist-title">Répartition du jour</div>
+                    <div class="dist-bar">
+                        ${pctNatif > 0 ? `<div class="dist-segment bg-natif" style="width: ${pctNatif}%"><span class="dist-pct">${Math.round(pctNatif)}%</span></div>` : ''}
+                        ${pctIntegrale > 0 ? `<div class="dist-segment bg-integrale" style="width: ${pctIntegrale}%"><span class="dist-pct">${Math.round(pctIntegrale)}%</span></div>` : ''}
+                        ${pctChronique > 0 ? `<div class="dist-segment bg-chronique" style="width: ${pctChronique}%"><span class="dist-pct">${Math.round(pctChronique)}%</span></div>` : ''}
+                    </div>
+                    <div class="dist-legend">
+                        ${countNatifs > 0 ? `<div class="legend-item"><div class="legend-dot bg-natif"></div>Natifs</div>` : ''}
+                        ${countIntegrales > 0 ? `<div class="legend-item"><div class="legend-dot bg-integrale"></div>Intégrales</div>` : ''}
+                        ${countChroniques > 0 ? `<div class="legend-item"><div class="legend-dot bg-chronique"></div>Chroniques</div>` : ''}
+                    </div>
+                </div>`;
+            }
+
+            html += `<div class="section-title">Aujourd'hui</div><section class="podcast-list">`;
+            let totalToday = podcasts.reduce((sum, p) => sum + p.episodesToday, 0);
+            if(podcasts.length === 0 || totalToday === 0) { html += `<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Aucun épisode publié aujourd'hui pour cette sélection.</div>`; }
+            podcasts.forEach(pod => {
+                if (pod.episodesToday > 0) {
+                    const statusClass = pod.episodesToday > 0 ? "active" : "inactive";
+                    html += `
+                        <div class="podcast-item" onclick="window.open('${pod.url}', '_blank')">
+                            <img src="${pod.image}" alt="${pod.name}" class="podcast-img">
+                            <div class="podcast-info">
+                                <div class="podcast-name-container"><span class="podcast-name">${pod.name}</span><span class="status-dot ${statusClass}"></span></div>
+                                <div class="podcast-episode">${pod.latestEpisodeTitle}</div>
+                            </div>
+                            <div class="podcast-count">${pod.episodesToday}</div>
+                        </div>`;
+                }
+            });
+            html += `</section>`;
+            appDiv.innerHTML = html;
+        }
+
+        // ==========================================
+        // GESTION DU PLAYER AUDIO BETA
+        // ==========================================
+        function openPlayer() {
+            const todayStart = new Date(dates9Days[8]); // Aujourd'hui
+            
+            playerQueue = historyData.filter(ep => {
+                const epDate = new Date(ep.date);
+                epDate.setHours(0,0,0,0);
+                if(!ep.image) ep.image = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=";
+                return epDate.getTime() === todayStart.getTime();
+            });
+
+            if (playerQueue.length === 0) {
+                alert("Aucun épisode n'a été publié aujourd'hui pour le lecteur !");
+                return;
+            }
+
+            renderPlayerQueue();
+            document.getElementById('player-modal').style.display = 'flex';
+            
+            if (currentTrackIndex === -1) {
+                loadTrack(0);
+            }
+        }
+
+        function closePlayer() { document.getElementById('player-modal').style.display = 'none'; }
+
+        function loadTrack(index) {
+            currentTrackIndex = index;
+            const track = playerQueue[index];
+            document.getElementById('player-title').innerText = track.title;
+            document.getElementById('player-podcast').innerText = track.podcast;
+            document.getElementById('player-cover').src = track.image;
+            audioEl.src = track.url;
+            audioEl.load();
+            renderPlayerQueue();
+            
+            // Scroll fluide vers le haut du modal lecteur
+            document.getElementById('player-modal').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function togglePlay() {
+            if (playerQueue.length === 0) return;
+            if (currentTrackIndex === -1) loadTrack(0);
+            
+            if (audioEl.paused) {
+                audioEl.play();
+                document.getElementById('play-icon').style.display = 'none';
+                document.getElementById('pause-icon').style.display = 'block';
+            } else {
+                audioEl.pause();
+                document.getElementById('play-icon').style.display = 'block';
+                document.getElementById('pause-icon').style.display = 'none';
+            }
+        }
+
+        function playNext() {
+            if (playerQueue.length === 0) return;
+            let nextIndex = currentTrackIndex + 1;
+            if (nextIndex >= playerQueue.length) nextIndex = 0; 
+            loadTrack(nextIndex);
+            audioEl.play();
+            document.getElementById('play-icon').style.display = 'none';
+            document.getElementById('pause-icon').style.display = 'block';
+        }
+
+        function playPrev() {
+            if (playerQueue.length === 0) return;
+            let prevIndex = currentTrackIndex - 1;
+            if (prevIndex < 0) prevIndex = playerQueue.length - 1;
+            loadTrack(prevIndex);
+            audioEl.play();
+            document.getElementById('play-icon').style.display = 'none';
+            document.getElementById('pause-icon').style.display = 'block';
+        }
+
+        function seekAudio(seconds) {
+            if (audioEl.duration) {
+                audioEl.currentTime = Math.max(0, Math.min(audioEl.duration, audioEl.currentTime + seconds));
+            }
+        }
+
+        function renderPlayerQueue() {
+            const container = document.getElementById('player-queue-list');
+            let html = '';
+            playerQueue.forEach((track, index) => {
+                const isPlayingClass = (index === currentTrackIndex) ? 'playing' : '';
+                html += `
+                    <div class="queue-item ${isPlayingClass}" onclick="loadTrack(${index}); togglePlay();">
+                        <img src="${track.image}" class="queue-img">
+                        <div class="queue-info">
+                            <div class="queue-track">${track.title}</div>
+                            <div class="queue-pod">${track.podcast}</div>
+                        </div>
+                        <svg class="queue-playing-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v18M8 8v8M16 6v12"/></svg>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        audioEl.addEventListener('timeupdate', () => {
+            const progress = document.getElementById('player-progress');
+            if (audioEl.duration) {
+                const value = (audioEl.currentTime / audioEl.duration) * 100;
+                progress.value = value;
+                document.getElementById('player-time-current').innerText = formatTime(audioEl.currentTime);
+                document.getElementById('player-time-total').innerText = formatTime(audioEl.duration);
+            }
+        });
+
+        document.getElementById('player-progress').addEventListener('input', (e) => {
+            if (audioEl.duration) {
+                const time = (e.target.value / 100) * audioEl.duration;
+                audioEl.currentTime = time;
+            }
+        });
+
+        audioEl.addEventListener('ended', playNext);
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        // ==========================================
+        // GESTION DU RESTE DU CODE
+        // ==========================================
+        let startY = 0; let currentY = 0; let isPulling = false;
+        const ptrIndicator = document.getElementById('ptr-indicator');
+
+        document.addEventListener('touchstart', e => {
+            if (document.getElementById('player-modal').style.display === 'flex') return;
+            if (window.scrollY === 0) { startY = e.touches[0].clientY; isPulling = true; }
+        }, { passive: true });
+
+        document.addEventListener('touchmove', e => {
+            if (!isPulling) return;
+            currentY = e.touches[0].clientY;
+            const distance = currentY - startY;
+            if (distance > 0 && window.scrollY <= 0) {
+                ptrIndicator.classList.add('active');
+                ptrIndicator.style.height = `${Math.min(distance / 2, 60)}px`;
+                if (distance > 100) ptrIndicator.innerHTML = 'Lâcher pour actualiser';
+                else ptrIndicator.innerHTML = '↓ Tirer pour actualiser';
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            if (!isPulling) return;
+            isPulling = false;
+            const distance = currentY - startY;
+            if (distance > 100 && window.scrollY <= 0) {
+                ptrIndicator.style.height = '50px';
+                ptrIndicator.innerHTML = '<span class="spin-icon">↻</span> Actualisation...';
+                fetchFeeds(false, true).then(() => {
+                    ptrIndicator.innerHTML = 'À jour ✓';
+                    setTimeout(() => { ptrIndicator.style.height = '0'; ptrIndicator.classList.remove('active'); }, 1000);
+                });
+            } else {
+                ptrIndicator.style.height = '0';
+                ptrIndicator.classList.remove('active');
+            }
+            startY = 0; currentY = 0;
+        });
+
+        function closeModals() {
+            document.getElementById('settings-modal').style.display = 'none';
+            document.getElementById('history-modal').style.display = 'none';
+        }
+
+        function openHistory() {
+            if (!selectedHistoryDate) { selectedHistoryDate = dates9Days[8]; }
+            document.getElementById('history-modal').style.display = 'flex';
+            renderHistory();
+        }
+
+        function selectHistoryDate(time) { selectedHistoryDate = time; renderHistory(); }
+
+        function renderHistory() {
+            const container = document.getElementById('history-container');
+            let html = '<div class="calendar-strip">';
+            
+            // J'inverse l'ordre pour avoir aujourd'hui à droite (ou à gauche selon la lecture)
+            dates9Days.forEach(time => {
+                const d = new Date(time);
+                const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0,3);
+                const dayNum = d.getDate();
+                const isActive = time === selectedHistoryDate ? 'active' : '';
+                html += `<div class="calendar-day ${isActive}" onclick="selectHistoryDate(${time})"><span class="calendar-day-name">${dayName}</span><span class="calendar-day-num">${dayNum}</span></div>`;
+            });
+            html += '</div>';
+
+            const selectedDateObj = new Date(selectedHistoryDate);
+            const dateLabel = selectedDateObj.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            
+            const episodesForDay = historyData.filter(ep => {
+                const epDate = new Date(ep.date); epDate.setHours(0,0,0,0);
+                return epDate.getTime() === selectedHistoryDate;
+            });
+
+            html += `<div class="history-day-title">${dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1)} <span class="history-count-badge">(${episodesForDay.length} épisodes)</span></div>`;
+
+            if (episodesForDay.length === 0) {
+                html += '<p style="color:var(--text-secondary); text-align:center; padding: 20px;">Aucun épisode publié ce jour.</p>';
+            } else {
+                episodesForDay.forEach(ep => {
+                    const time = ep.date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+                    html += `<div class="history-item" onclick="window.open('${ep.url}', '_blank')"><div class="history-time">${time}</div><div class="history-podcast">${ep.podcast}</div><div class="history-title">${ep.title}</div></div>`;
+                });
+            }
+            container.innerHTML = html;
+
+            // Scroll fluide pour centrer la date active dans le carrousel
+            setTimeout(() => {
+                const activeDay = container.querySelector('.calendar-day.active');
+                if (activeDay) {
+                    activeDay.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+                }
+            }, 50);
+        }
+
+        function openSettings() { renderManageList(); document.getElementById('settings-modal').style.display = 'flex'; }
+        function toggleDarkMode() {
+            const isDark = document.getElementById('dark-mode-toggle').checked;
+            if(isDark) { document.body.classList.add('dark-mode'); } else { document.body.classList.remove('dark-mode'); }
+            localStorage.setItem('darkMode', isDark);
+        }
+        function toggleAutoRefresh() {
+            const autoOn = document.getElementById('auto-refresh-toggle').checked;
+            localStorage.setItem('autoRefresh', autoOn);
+            if(autoOn) { startAutoRefresh(); } else { clearInterval(refreshIntervalId); }
+        }
+        function startAutoRefresh() { clearInterval(refreshIntervalId); refreshIntervalId = setInterval(() => fetchFeeds(true), 900000); }
+
+        function renderManageList() {
+            const container = document.getElementById('manage-list-container');
+            let html = '';
+            podcastConfig.forEach((p, index) => {
+                const podData = allPodcastsData.find(d => d.url === p.url);
+                const title = podData ? podData.name : `Flux ${index + 1}`;
+                html += `<div class="manage-item"><div class="manage-item-title">${title}</div><button class="delete-btn" onclick="removePodcast(${index})">Supprimer</button></div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function addPodcast() {
+            const urlInput = document.getElementById('new-podcast-url').value.trim();
+            const comptabilise = document.getElementById('new-podcast-comptabilise').value === "true";
+            const natif = document.getElementById('new-podcast-natif').checked;
+            if(urlInput && urlInput.startsWith('http')) {
+                podcastConfig.push({ url: urlInput, comptabilise: comptabilise, natif: natif });
+                localStorage.setItem('podcastConfig', JSON.stringify(podcastConfig));
+                document.getElementById('new-podcast-url').value = '';
+                document.getElementById('new-podcast-natif').checked = false;
+                renderManageList();
+                fetchFeeds(false); 
+            } else { alert('Veuillez entrer une URL de flux RSS valide.'); }
+        }
+
+        function removePodcast(index) {
+            if(confirm("Supprimer ce podcast de votre liste ?")) {
+                podcastConfig.splice(index, 1);
+                localStorage.setItem('podcastConfig', JSON.stringify(podcastConfig));
+                renderManageList();
+                fetchFeeds(false);
+            }
+        }
+
+        function toggleSearch() {
+            const searchBar = document.getElementById('search-bar');
+            if (searchBar.style.display === 'flex') { closeSearch(); } 
+            else { searchBar.style.display = 'flex'; document.getElementById('search-input').focus(); }
+        }
+
+        function closeSearch() { document.getElementById('search-bar').style.display = 'none'; document.getElementById('search-input').value = ''; updateView(); }
+
+        initApp();
+    </script>
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => console.log('Service Worker enregistré !')).catch(err => console.log('Erreur Service Worker :', err));
+            });
+        }
+    </script>
 </body>
 </html>
