@@ -104,8 +104,8 @@
             position: sticky; top: var(--topbar-h);
             height: calc(100vh - var(--topbar-h));
             overflow-y: auto;
-            padding: 28px 24px 20px 40px;
-            display: flex; flex-direction: column; gap: 20px;
+            padding: 32px 24px 28px 40px;
+            display: flex; flex-direction: column; gap: 16px;
             border-right: 1px solid var(--border);
         }
         .col-right {
@@ -200,11 +200,11 @@
     ═══════════════════════════════════════════════ */
     .chart-card {
         background: var(--card); border-radius: var(--r-lg);
-        padding: 24px 24px 40px; box-shadow: 0 4px 20px rgba(0,0,0,.04);
+        padding: 28px 28px 44px; box-shadow: 0 2px 16px rgba(0,0,0,.06);
         transition: background .3s;
     }
-    .chart-subtitle { color: var(--text-sec); font-size: 15px; font-weight: 500; margin-bottom: 4px; }
-    .chart-total { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 30px; }
+    .chart-subtitle { color: var(--text-sec); font-size: 14px; font-weight: 500; margin-bottom: 6px; letter-spacing: .2px; }
+    .chart-total { font-size: 44px; font-weight: 800; letter-spacing: -2px; margin-bottom: 32px; line-height: 1; }
     .chart-area { position: relative; height: 160px; display: flex; align-items: flex-end; padding-right: 30px; }
     .chart-bars { display: flex; justify-content: space-between; width: 100%; height: 100%; position: relative; z-index: 2; padding: 0 5px; }
     .grid-line {
@@ -238,23 +238,28 @@
     ═══════════════════════════════════════════════ */
     .insight-card {
         background: var(--card); border-radius: var(--r-lg);
-        padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,.04);
-        display: flex; align-items: flex-start; gap: 16px; transition: background .3s;
+        padding: 22px 24px; box-shadow: 0 2px 16px rgba(0,0,0,.06);
+        display: flex; align-items: flex-start; gap: 14px; transition: background .3s;
     }
-    .insight-icon { flex-shrink: 0; width: 24px; height: 24px; color: var(--integrale); margin-top: 2px; }
-    .insight-text { font-size: 15px; line-height: 1.55; font-weight: 500; }
+    .insight-icon-wrap {
+        flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px;
+        background: rgba(255,204,128,.15); display: flex; align-items: center; justify-content: center;
+        margin-top: 1px;
+    }
+    .insight-icon { width: 18px; height: 18px; color: var(--integrale); }
+    .insight-text { font-size: 14px; line-height: 1.6; font-weight: 500; color: var(--text); padding-top: 8px; }
 
     /* ═══════════════════════════════════════════════
        DISTRIBUTION
     ═══════════════════════════════════════════════ */
-    .dist-card { background: var(--card); border-radius: var(--r-lg); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,.04); transition: background .3s; }
-    .dist-heading { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
-    .dist-bar { display: flex; height: 22px; border-radius: 11px; overflow: hidden; margin-bottom: 16px; background: var(--bg); transition: background .3s; }
-    .dist-seg { display: flex; justify-content: center; align-items: center; overflow: hidden; transition: width .4s ease; }
-    .dist-pct { font-size: 11px; font-weight: 700; color: #fff; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,.3); }
-    .dist-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; font-weight: 500; }
-    .legend-item { display: flex; align-items: center; gap: 6px; }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dist-card { background: var(--card); border-radius: var(--r-lg); padding: 22px 24px 24px; box-shadow: 0 2px 16px rgba(0,0,0,.06); transition: background .3s; }
+    .dist-heading { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text-sec); margin-bottom: 14px; }
+    .dist-bar { display: flex; height: 28px; border-radius: 14px; overflow: hidden; margin-bottom: 14px; background: var(--bg); transition: background .3s; gap: 2px; }
+    .dist-seg { display: flex; justify-content: center; align-items: center; overflow: hidden; transition: width .5s cubic-bezier(.4,0,.2,1); border-radius: 14px; }
+    .dist-pct { font-size: 12px; font-weight: 700; color: #fff; white-space: nowrap; text-shadow: 0 1px 3px rgba(0,0,0,.25); }
+    .dist-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; font-weight: 500; }
+    .legend-item { display: flex; align-items: center; gap: 7px; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
     .bg-natif     { background: var(--natif); }
     .bg-integrale { background: var(--integrale); }
     .bg-chronique { background: var(--chronique); }
@@ -492,38 +497,62 @@
     ═══════════════════════════════════════════════ */
     .mini-player {
         display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-        width: calc(100% - 40px); max-width: 400px;
-        background: var(--card); border-radius: var(--r-sm); padding: 8px 12px;
-        box-shadow: 0 8px 28px rgba(0,0,0,.14); z-index: 350;
-        align-items: center; gap: 12px; cursor: pointer;
-        border: 1px solid var(--border); transition: background .3s;
+        width: calc(100% - 32px); max-width: 420px;
+        background: var(--card);
+        border-radius: 20px; padding: 10px 10px 10px 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,.12), 0 2px 8px rgba(0,0,0,.06);
+        z-index: 350; align-items: center; gap: 10px; cursor: pointer;
+        border: 1px solid var(--border); transition: background .3s, box-shadow .3s;
     }
+    .mini-player:hover { box-shadow: 0 12px 40px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.08); }
     .mini-player.visible { display: flex; }
 
     @media (min-width: 900px) {
         .mini-player {
             position: static; transform: none;
             width: 100%; max-width: 100%;
-            margin-top: auto; /* pousse vers le bas de la col-left */
-            border-radius: var(--r-sm);
+            margin-top: auto;
+            border-radius: 18px;
+            padding: 12px 12px 12px 14px;
         }
-        /* Sur desktop, visible géré par JS via display directement */
         .mini-player.visible { display: flex; }
-        /* Quand placé dans col-left, s'afficher même sans classe visible dès qu'une piste est chargée */
         .col-left .mini-player { display: flex; }
         .col-left .mini-player:not(.visible) { display: none; }
     }
 
-    .mini-cover { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-    .mini-info { flex: 1; overflow: hidden; }
-    .mini-title   { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mini-podcast { font-size: 12px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .mini-controls { display: flex; align-items: center; gap: 4px; }
-    .mini-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; transition: opacity .2s; }
+    .mini-cover {
+        width: 44px; height: 44px; border-radius: 12px;
+        object-fit: cover; flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+    .mini-info { flex: 1; overflow: hidden; padding: 0 2px; }
+    .mini-title   { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -.1px; }
+    .mini-podcast { font-size: 11px; color: var(--text-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .mini-controls { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .mini-btn {
+        background: none; border: none; color: var(--text);
+        cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; transition: background .15s, opacity .2s;
+    }
+    .mini-btn:hover { background: var(--bg); }
     .mini-btn:active { opacity: .5; }
-    .mini-btn svg { width: 22px; height: 22px; }
-    .mini-btn-close { color: var(--text-sec); margin-left: 4px; padding-left: 12px; border-left: 1px solid var(--border); }
-    .mini-btn-close svg { width: 18px; height: 18px; }
+    .mini-btn svg { width: 20px; height: 20px; }
+    /* Bouton play/pause : cercle accentué */
+    .mini-btn-play {
+        background: var(--text) !important; color: var(--bg) !important;
+        width: 36px; height: 36px; border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,.2);
+        transition: transform .15s, box-shadow .15s, background .3s;
+    }
+    .mini-btn-play:hover { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,.28); }
+    .mini-btn-play:active { transform: scale(.94); }
+    .mini-btn-play svg { width: 18px; height: 18px; }
+    /* Séparateur + bouton fermer */
+    .mini-btn-close {
+        color: var(--text-sec); margin-left: 2px;
+        border-left: 1px solid var(--border); padding-left: 8px;
+    }
+    .mini-btn-close svg { width: 16px; height: 16px; }
 
     </style>
 </head>
@@ -632,7 +661,7 @@
         <button class="mini-btn" onclick="seekAudio(-15)" title="-15s">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
         </button>
-        <button class="mini-btn" onclick="togglePlay()">
+        <button class="mini-btn mini-btn-play" onclick="togglePlay()" aria-label="Lecture / Pause">
             <svg id="mini-icon-play"  viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             <svg id="mini-icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
         </button>
@@ -1003,7 +1032,7 @@ function buildInsight(graph){
     const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
     let txt=yd>bd?`Hausse d'activité hier (${yd}) vs avant-hier (${bd}). `:yd<bd?`Baisse hier (${yd} sorties) contre ${bd} avant-hier. `:yd>0?`Activité stable hier (${yd} sorties). `:'';
     txt+=td>yd&&td>0?`Aujourd'hui s'annonce fort avec déjà ${td} publication(s) !`:td===0?`Journée encore calme aujourd'hui.`:`La dynamique continue avec ${td} publication(s).`;
-    return `<div class="insight-card"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg><div class="insight-text">${txt}</div></div>`;
+    return `<div class="insight-card"><div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div><div class="insight-text">${txt}</div></div>`;
 }
 
 function buildDistribution(pods){
