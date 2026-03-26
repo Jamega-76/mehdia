@@ -58,30 +58,46 @@
 
     @media (min-width: 900px) {
         .topbar {
-            display: flex; align-items: center; justify-content: space-between; gap: 16px;
-            height: var(--topbar-h); padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center; gap: 20px;
+            height: var(--topbar-h); padding: 0 32px;
             background: var(--card); border-bottom: 1px solid var(--border);
             position: sticky; top: 0; z-index: 300;
             transition: background .3s;
         }
-        .topbar-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-        .topbar-title { font-size: 17px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
-        .topbar-right { display: flex; align-items: center; gap: 10px; }
+        .topbar-left { display: flex; align-items: center; gap: 12px; }
+        .topbar-title { font-size: 16px; font-weight: 700; letter-spacing: -.3px; white-space: nowrap; }
 
-        .topbar-search {
-            display: none; align-items: center; gap: 8px;
-            background: var(--bg); border-radius: 10px; padding: 7px 12px;
-            min-width: 240px; transition: background .3s;
+        /* ── Recherche centrale ── */
+        .topbar-search-wrap {
+            display: flex; align-items: center; justify-content: center;
         }
-        .topbar-search.open { display: flex; }
+        .topbar-search {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--bg); border-radius: 22px;
+            padding: 8px 16px; width: 320px; max-width: 100%;
+            border: 1.5px solid transparent;
+            transition: background .3s, border-color .2s, box-shadow .2s;
+        }
+        .topbar-search:focus-within {
+            border-color: var(--border);
+            box-shadow: 0 2px 12px rgba(0,0,0,.06);
+        }
+        .topbar-search svg { flex-shrink: 0; width: 14px; height: 14px; color: var(--text-sec); }
         .topbar-search input {
             flex: 1; border: none; outline: none;
             font-size: 14px; background: transparent; color: var(--text);
         }
-        .topbar-search-cancel {
-            font-size: 13px; font-weight: 600; color: var(--text-sec);
-            cursor: pointer; white-space: nowrap;
+        .topbar-search input::placeholder { color: var(--text-sec); }
+        .topbar-search-clear {
+            font-size: 12px; font-weight: 600; color: var(--text-sec);
+            cursor: pointer; white-space: nowrap; opacity: 0;
+            transition: opacity .15s;
         }
+        .topbar-search:focus-within .topbar-search-clear { opacity: 1; }
+
+        .topbar-right { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
     }
 
     /* ═══════════════════════════════════════════════
@@ -105,7 +121,7 @@
             height: calc(100vh - var(--topbar-h));
             overflow-y: auto;
             padding: 32px 24px 28px 40px;
-            display: flex; flex-direction: column; gap: 16px;
+            display: flex; flex-direction: column; gap: 24px;
             border-right: 1px solid var(--border);
         }
         .col-right {
@@ -247,7 +263,9 @@
         margin-top: 1px;
     }
     .insight-icon { width: 18px; height: 18px; color: var(--integrale); }
-    .insight-text { font-size: 14px; line-height: 1.6; font-weight: 500; color: var(--text); padding-top: 8px; }
+    .insight-text { font-size: 14px; line-height: 1.65; font-weight: 500; color: var(--text); padding-top: 6px; }
+    .insight-text strong { font-weight: 700; }
+    .insight-text br + span { display: block; margin-top: 4px; font-size: 13px; }
 
     /* ═══════════════════════════════════════════════
        DISTRIBUTION
@@ -443,53 +461,110 @@
         .player-topbar { padding-top: 12px; }
     }
 
+    /* ── TOPBAR DU LECTEUR ── */
     .player-topbar {
-        width: 100%; display: flex; justify-content: space-between; align-items: center;
-        padding: 20px 24px 10px;
+        width: 100%; display: flex; justify-content: flex-end; align-items: center;
+        padding: 20px 20px 0;
     }
-    .player-topbar-label { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,.5); }
+    .player-topbar-label { display: none; } /* Supprimé pour plus d'épure */
     .player-close-btn {
-        background: rgba(255,255,255,.12); color: #fff; border: none; border-radius: 50%;
-        width: 36px; height: 36px; cursor: pointer;
+        background: rgba(255,255,255,.14); color: #fff; border: none; border-radius: 50%;
+        width: 34px; height: 34px; cursor: pointer;
         display: flex; align-items: center; justify-content: center;
         flex-shrink: 0; transition: background .2s;
     }
-    .player-close-btn:hover { background: rgba(255,255,255,.22); }
-    .player-close-btn svg { width: 18px; height: 18px; }
+    .player-close-btn:hover { background: rgba(255,255,255,.24); }
+    .player-close-btn svg { width: 16px; height: 16px; }
 
-    .player-cover-wrap { width: 100%; max-width: 300px; padding: 0 20px; margin: 20px 0; }
-    .player-cover { width: 100%; aspect-ratio: 1; border-radius: 20px; object-fit: cover; box-shadow: 0 15px 40px rgba(0,0,0,.5); border: 1px solid rgba(255,255,255,.08); }
+    /* ── POCHETTE ── */
+    .player-cover-wrap {
+        width: 100%; max-width: 260px; padding: 0;
+        margin: 24px auto 20px;
+    }
+    .player-cover {
+        width: 100%; aspect-ratio: 1; border-radius: 22px; object-fit: cover;
+        box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 4px 16px rgba(0,0,0,.3);
+        border: 1px solid rgba(255,255,255,.06);
+        transition: transform .3s ease;
+    }
+    .player-cover:hover { transform: scale(1.02); }
 
-    .player-info { width: 100%; padding: 0 28px; text-align: center; margin-bottom: 28px; }
-    .player-title { font-size: 22px; font-weight: 700; line-height: 1.25; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .player-podcast-name { font-size: 16px; color: rgba(255,255,255,.55); font-weight: 500; }
+    /* ── INFOS ── */
+    .player-info { width: 100%; padding: 0 24px; text-align: center; margin-bottom: 24px; }
+    .player-title {
+        font-size: 20px; font-weight: 700; line-height: 1.25; margin-bottom: 6px;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .player-podcast-name { font-size: 14px; color: rgba(255,255,255,.5); font-weight: 500; }
 
-    .player-controls { width: 100%; padding: 0 28px; display: flex; flex-direction: column; gap: 20px; }
-    .progress-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: rgba(255,255,255,.55); }
-    .progress-slider { flex: 1; -webkit-appearance: none; height: 4px; border-radius: 2px; background: rgba(255,255,255,.2); outline: none; cursor: pointer; }
-    .progress-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #fff; cursor: pointer; }
+    /* ── CONTRÔLES ── */
+    .player-controls { width: 100%; padding: 0 24px; display: flex; flex-direction: column; gap: 16px; }
 
-    .player-btns { display: flex; justify-content: space-between; align-items: center; padding: 0 8px; }
-    .btn-skip15 { background: none; border: none; color: #fff; cursor: pointer; padding: 6px; opacity: .75; display: flex; align-items: center; justify-content: center; transition: opacity .2s; }
-    .btn-skip15:hover { opacity: 1; }
-    .btn-skip15:active { transform: scale(.92); }
-    .btn-skip15 svg { width: 32px; height: 32px; }
-    .btn-prevnext { background: none; border: none; color: #fff; cursor: pointer; padding: 8px; opacity: .75; transition: opacity .2s; }
-    .btn-prevnext:hover { opacity: 1; }
-    .btn-prevnext svg { width: 28px; height: 28px; fill: currentColor; }
-    .btn-playpause { width: 66px; height: 66px; border-radius: 50%; background: #fff; color: #000; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.35); transition: transform .1s; }
-    .btn-playpause:active { transform: scale(.94); }
-    .btn-playpause svg { width: 28px; height: 28px; fill: currentColor; }
+    /* Barre de progression améliorée */
+    .progress-row { display: flex; flex-direction: column; gap: 6px; }
+    .progress-slider {
+        width: 100%; -webkit-appearance: none; height: 5px; border-radius: 3px;
+        background: rgba(255,255,255,.2); outline: none; cursor: pointer;
+        transition: height .15s;
+    }
+    .progress-slider:hover { height: 7px; }
+    .progress-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+        background: #fff; cursor: pointer;
+        box-shadow: 0 1px 6px rgba(0,0,0,.4);
+    }
+    .progress-times {
+        display: flex; justify-content: space-between;
+        font-size: 11px; color: rgba(255,255,255,.45); font-weight: 500;
+    }
 
-    .queue-section { width: 100%; padding: 20px; margin-top: 20px; background: rgba(0,0,0,.3); border-radius: 24px 24px 0 0; flex: 1; }
-    .queue-heading { font-size: 13px; font-weight: 600; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; padding-left: 8px; }
-    .queue-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; cursor: pointer; transition: background .2s; }
-    .queue-item:hover, .queue-item.playing { background: rgba(255,255,255,.1); }
-    .queue-img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+    /* Boutons */
+    .player-btns {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 4px 0 8px;
+    }
+    .btn-skip15 {
+        background: rgba(255,255,255,.08); border: none; color: #fff;
+        cursor: pointer; padding: 0; opacity: .9;
+        display: flex; align-items: center; justify-content: center;
+        width: 46px; height: 46px; border-radius: 50%;
+        transition: background .15s, transform .1s;
+    }
+    .btn-skip15:hover { background: rgba(255,255,255,.16); }
+    .btn-skip15:active { transform: scale(.9); }
+    .btn-skip15 svg { width: 30px; height: 30px; }
+    .btn-prevnext {
+        background: none; border: none; color: rgba(255,255,255,.8);
+        cursor: pointer; padding: 8px; transition: opacity .2s, transform .1s;
+    }
+    .btn-prevnext:hover { color: #fff; }
+    .btn-prevnext:active { transform: scale(.9); }
+    .btn-prevnext svg { width: 26px; height: 26px; fill: currentColor; }
+    .btn-playpause {
+        width: 70px; height: 70px; border-radius: 50%; background: #fff; color: #000; border: none;
+        display: flex; align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 4px 20px rgba(0,0,0,.4); transition: transform .15s, box-shadow .15s;
+    }
+    .btn-playpause:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(0,0,0,.5); }
+    .btn-playpause:active { transform: scale(.93); }
+    .btn-playpause svg { width: 30px; height: 30px; fill: currentColor; }
+
+    /* ── FILE D'ATTENTE ── */
+    .queue-section {
+        width: 100%; padding: 18px 16px; margin-top: 16px;
+        background: rgba(0,0,0,.25); border-radius: 20px 20px 0 0; flex: 1;
+    }
+    .queue-heading {
+        font-size: 11px; font-weight: 700; color: rgba(255,255,255,.35);
+        text-transform: uppercase; letter-spacing: .8px; margin-bottom: 12px; padding-left: 6px;
+    }
+    .queue-item { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-radius: 12px; cursor: pointer; transition: background .2s; }
+    .queue-item:hover, .queue-item.playing { background: rgba(255,255,255,.09); }
+    .queue-img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
     .queue-info { flex: 1; overflow: hidden; }
     .queue-track { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .queue-pod { font-size: 12px; color: rgba(255,255,255,.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .queue-playing-icon { width: 16px; height: 16px; color: var(--green); display: none; flex-shrink: 0; }
+    .queue-pod { font-size: 12px; color: rgba(255,255,255,.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .queue-playing-icon { width: 14px; height: 14px; color: var(--green); display: none; flex-shrink: 0; }
     .queue-item.playing .queue-playing-icon { display: block; }
 
     /* ═══════════════════════════════════════════════
@@ -560,9 +635,10 @@
 
 <!-- ═══ TOPBAR DESKTOP ══════════════════════════ -->
 <div class="topbar" id="topbar">
+    <!-- Gauche : titre + filtre -->
     <div class="topbar-left">
         <span class="topbar-title">🎙 Podcast Tracker</span>
-        <div class="filter-wrap" style="min-width:200px">
+        <div class="filter-wrap" style="min-width:190px">
             <select id="filter-desktop" class="filter-select" onchange="syncFilter('desktop')">
                 <option value="all">Tous</option>
                 <option value="comptabilise">Comptabilisés</option>
@@ -574,17 +650,20 @@
             <svg class="filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
     </div>
-    <div class="topbar-right">
-        <div id="topbar-search-bar" class="topbar-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--text-sec);flex-shrink:0"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input id="search-desktop" type="text" placeholder="Rechercher…" oninput="updateView()">
-            <span class="topbar-search-cancel" onclick="closeDesktopSearch()">Annuler</span>
+    <!-- Centre : barre de recherche permanente -->
+    <div class="topbar-search-wrap">
+        <div class="topbar-search" id="topbar-search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input id="search-desktop" type="text" placeholder="Rechercher un podcast…" oninput="updateView()">
+            <span class="topbar-search-clear" onclick="clearDesktopSearch()">Effacer</span>
         </div>
+    </div>
+    <!-- Droite : icônes -->
+    <div class="topbar-right">
         <div class="icon-group">
-            <svg onclick="toggleDesktopSearch()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Rechercher"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <svg onclick="openPlayer()"          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Lecteur"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-            <svg onclick="openHistory()"         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Calendrier"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            <svg onclick="openSettings()"        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Paramètres"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/></svg>
+            <svg onclick="openPlayer()"   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Lecteur"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <svg onclick="openHistory()"  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Calendrier"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <svg onclick="openSettings()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" title="Paramètres"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9"/></svg>
         </div>
     </div>
 </div>
@@ -737,9 +816,11 @@
         </div>
         <div class="player-controls">
             <div class="progress-row">
-                <span id="time-current">0:00</span>
                 <input id="player-progress" type="range" class="progress-slider" value="0" min="0" max="100">
-                <span id="time-total">0:00</span>
+                <div class="progress-times">
+                    <span id="time-current">0:00</span>
+                    <span id="time-total">0:00</span>
+                </div>
             </div>
             <div class="player-btns">
                 <button class="btn-skip15" onclick="seekAudio(-15)" title="-15s">
@@ -906,7 +987,7 @@ function loadConfig() {
 function initApp() {
     if(localStorage.getItem('darkMode')==='true'){document.body.classList.add('dark');document.getElementById('dark-toggle').checked=true;}
     if(localStorage.getItem('autoRefresh')==='true'){document.getElementById('autorefresh-toggle').checked=true;startAutoRefresh();}
-    loadCache() ? (updateView(), fetchFeeds(true)) : fetchFeeds(false);
+    loadCache() ? (updateView(), preloadFirstTrack(), fetchFeeds(true)) : fetchFeeds(false);
     audio.addEventListener('play',  syncIcons);
     audio.addEventListener('pause', syncIcons);
     audio.addEventListener('ended', playNext);
@@ -972,7 +1053,7 @@ async function fetchFeeds(bg=false, isPtr=false) {
     tPods.sort((a,b)=>b.latestPubDate-a.latestPubDate);
     tHist.sort((a,b)=>b.date-a.date);
     if(bg&&!isPtr){ freshData=tPods; freshHistory=tHist; saveCache(tPods,tHist); if(JSON.stringify(tHist)!==JSON.stringify(historyData)) document.getElementById('update-badge').classList.add('show'); }
-    else { allData=tPods; historyData=tHist; saveCache(tPods,tHist); updateView(); }
+    else { allData=tPods; historyData=tHist; saveCache(tPods,tHist); updateView(); preloadFirstTrack(); }
 }
 
 function applyUpdate(){ allData=freshData; historyData=freshHistory; document.getElementById('update-badge').classList.remove('show'); updateView(); window.scrollTo({top:0,behavior:'smooth'}); }
@@ -985,7 +1066,7 @@ function syncFilter(src) {
     updateView();
 }
 function getFilter(){ return document.getElementById(isDesktop()?'filter-desktop':'filter-mobile').value; }
-function getSearch(){ return(document.getElementById(isDesktop()?'search-desktop':'search-mobile')?.value||'').toLowerCase(); }
+function getSearch(){ return((isDesktop()?document.getElementById('search-desktop'):document.getElementById('search-mobile'))?.value||'').toLowerCase(); }
 
 function updateView() {
     const flt=getFilter(), srch=getSearch();
@@ -1030,9 +1111,22 @@ function buildChart(graph,grand){
 
 function buildInsight(graph){
     const td=graph[8].count, yd=graph[7].count, bd=graph[6].count;
-    let txt=yd>bd?`Hausse d'activité hier (${yd}) vs avant-hier (${bd}). `:yd<bd?`Baisse hier (${yd} sorties) contre ${bd} avant-hier. `:yd>0?`Activité stable hier (${yd} sorties). `:'';
-    txt+=td>yd&&td>0?`Aujourd'hui s'annonce fort avec déjà ${td} publication(s) !`:td===0?`Journée encore calme aujourd'hui.`:`La dynamique continue avec ${td} publication(s).`;
-    return `<div class="insight-card"><div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div><div class="insight-text">${txt}</div></div>`;
+    const diff=yd-bd, pct=bd>0?Math.round(Math.abs(diff)/bd*100):0;
+    const dow=new Date().toLocaleDateString('fr-FR',{weekday:'long'});
+    // Phrase sur hier
+    let p1='';
+    if(yd>bd && bd>0) p1=`Hier, ${yd} épisodes publiés — soit +${pct}% par rapport à avant-hier.`;
+    else if(yd<bd && bd>0) p1=`Légère accalmie hier avec ${yd} sorties (−${pct}% vs avant-hier).`;
+    else if(yd===bd && yd>0) p1=`Rythme régulier : ${yd} épisodes hier, comme avant-hier.`;
+    else if(yd===0) p1=`Silence radio hier — aucune sortie enregistrée.`;
+    else p1=`${yd} épisodes ont été publiés hier.`;
+    // Phrase sur aujourd'hui
+    let p2='';
+    if(td===0) p2=`Ce ${dow}, le compteur est encore à zéro — la journée commence.`;
+    else if(td>=yd&&yd>0) p2=`Ce ${dow} part fort : déjà ${td} publication${td>1?'s':''} au compteur !`;
+    else if(td>0&&td<yd) p2=`Ce ${dow}, ${td} publication${td>1?'s':''} pour l'instant — à suivre.`;
+    else p2=`${td} épisode${td>1?'s':''} publié${td>1?'s':''} aujourd'hui.`;
+    return \`<div class="insight-card"><div class="insight-icon-wrap"><svg class="insight-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 11.26a1 1 0 0 1 .28.69 4.19 4.19 0 0 1-3.64 4.05 1.7 1.7 0 0 0-1.46-1.46 4.19 4.19 0 0 1-4.05-3.64 1 1 0 0 1 .69-.28h8.18z"/><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7z"/></svg></div><div class="insight-text"><strong>${p1}</strong><br><span style="opacity:.75">${p2}</span></div></div>\`;
 }
 
 function buildDistribution(pods){
@@ -1109,6 +1203,29 @@ function renderHistory(){
     setTimeout(()=>body.querySelector('.cal-day.active')?.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}),50);
 }
 
+/* ═══ PRÉ-CHARGEMENT MINI-PLAYER ═══ */
+function preloadFirstTrack(){
+    // Charge le 1er épisode d'aujourd'hui dans le mini-player sans démarrer l'audio
+    const ts=DAYS[8];
+    const todayEps=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); return d.getTime()===ts; });
+    if(!todayEps.length){
+        // Fallback : dernier épisode toutes dates confondues
+        const fallback=historyData[0];
+        if(!fallback) return;
+        if(!fallback.image) fallback.image=BLANK;
+        document.getElementById('mini-title').textContent=fallback.title;
+        document.getElementById('mini-podcast').textContent=fallback.podcast;
+        document.getElementById('mini-cover').src=fallback.image;
+    } else {
+        const ep=todayEps[0];
+        if(!ep.image) ep.image=BLANK;
+        document.getElementById('mini-title').textContent=ep.title;
+        document.getElementById('mini-podcast').textContent=ep.podcast;
+        document.getElementById('mini-cover').src=ep.image;
+    }
+    document.getElementById('mini-player').classList.add('visible');
+}
+
 /* ═══ LECTEUR ═══ */
 function openPlayer(){
     const ts=DAYS[8];
@@ -1162,8 +1279,7 @@ function toggleMobileSearch(){
     open?(document.getElementById('search-mobile').value='', updateView()):document.getElementById('search-mobile').focus();
 }
 function closeMobileSearch(){ document.getElementById('search-mobile-bar').style.display='none'; document.getElementById('search-mobile').value=''; updateView(); }
-function toggleDesktopSearch(){ const bar=document.getElementById('topbar-search-bar'); bar.classList.toggle('open'); bar.classList.contains('open')?document.getElementById('search-desktop').focus():(document.getElementById('search-desktop').value='',updateView()); }
-function closeDesktopSearch(){ document.getElementById('topbar-search-bar').classList.remove('open'); document.getElementById('search-desktop').value=''; updateView(); }
+function clearDesktopSearch(){ document.getElementById('search-desktop').value=''; updateView(); document.getElementById('search-desktop').focus(); }
 
 /* ═══ PULL-TO-REFRESH ═══ */
 let ptY0=0, ptY=0, ptOn=false;
