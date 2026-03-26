@@ -106,8 +106,13 @@
     .layout {
         width: 100%; max-width: 440px; margin: 0 auto;
         padding: 20px 20px 100px;
+        display: flex; flex-direction: column; gap: 0;
+    }
+    /* Espacement entre chaque carte sur mobile */
+    #stats-zone, #list-zone {
         display: flex; flex-direction: column; gap: 20px;
     }
+    #stats-zone { margin-bottom: 20px; }
 
     @media (min-width: 900px) {
         .layout {
@@ -1205,36 +1210,54 @@ function renderHistory(){
 
 /* ═══ PRÉ-CHARGEMENT MINI-PLAYER ═══ */
 function preloadFirstTrack(){
-    // Charge le 1er épisode d'aujourd'hui dans le mini-player sans démarrer l'audio
+    // Construit la queue d'aujourd'hui (ou fallback) et charge le 1er épisode
     const ts=DAYS[8];
-    const todayEps=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); return d.getTime()===ts; });
-    if(!todayEps.length){
-        // Fallback : dernier épisode toutes dates confondues
-        const fallback=historyData[0];
-        if(!fallback) return;
-        if(!fallback.image) fallback.image=BLANK;
-        document.getElementById('mini-title').textContent=fallback.title;
-        document.getElementById('mini-podcast').textContent=fallback.podcast;
-        document.getElementById('mini-cover').src=fallback.image;
-    } else {
-        const ep=todayEps[0];
-        if(!ep.image) ep.image=BLANK;
-        document.getElementById('mini-title').textContent=ep.title;
-        document.getElementById('mini-podcast').textContent=ep.podcast;
-        document.getElementById('mini-cover').src=ep.image;
+    let eps=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); return d.getTime()===ts; });
+    if(!eps.length) eps=historyData.slice(0,20); // fallback : 20 derniers
+    if(!eps.length) return;
+    eps.forEach(ep=>{ if(!ep.image) ep.image=BLANK; });
+    // Peupler la queue globale seulement si pas déjà en cours de lecture
+    if(trackIdx===-1){
+        queue=eps;
+        trackIdx=0;
     }
+    const ep=queue[trackIdx];
+    // Mettre à jour le mini-player
+    document.getElementById('mini-title').textContent=ep.title;
+    document.getElementById('mini-podcast').textContent=ep.podcast;
+    document.getElementById('mini-cover').src=ep.image;
+    // Mettre à jour le lecteur plein écran
+    document.getElementById('player-title').textContent=ep.title;
+    document.getElementById('player-podcast-name').textContent=ep.podcast;
+    document.getElementById('player-cover').src=ep.image;
+    // Charger l'audio (sans démarrer)
+    audio.src=ep.url;
+    audio.load();
+    // Afficher le mini-player
     document.getElementById('mini-player').classList.add('visible');
 }
 
 /* ═══ LECTEUR ═══ */
 function openPlayer(){
     const ts=DAYS[8];
-    queue=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); if(!ep.image) ep.image=BLANK; return d.getTime()===ts; });
-    if(!queue.length){ alert("Aucun épisode publié aujourd'hui !"); return; }
+    const todayEps=historyData.filter(ep=>{ const d=new Date(ep.date); d.setHours(0,0,0,0); if(!ep.image) ep.image=BLANK; return d.getTime()===ts; });
+    if(todayEps.length){
+        // Reconstruire la queue du jour sans perdre l'index courant
+        const curUrl=trackIdx>=0&&queue[trackIdx]?queue[trackIdx].url:null;
+        queue=todayEps;
+        if(curUrl){
+            const newIdx=queue.findIndex(e=>e.url===curUrl);
+            trackIdx=newIdx>=0?newIdx:0;
+        } else {
+            trackIdx=0;
+        }
+    } else if(!queue.length){
+        alert("Aucun épisode disponible !"); return;
+    }
     document.getElementById('mini-player').classList.remove('visible');
+    loadTrack(trackIdx);
     renderQueue();
     document.getElementById('player-modal').classList.add('open');
-    if(trackIdx===-1) loadTrack(0);
 }
 function closePlayer(){ document.getElementById('player-modal').classList.remove('open'); if(trackIdx!==-1) document.getElementById('mini-player').classList.add('visible'); }
 function closeMiniPlayer(e){ e?.stopPropagation(); audio.pause(); document.getElementById('mini-player').classList.remove('visible'); }
