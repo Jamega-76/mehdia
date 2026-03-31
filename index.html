@@ -573,7 +573,7 @@
     .queue-item.playing .queue-playing-icon { display: block; }
 
     /* ═══════════════════════════════════════════════
-       MINI PLAYER
+       MINI PLAYER (mobile flottant)
     ═══════════════════════════════════════════════ */
     .mini-player {
         display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -587,17 +587,9 @@
     .mini-player:hover { box-shadow: 0 12px 40px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.08); }
     .mini-player.visible { display: flex; }
 
+    /* Sur desktop, le mini-player flottant est caché — remplacé par la player-card */
     @media (min-width: 900px) {
-        .mini-player {
-            position: static; transform: none;
-            width: 100%; max-width: 100%;
-            margin-top: auto;
-            border-radius: 18px;
-            padding: 12px 12px 12px 14px;
-        }
-        .mini-player.visible { display: flex; }
-        .col-left .mini-player { display: flex; }
-        .col-left .mini-player:not(.visible) { display: none; }
+        .mini-player { display: none !important; }
     }
 
     .mini-cover {
@@ -617,7 +609,6 @@
     .mini-btn:hover { background: var(--bg); }
     .mini-btn:active { opacity: .5; }
     .mini-btn svg { width: 20px; height: 20px; }
-    /* Bouton play/pause : cercle accentué */
     .mini-btn-play {
         background: var(--text) !important; color: var(--bg) !important;
         width: 36px; height: 36px; border-radius: 50%;
@@ -627,12 +618,151 @@
     .mini-btn-play:hover { transform: scale(1.06); box-shadow: 0 4px 12px rgba(0,0,0,.28); }
     .mini-btn-play:active { transform: scale(.94); }
     .mini-btn-play svg { width: 18px; height: 18px; }
-    /* Séparateur + bouton fermer */
     .mini-btn-close {
         color: var(--text-sec); margin-left: 2px;
         border-left: 1px solid var(--border); padding-left: 8px;
     }
     .mini-btn-close svg { width: 16px; height: 16px; }
+
+    /* ═══════════════════════════════════════════════
+       PLAYER CARD (desktop col-left uniquement)
+    ═══════════════════════════════════════════════ */
+    .player-card {
+        display: none; /* caché sur mobile */
+        flex-direction: column;
+        background: #1e1e22;
+        border-radius: 22px;
+        overflow: hidden;
+        margin-top: auto;
+        box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    @media (min-width: 900px) {
+        .player-card { display: flex; }
+    }
+    body.dark .player-card { background: #111113; }
+
+    /* Zone player principale */
+    .pc-player {
+        padding: 18px 18px 14px;
+        display: flex; flex-direction: column; gap: 12px;
+    }
+
+    /* Ligne cover + infos + contrôles */
+    .pc-top {
+        display: flex; align-items: center; gap: 14px;
+    }
+    .pc-cover {
+        width: 52px; height: 52px; border-radius: 12px;
+        object-fit: cover; flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,.35);
+    }
+    .pc-info { flex: 1; overflow: hidden; }
+    .pc-title {
+        font-size: 13px; font-weight: 700; color: #fff;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        letter-spacing: -.1px;
+    }
+    .pc-podcast {
+        font-size: 11px; color: rgba(255,255,255,.45);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        margin-top: 2px;
+    }
+
+    /* Barre de progression */
+    .pc-progress-wrap { display: flex; flex-direction: column; gap: 4px; }
+    .pc-slider {
+        width: 100%; -webkit-appearance: none; height: 3px; border-radius: 2px;
+        background: rgba(255,255,255,.18); outline: none; cursor: pointer;
+        transition: height .15s;
+    }
+    .pc-slider:hover { height: 5px; }
+    .pc-slider::-webkit-slider-thumb {
+        -webkit-appearance: none; width: 13px; height: 13px;
+        border-radius: 50%; background: #fff; cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    }
+    .pc-times {
+        display: flex; justify-content: space-between;
+        font-size: 10px; color: rgba(255,255,255,.35); font-weight: 500;
+    }
+
+    /* Boutons */
+    .pc-btns {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0 4px;
+    }
+    .pc-btn {
+        background: none; border: none; color: rgba(255,255,255,.75);
+        cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; transition: color .15s, background .15s, transform .1s;
+    }
+    .pc-btn:hover { color: #fff; background: rgba(255,255,255,.1); }
+    .pc-btn:active { transform: scale(.88); }
+    .pc-btn svg { width: 20px; height: 20px; }
+    .pc-btn-skip svg { width: 26px; height: 26px; }
+    .pc-btn-play {
+        background: #fff; color: #111 !important;
+        width: 44px; height: 44px; border-radius: 50%;
+        box-shadow: 0 3px 12px rgba(0,0,0,.4);
+        transition: transform .15s, box-shadow .15s !important;
+    }
+    .pc-btn-play:hover { transform: scale(1.07) !important; box-shadow: 0 5px 18px rgba(0,0,0,.5) !important; background: #fff !important; }
+    .pc-btn-play:active { transform: scale(.93) !important; }
+    .pc-btn-play svg { width: 20px; height: 20px; fill: #111; }
+
+    /* Séparateur */
+    .pc-divider {
+        height: 1px; background: rgba(255,255,255,.08); margin: 0;
+    }
+
+    /* Mini-liste des 5 derniers */
+    .pc-queue {
+        padding: 10px 14px 4px;
+    }
+    .pc-queue-heading {
+        font-size: 10px; font-weight: 700; color: rgba(255,255,255,.3);
+        text-transform: uppercase; letter-spacing: .8px;
+        margin-bottom: 6px;
+    }
+    .pc-queue-item {
+        display: flex; align-items: center; gap: 10px;
+        padding: 7px 6px; border-radius: 10px; cursor: pointer;
+        transition: background .15s;
+    }
+    .pc-queue-item:hover { background: rgba(255,255,255,.07); }
+    .pc-queue-item.pc-playing { background: rgba(255,255,255,.1); }
+    .pc-queue-img {
+        width: 34px; height: 34px; border-radius: 8px;
+        object-fit: cover; flex-shrink: 0;
+    }
+    .pc-queue-info { flex: 1; overflow: hidden; }
+    .pc-queue-title {
+        font-size: 12px; font-weight: 600; color: #fff;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .pc-queue-pod {
+        font-size: 11px; color: rgba(255,255,255,.38);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        margin-top: 1px;
+    }
+    .pc-playing-dot {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: var(--green); flex-shrink: 0; display: none;
+    }
+    .pc-queue-item.pc-playing .pc-playing-dot { display: block; }
+
+    /* Bouton "Tous les épisodes" */
+    .pc-all-btn {
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+        margin: 8px 14px 14px;
+        padding: 9px 0; border-radius: 12px;
+        background: rgba(255,255,255,.08); border: none; color: rgba(255,255,255,.6);
+        font-size: 12px; font-weight: 600; cursor: pointer;
+        transition: background .15s, color .15s;
+        letter-spacing: .2px;
+    }
+    .pc-all-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
+    .pc-all-btn svg { width: 14px; height: 14px; }
 
     </style>
 </head>
@@ -734,7 +864,7 @@
 
 </div><!-- /.layout -->
 
-<!-- ═══ MINI PLAYER ════════════════════════════ -->
+<!-- ═══ MINI PLAYER mobile flottant ════════════ -->
 <div class="mini-player" id="mini-player" onclick="openPlayer()">
     <img id="mini-cover" class="mini-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMzMzMiLz48L3N2Zz4=" alt="cover">
     <div class="mini-info">
@@ -756,6 +886,60 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
     </div>
+</div>
+
+<!-- ═══ PLAYER CARD desktop (col-left) ══════════ -->
+<div class="player-card" id="player-card">
+    <!-- Zone player -->
+    <div class="pc-player">
+        <!-- Cover + infos -->
+        <div class="pc-top">
+            <img id="pc-cover" class="pc-cover" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiMyMjIiLz48L3N2Zz4=" alt="cover">
+            <div class="pc-info">
+                <div id="pc-title"   class="pc-title">–</div>
+                <div id="pc-podcast" class="pc-podcast">–</div>
+            </div>
+        </div>
+        <!-- Barre de progression -->
+        <div class="pc-progress-wrap">
+            <input id="pc-progress" type="range" class="pc-slider" value="0" min="0" max="100">
+            <div class="pc-times">
+                <span id="pc-time-cur">0:00</span>
+                <span id="pc-time-tot">0:00</span>
+            </div>
+        </div>
+        <!-- Boutons -->
+        <div class="pc-btns">
+            <button class="pc-btn pc-btn-skip" onclick="seekAudio(-15)" title="-15s">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+            </button>
+            <button class="pc-btn" onclick="playPrev()" title="Précédent">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 20L9 12l10-8v16zM5 19h2V5H5v14z"/></svg>
+            </button>
+            <button class="pc-btn pc-btn-play" onclick="togglePlay()" aria-label="Lecture/Pause">
+                <svg id="pc-icon-play"  viewBox="0 0 24 24" fill="#111"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="pc-icon-pause" viewBox="0 0 24 24" fill="#111" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            <button class="pc-btn" onclick="playNext()" title="Suivant">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 4l10 8-10 8V4zm14 15h-2V5h2v14z"/></svg>
+            </button>
+            <button class="pc-btn pc-btn-skip" onclick="seekAudio(15)" title="+15s">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><text x="12" y="16" font-size="7" font-weight="bold" text-anchor="middle" fill="currentColor" stroke="none">15</text></svg>
+            </button>
+        </div>
+    </div>
+    <!-- Séparateur -->
+    <div class="pc-divider"></div>
+    <!-- Mini-liste -->
+    <div class="pc-queue">
+        <div class="pc-queue-heading">Dernières publications</div>
+        <div id="pc-queue-list"></div>
+    </div>
+    <!-- Bouton tous les épisodes -->
+    <button class="pc-all-btn" onclick="openPlayer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Tous les épisodes du jour
+    </button>
 </div>
 
 <!-- ═══ MODAL PARAMÈTRES ════════════════════════ -->
@@ -998,6 +1182,7 @@ function initApp() {
     audio.addEventListener('ended', playNext);
     audio.addEventListener('timeupdate', onTimeUpdate);
     document.getElementById('player-progress').addEventListener('input', e=>{ if(audio.duration) audio.currentTime=(e.target.value/100)*audio.duration; });
+    document.getElementById('pc-progress').addEventListener('input', e=>{ if(audio.duration) audio.currentTime=(e.target.value/100)*audio.duration; });
     placeMiniPlayer();
     window.addEventListener('resize', ()=>{ placeMiniPlayer(); updateView(); });
 }
@@ -1005,8 +1190,17 @@ function initApp() {
 function isDesktop() { return window.innerWidth >= 900; }
 
 function placeMiniPlayer() {
-    const mp=document.getElementById('mini-player'), col=document.getElementById('col-left');
-    isDesktop() ? (mp.parentElement!==col && col.appendChild(mp)) : (mp.parentElement!==document.body && document.body.appendChild(mp));
+    const mp=document.getElementById('mini-player');
+    const pc=document.getElementById('player-card');
+    const col=document.getElementById('col-left');
+    if(isDesktop()){
+        // Player-card dans col-left
+        if(pc.parentElement!==col) col.appendChild(pc);
+        // Mini-player flottant reste dans body
+        if(mp.parentElement!==document.body) document.body.appendChild(mp);
+    } else {
+        if(mp.parentElement!==document.body) document.body.appendChild(mp);
+    }
 }
 
 /* ═══ CACHE ═══ */
@@ -1230,11 +1424,33 @@ function preloadFirstTrack(){
     document.getElementById('player-title').textContent=ep.title;
     document.getElementById('player-podcast-name').textContent=ep.podcast;
     document.getElementById('player-cover').src=ep.image;
+    // Mettre à jour la player-card desktop
+    document.getElementById('pc-cover').src=ep.image;
+    document.getElementById('pc-title').textContent=ep.title;
+    document.getElementById('pc-podcast').textContent=ep.podcast;
     // Charger l'audio (sans démarrer)
     audio.src=ep.url;
     audio.load();
-    // Afficher le mini-player
+    // Mini-liste dans la player-card
+    renderPcQueue();
+    // Afficher le mini-player (mobile)
     document.getElementById('mini-player').classList.add('visible');
+}
+
+function renderPcQueue(){
+    // Affiche les 5 premiers épisodes de la queue dans la player-card
+    const list=document.getElementById('pc-queue-list');
+    if(!list) return;
+    const items=queue.slice(0,5);
+    list.innerHTML=items.map((t,i)=>`
+        <div class="pc-queue-item${i===trackIdx?' pc-playing':''}" onclick="loadTrack(${i});audio.play()">
+            <img src="${t.image}" class="pc-queue-img" alt="">
+            <div class="pc-queue-info">
+                <div class="pc-queue-title">${t.title}</div>
+                <div class="pc-queue-pod">${t.podcast}</div>
+            </div>
+            <span class="pc-playing-dot"></span>
+        </div>`).join('');
 }
 
 /* ═══ LECTEUR ═══ */
@@ -1269,8 +1485,13 @@ function loadTrack(idx){
     document.getElementById('mini-title').textContent=t.title;
     document.getElementById('mini-podcast').textContent=t.podcast;
     document.getElementById('mini-cover').src=t.image;
+    // Player card desktop
+    document.getElementById('pc-cover').src=t.image;
+    document.getElementById('pc-title').textContent=t.title;
+    document.getElementById('pc-podcast').textContent=t.podcast;
     audio.src=t.url; audio.load();
     renderQueue();
+    renderPcQueue();
     document.getElementById('player-modal').scrollTo({top:0,behavior:'smooth'});
 }
 function togglePlay(){ if(!queue.length) return; if(trackIdx===-1) loadTrack(0); audio.paused?audio.play():audio.pause(); }
@@ -1283,12 +1504,19 @@ function syncIcons(){
     document.getElementById('icon-pause').style.display=pl?'':'none';
     document.getElementById('mini-icon-play').style.display=pl?'none':'';
     document.getElementById('mini-icon-pause').style.display=pl?'':'none';
+    document.getElementById('pc-icon-play').style.display=pl?'none':'';
+    document.getElementById('pc-icon-pause').style.display=pl?'':'none';
 }
 function onTimeUpdate(){
     if(!audio.duration) return;
-    document.getElementById('player-progress').value=(audio.currentTime/audio.duration)*100;
+    const pct=(audio.currentTime/audio.duration)*100;
+    document.getElementById('player-progress').value=pct;
     document.getElementById('time-current').textContent=fmt(audio.currentTime);
     document.getElementById('time-total').textContent=fmt(audio.duration);
+    // Player card desktop
+    document.getElementById('pc-progress').value=pct;
+    document.getElementById('pc-time-cur').textContent=fmt(audio.currentTime);
+    document.getElementById('pc-time-tot').textContent=fmt(audio.duration);
 }
 function fmt(s){ return isNaN(s)?'0:00':`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`; }
 function renderQueue(){
