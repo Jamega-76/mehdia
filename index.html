@@ -370,7 +370,7 @@
     /* ═══════════════════════════════════════════════
        CHARGEMENT
     ═══════════════════════════════════════════════ */
-    .loading-box { background: var(--card); border-radius: var(--r-lg); padding: 30px 24px; text-align: center; transition: background .3s; }
+    .loading-box { display: none; background: var(--card); border-radius: var(--r-lg); padding: 30px 24px; text-align: center; transition: background .3s; }
     .loading-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
     .progress-track { width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
     .progress-fill { height: 100%; width: 0%; background: var(--text); border-radius: 4px; transition: width .1s ease-out; }
@@ -1526,7 +1526,7 @@ let favorites = JSON.parse(localStorage.getItem('favorites')||'[]');
 let currentSpeed = parseFloat(localStorage.getItem('playbackSpeed')||'1');
 let savedPositions = JSON.parse(localStorage.getItem('savedPositions')||'{}');
 let compareWeeks = false; // toggle comparaison semaines
-let currentSort = 'episodes'; // 'episodes' | 'name' | 'recent'
+let currentSort = 'recent'; // 'episodes' | 'name' | 'recent'
 let currentView = 'day';      // 'day' | 'week'
 const GOAL_WEEKLY = 500;
 const SILENCE_DAYS = 7;
@@ -1553,7 +1553,15 @@ function loadConfig() {
 function initApp() {
     if(localStorage.getItem('darkMode')==='true'){document.body.classList.add('dark');document.getElementById('dark-toggle').checked=true;}
     if(localStorage.getItem('autoRefresh')==='true'){document.getElementById('autorefresh-toggle').checked=true;startAutoRefresh();}
-    loadCache() ? (updateView(), preloadFirstTrack(), fetchFeeds(true)) : fetchFeeds(false);
+    if(loadCache()){
+        const lb=document.getElementById('loading-box');
+        if(lb) lb.style.display='none';
+        updateView(); preloadFirstTrack(); fetchFeeds(true);
+    } else {
+        const lb=document.getElementById('loading-box');
+        if(lb) lb.style.display='block';
+        fetchFeeds(false);
+    }
     audio.addEventListener('play',  syncIcons);
     audio.addEventListener('pause', syncIcons);
     audio.addEventListener('ended', playNext);
