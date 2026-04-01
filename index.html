@@ -1713,14 +1713,33 @@ function toggleFav(url, e){
 
 /* ═══ OBJECTIF HEBDO ═══ */
 function buildGoal(pods){
-    // Total de la semaine = 7 derniers jours (indices 2-8)
-    let weekTotal=0;
-    pods.forEach(p=>{ for(let i=2;i<9;i++) weekTotal+=(p.dailyCounts[i]||0); });
-    const pct=Math.min(Math.round((weekTotal/GOAL_WEEKLY)*100),100);
-    const cls=pct>=100?'done':pct>=70?'':'warning';
+    // Semaine calendaire : lundi → dimanche de la semaine en cours
+    const now = new Date();
+    // getDay() : 0=dim, 1=lun … 6=sam → ramener à lundi=0
+    const dow = (now.getDay() + 6) % 7; // 0=lun, 1=mar … 6=dim
+    // Début de semaine = ce lundi à minuit
+    const monStart = new Date(now);
+    monStart.setHours(0,0,0,0);
+    monStart.setDate(monStart.getDate() - dow);
+
+    // Quels indices de DAYS tombent dans cette semaine ?
+    let weekTotal = 0;
+    pods.forEach(p => {
+        DAYS.forEach((ts, i) => {
+            if(ts >= monStart.getTime()) weekTotal += (p.dailyCounts[i] || 0);
+        });
+    });
+
+    const pct = Math.min(Math.round((weekTotal / GOAL_WEEKLY) * 100), 100);
+    const cls = pct >= 100 ? 'done' : pct >= 70 ? '' : 'warning';
+    // Libellé période
+    const monLabel = monStart.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+    const sunEnd = new Date(monStart); sunEnd.setDate(sunEnd.getDate() + 6);
+    const sunLabel = sunEnd.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+
     return `<div class="goal-card">
         <div class="goal-header">
-            <span class="goal-label">Objectif semaine</span>
+            <span class="goal-label">Objectif semaine <span style="font-weight:400;opacity:.6">(${monLabel} – ${sunLabel})</span></span>
             <span class="goal-values">${weekTotal} <span class="goal-pct">/ ${GOAL_WEEKLY} (${pct}%)</span></span>
         </div>
         <div class="goal-bar-bg"><div class="goal-bar-fill ${cls}" style="width:${pct}%"></div></div>
@@ -1948,7 +1967,7 @@ function renderList(pods){ try {
     // Alertes silence (seulement en vue "Tous")
     const silenceHtml=buildSilenceAlerts(pods);
 
-    let h=sortBar+silenceHtml+`<div class="podcast-list">`;
+    let h=sortBar+`<div class="podcast-list">`;
     if(!sorted.length){
         h+=`<div style="padding:20px;text-align:center;color:var(--text-sec)">Aucun épisode pour cette sélection.</div>`;
     } else {
@@ -1981,7 +2000,7 @@ function renderList(pods){ try {
             </div>`;
         });
     }
-    document.getElementById('list-zone').innerHTML=h+'</div>';
+    document.getElementById('list-zone').innerHTML=h+'</div>'+silenceHtml;
     } catch(err) { console.error('renderList crash:', err); }
 }
 
