@@ -70,6 +70,13 @@
             position: sticky; top: 0; z-index: 300;
             gap: 0;
         }
+        /* Séparateur visuel entre logo et nav */
+        .topbar-left::after {
+            content: '';
+            display: block; width: 1px; height: 16px;
+            background: var(--border); margin: 0 12px;
+            opacity: .6;
+        }
         body.dark .topbar {
             background: rgba(28,28,30,.82);
             border-bottom-color: rgba(255,255,255,.08);
@@ -93,7 +100,8 @@
 
         /* ── Centre : navigation texte ── */
         .topbar-center {
-            flex: 1; display: flex; align-items: center; justify-content: center; gap: 2px;
+            display: flex; align-items: center; gap: 2px;
+            flex: 1; /* prend l'espace dispo, pousse .topbar-right à droite */
         }
         .topbar-nav-btn {
             display: flex; align-items: center; gap: 0;
